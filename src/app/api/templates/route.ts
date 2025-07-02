@@ -9,7 +9,7 @@ export async function GET(req: NextRequest) {
       orderBy: { createdAt: 'desc' },
     });
     return NextResponse.json({ templates });
-  } catch (error: any) {
-    return NextResponse.json({ error: '获取模板失败', detail: error?.message || String(error) }, { status: 500 });
+  } catch (error: unknown) {
+    return NextResponse.json({ error: '获取模板失败', detail: error instanceof Error ? error.message : String(error) }, { status: 500 });
   }
 } 

@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, FormEvent, ChangeEvent } from "react";
 import Image from "next/image";
 import dynamic from "next/dynamic";
 
@@ -25,7 +25,7 @@ const emptyForm = {
   content: "",
   excerpt: "",
   coverImage: "",
-  tags: [],
+  tags: "",
   isPublished: true,
 };
 
@@ -61,7 +61,7 @@ function ImageUploadButton({ onInsert }: { onInsert: (url: string) => void }) {
 export default function AdminBlogPage() {
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [showForm, setShowForm] = useState(false);
-  const [form, setForm] = useState<any>(emptyForm);
+  const [form, setForm] = useState<Omit<BlogPost, 'id'|'createdAt'|'updatedAt'|'authorId'|'author'|'likeCount'>>({ ...emptyForm });
   const [editId, setEditId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -74,8 +74,8 @@ export default function AdminBlogPage() {
 
   useEffect(() => { fetchPosts(); }, []);
 
-  const handleEdit = (post: any) => {
-    setForm({ ...post, tags: post.tags ? JSON.parse(post.tags) : [] });
+  const handleEdit = (post: BlogPost) => {
+    setForm({ ...post, tags: post.tags || "" });
     setEditId(post.id);
     setShowForm(true);
   };
@@ -88,16 +88,17 @@ export default function AdminBlogPage() {
     fetchPosts();
   };
 
-  const handleSubmit = async (e: any) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
     setError("");
     const method = editId ? "PUT" : "POST";
     const url = editId ? `/api/admin/blog/${editId}` : "/api/admin/blog";
+    const tagsString = JSON.stringify((form.tags ?? "").split(",").map(t => t.trim()).filter(Boolean));
     const res = await fetch(url, {
       method,
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...form, tags: form.tags }),
+      body: JSON.stringify({ ...form, tags: tagsString }),
     });
     const data = await res.json();
     setLoading(false);
@@ -144,7 +145,7 @@ export default function AdminBlogPage() {
             </div>
             <div className="mb-2 text-gray-700 line-clamp-2 min-h-[36px]">{post.excerpt}</div>
             <div className="flex flex-wrap gap-2 mb-2">
-              {post.tags && JSON.parse(post.tags).map((tag: string) => (
+              {(form.tags ?? "").split(",").map(tag => tag.trim()).filter(Boolean).map(tag => (
                 <span key={tag} className="px-2 py-1 bg-blue-50 rounded-full text-xs text-blue-700 border border-blue-100 font-medium">#{tag}</span>
               ))}
             </div>
@@ -200,15 +201,11 @@ export default function AdminBlogPage() {
                 type="text"
                 placeholder="标签（逗号分隔）"
                 className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-200"
-                value={form.tags.join(",")}
-                onChange={e => setForm({ ...form, tags: e.target.value.split(",").map((t: string) => t.trim()).filter(Boolean) })}
+                value={form.tags ?? ""}
+                onChange={e => setForm({ ...form, tags: e.target.value })}
               />
               <div>
                 <ImageUploadButton onInsert={url => setForm({ ...form, coverImage: url })} />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">作者头像（仅演示）</label>
-                <ImageUploadButton onInsert={url => setForm({ ...form, avatar: url })} />
               </div>
               <textarea
                 placeholder="摘要"

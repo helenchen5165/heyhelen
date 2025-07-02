@@ -18,9 +18,11 @@ async function getUserFromToken() {
 }
 
 // 获取评论
-export async function GET(req: NextRequest, { params }: { params: { slug: string } }) {
+export async function GET(req: NextRequest) {
   try {
-    const post = await prisma.post.findUnique({ where: { slug: params.slug } });
+    const url = new URL(req.url);
+    const slug = url.pathname.split('/')[4]; // /api/blog/[slug]/comments
+    const post = await prisma.post.findUnique({ where: { slug } });
     if (!post) {
       return NextResponse.json({ error: '文章不存在' }, { status: 404 });
     }
@@ -32,14 +34,16 @@ export async function GET(req: NextRequest, { params }: { params: { slug: string
     });
 
     return NextResponse.json({ comments });
-  } catch (error: any) {
-    return NextResponse.json({ error: '获取评论失败', detail: error?.message || String(error) }, { status: 500 });
+  } catch (error: unknown) {
+    return NextResponse.json({ error: '获取评论失败', detail: error instanceof Error ? error.message : String(error) }, { status: 500 });
   }
 }
 
 // 发表评论
-export async function POST(req: NextRequest, { params }: { params: { slug: string } }) {
+export async function POST(req: NextRequest) {
   try {
+    const url = new URL(req.url);
+    const slug = url.pathname.split('/')[4];
     const user = await getUserFromToken();
     if (!user) {
       return NextResponse.json({ error: '请先登录' }, { status: 401 });
@@ -50,7 +54,7 @@ export async function POST(req: NextRequest, { params }: { params: { slug: strin
       return NextResponse.json({ error: '评论内容不能为空' }, { status: 400 });
     }
 
-    const post = await prisma.post.findUnique({ where: { slug: params.slug } });
+    const post = await prisma.post.findUnique({ where: { slug } });
     if (!post) {
       return NextResponse.json({ error: '文章不存在' }, { status: 404 });
     }
@@ -61,7 +65,7 @@ export async function POST(req: NextRequest, { params }: { params: { slug: strin
     });
 
     return NextResponse.json({ comment });
-  } catch (error: any) {
-    return NextResponse.json({ error: '发表评论失败', detail: error?.message || String(error) }, { status: 500 });
+  } catch (error: unknown) {
+    return NextResponse.json({ error: '发表评论失败', detail: error instanceof Error ? error.message : String(error) }, { status: 500 });
   }
 } 

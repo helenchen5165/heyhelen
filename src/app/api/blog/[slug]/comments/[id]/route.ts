@@ -18,15 +18,17 @@ async function getUserFromToken() {
 }
 
 // 删除评论
-export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(req: NextRequest) {
   try {
+    const url = new URL(req.url);
+    const id = url.pathname.split('/').pop()!;
     const user = await getUserFromToken();
     if (!user) {
       return NextResponse.json({ error: '请先登录' }, { status: 401 });
     }
 
     const comment = await prisma.comment.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: { user: true }
     });
 
@@ -39,9 +41,9 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
       return NextResponse.json({ error: '无权限删除此评论' }, { status: 403 });
     }
 
-    await prisma.comment.delete({ where: { id: params.id } });
+    await prisma.comment.delete({ where: { id } });
     return NextResponse.json({ message: '删除成功' });
-  } catch (error: any) {
-    return NextResponse.json({ error: '删除评论失败', detail: error?.message || String(error) }, { status: 500 });
+  } catch (error: unknown) {
+    return NextResponse.json({ error: '删除评论失败', detail: error instanceof Error ? error.message : String(error) }, { status: 500 });
   }
 } 

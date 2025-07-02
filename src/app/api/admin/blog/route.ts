@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
     if (Array.isArray(data.tags)) data.tags = JSON.stringify(data.tags);
     const post = await prisma.post.create({ data });
     return NextResponse.json({ post });
-  } catch (error: any) {
-    return NextResponse.json({ error: '新增博客失败', detail: error?.message || String(error) }, { status: 500 });
+  } catch (error: unknown) {
+    return NextResponse.json({ error: '新增博客失败', detail: error instanceof Error ? error.message : String(error) }, { status: 500 });
   }
 } 

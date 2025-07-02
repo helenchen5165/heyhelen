@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
     if (Array.isArray(data.tags)) data.tags = JSON.stringify(data.tags);
     const tpl = await prisma.template.create({ data });
     return NextResponse.json({ template: tpl });
-  } catch (error: any) {
-    return NextResponse.json({ error: '新增模板失败', detail: error?.message || String(error) }, { status: 500 });
+  } catch (error: unknown) {
+    return NextResponse.json({ error: '新增模板失败', detail: error instanceof Error ? error.message : String(error) }, { status: 500 });
   }
 } 

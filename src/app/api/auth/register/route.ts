@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
       },
     });
     return NextResponse.json({ message: '注册成功', user: { id: user.id, username: user.username, email: user.email } });
-  } catch (error: any) {
-    return NextResponse.json({ error: '注册失败', detail: error?.message || String(error) }, { status: 500 });
+  } catch (error: unknown) {
+    return NextResponse.json({ error: '注册失败', detail: error instanceof Error ? error.message : String(error) }, { status: 500 });
   }
 } 

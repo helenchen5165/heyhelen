@@ -1,12 +1,26 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, FormEvent } from "react";
 import Image from "next/image";
+
+type Template = {
+  id: string;
+  title: string;
+  description: string;
+  category: string;
+  tags: string;
+  imageUrl: string;
+  downloadUrl: string;
+  price: number;
+  isFree: boolean;
+  isPublished: boolean;
+  authorId: string;
+};
 
 const emptyForm = {
   title: "",
   description: "",
   category: "",
-  tags: [],
+  tags: "",
   imageUrl: "",
   downloadUrl: "",
   price: 0,
@@ -15,9 +29,9 @@ const emptyForm = {
 };
 
 export default function AdminTemplatesPage() {
-  const [templates, setTemplates] = useState<any[]>([]);
+  const [templates, setTemplates] = useState<Template[]>([]);
   const [showForm, setShowForm] = useState(false);
-  const [form, setForm] = useState<any>(emptyForm);
+  const [form, setForm] = useState<Omit<Template, 'id'|'authorId'>>({ ...emptyForm });
   const [editId, setEditId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -30,8 +44,8 @@ export default function AdminTemplatesPage() {
 
   useEffect(() => { fetchTemplates(); }, []);
 
-  const handleEdit = (tpl: any) => {
-    setForm({ ...tpl, tags: tpl.tags ? JSON.parse(tpl.tags) : [] });
+  const handleEdit = (tpl: Template) => {
+    setForm({ ...tpl, tags: tpl.tags || "" });
     setEditId(tpl.id);
     setShowForm(true);
   };
@@ -44,16 +58,17 @@ export default function AdminTemplatesPage() {
     fetchTemplates();
   };
 
-  const handleSubmit = async (e: any) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
     setError("");
     const method = editId ? "PUT" : "POST";
     const url = editId ? `/api/admin/templates/${editId}` : "/api/admin/templates";
+    const tagsString = JSON.stringify((form.tags ?? "").split(",").map(t => t.trim()).filter(Boolean));
     const res = await fetch(url, {
       method,
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...form, tags: form.tags }),
+      body: JSON.stringify({ ...form, tags: tagsString }),
     });
     const data = await res.json();
     setLoading(false);
@@ -79,7 +94,7 @@ export default function AdminTemplatesPage() {
         </button>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
-        {templates.map((tpl: any) => (
+        {templates.map((tpl: Template) => (
           <div key={tpl.id} className="bg-white rounded-2xl shadow-md border border-gray-200 p-6 flex flex-col relative">
             {tpl.imageUrl && (
               <Image src={tpl.imageUrl} alt={tpl.title} width={400} height={200} className="rounded-lg mb-4 object-cover w-full h-40" />
@@ -88,7 +103,7 @@ export default function AdminTemplatesPage() {
             <div className="text-gray-500 text-sm mb-2">{tpl.category}</div>
             <div className="mb-2 text-gray-700 line-clamp-2">{tpl.description}</div>
             <div className="flex flex-wrap gap-2 mb-2">
-              {tpl.tags && JSON.parse(tpl.tags).map((tag: string) => (
+              {(tpl.tags ?? "").length > 0 && JSON.parse(tpl.tags).map((tag: string) => (
                 <span key={tag} className="px-2 py-1 bg-gray-100 rounded text-xs">{tag}</span>
               ))}
             </div>
@@ -147,8 +162,8 @@ export default function AdminTemplatesPage() {
                 type="text"
                 placeholder="标签（逗号分隔）"
                 className="w-full px-4 py-2 rounded-lg border border-gray-300"
-                value={form.tags.join(",")}
-                onChange={e => setForm({ ...form, tags: e.target.value.split(",").map((t: string) => t.trim()).filter(Boolean) })}
+                value={form.tags ?? ""}
+                onChange={e => setForm({ ...form, tags: e.target.value })}
               />
               <input
                 type="text"

@@ -3,9 +3,11 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-export async function GET(req: NextRequest, { params }: { params: { slug: string } }) {
+export async function GET(req: NextRequest) {
+  const url = new URL(req.url);
+  const slug = url.pathname.split('/')[4]; // /api/blog/[slug]
   const post = await prisma.post.findUnique({
-    where: { slug: params.slug, isPublished: true },
+    where: { slug, isPublished: true },
     include: { author: { select: { username: true, name: true } } },
   });
   if (!post) {
