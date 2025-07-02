@@ -35,7 +35,7 @@ export default function ProfileEditPage() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    fetch("/api/user/profile")
+    fetch("/api/user/profile", { credentials: "include" })
       .then(res => res.json())
       .then(data => {
         if (data.user) setForm({ name: data.user.name || "", avatar: data.user.avatar || "", bio: data.user.bio || "" });
@@ -51,6 +51,7 @@ export default function ProfileEditPage() {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(form),
+      credentials: "include"
     });
     const data = await res.json();
     setLoading(false);

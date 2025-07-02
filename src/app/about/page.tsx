@@ -6,7 +6,7 @@ export default function AboutPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/api/user/profile")
+    fetch("/api/user/profile", { credentials: "include" })
       .then(res => res.json())
       .then(data => {
         setUser(data.user);
