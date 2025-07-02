@@ -9,8 +9,8 @@ function ImageUploadButton({ onInsert, current }: { onInsert: (url: string) => v
     setUploading(true);
     const formData = new FormData();
     formData.append("file", file);
-    formData.append("upload_preset", "ml_default");
-    const res = await fetch("https://api.cloudinary.com/v1_1/demo/image/upload", { method: "POST", body: formData });
+    formData.append("upload_preset", "heyhelen");
+    const res = await fetch("https://api.cloudinary.com/v1_1/h3l3n_ch3n/image/upload", { method: "POST", body: formData });
     const data = await res.json();
     setUploading(false);
     if (data.secure_url) {
