@@ -2,8 +2,22 @@
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 
+type Template = {
+  id: string;
+  title: string;
+  description: string;
+  category: string;
+  tags: string;
+  imageUrl: string;
+  downloadUrl: string;
+  price: number;
+  isFree: boolean;
+  isPublished: boolean;
+  authorId: string;
+};
+
 export default function TemplatesPage() {
-  const [templates, setTemplates] = useState<any[]>([]);
+  const [templates, setTemplates] = useState<Template[]>([]);
   const [search, setSearch] = useState("");
   const [tag, setTag] = useState("");
 
@@ -14,9 +28,9 @@ export default function TemplatesPage() {
   }, []);
 
   // 提取所有标签
-  const allTags = Array.from(new Set<string>(templates.flatMap((t: any) => t.tags ? JSON.parse(t.tags) : [])));
+  const allTags = Array.from(new Set<string>(templates.flatMap((t: Template) => t.tags ? JSON.parse(t.tags) : [])));
   // 搜索和筛选
-  const filtered = templates.filter((t: any) => {
+  const filtered = templates.filter((t: Template) => {
     const matchSearch = t.title.includes(search) || (t.description || "").includes(search);
     const matchTag = !tag || (t.tags && JSON.parse(t.tags).includes(tag));
     return matchSearch && matchTag;
@@ -45,7 +59,7 @@ export default function TemplatesPage() {
         </select>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
-        {filtered.map((tpl: any) => (
+        {filtered.map((tpl: Template) => (
           <div key={tpl.id} className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6 flex flex-col relative hover:shadow-xl transition">
             {tpl.imageUrl && (
               <Image src={tpl.imageUrl} alt={tpl.title} width={400} height={200} className="rounded-lg mb-4 object-cover w-full h-40 border border-gray-200" />

@@ -3,6 +3,22 @@ import React, { useEffect, useState, useRef } from "react";
 import Image from "next/image";
 import dynamic from "next/dynamic";
 
+type BlogPost = {
+  id: string;
+  title: string;
+  slug: string;
+  content: string;
+  excerpt?: string;
+  coverImage?: string;
+  tags?: string;
+  isPublished: boolean;
+  likeCount: number;
+  createdAt: string;
+  updatedAt: string;
+  authorId: string;
+  author?: { username: string; name?: string };
+};
+
 const emptyForm = {
   title: "",
   slug: "",
@@ -43,7 +59,7 @@ function ImageUploadButton({ onInsert }: { onInsert: (url: string) => void }) {
 }
 
 export default function AdminBlogPage() {
-  const [posts, setPosts] = useState<any[]>([]);
+  const [posts, setPosts] = useState<BlogPost[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState<any>(emptyForm);
   const [editId, setEditId] = useState<string | null>(null);

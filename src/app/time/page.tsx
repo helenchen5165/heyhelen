@@ -4,8 +4,18 @@ import { PieChart, Pie, Cell, Tooltip, Legend, RadialBarChart, RadialBar } from 
 
 const COLORS = ["#60a5fa", "#34d399", "#f87171"];
 
+type TimeSummary = {
+  total: number;
+  recorded: number;
+  efficiency: number;
+  production: number;
+  investment: number;
+  expense: number;
+  unrecorded: number;
+};
+
 export default function TimePage() {
-  const [summary, setSummary] = useState<any>(null);
+  const [summary, setSummary] = useState<TimeSummary | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

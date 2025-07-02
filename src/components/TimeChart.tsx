@@ -2,6 +2,23 @@
 import React from "react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 
+type TimeSummary = {
+  total: number;
+  recorded: number;
+  efficiency: number;
+  production: number;
+  investment: number;
+  expense: number;
+  unrecorded: number;
+};
+type TimeDayData = {
+  date: string;
+  production: number;
+  investment: number;
+  expense: number;
+  unutilized: number;
+};
+
 // data: [{ date: string, duration: number }]
 export default function TimeChart({ data }: { data: any[] }) {
   // 按日期聚合
