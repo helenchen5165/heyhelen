@@ -6,11 +6,38 @@ import dynamic from "next/dynamic";
 
 const Chart = dynamic(() => import("../components/TimeChart"), { ssr: false });
 
+type BlogSummary = {
+  id: string;
+  title: string;
+  slug: string;
+  excerpt?: string;
+  coverImage?: string;
+  tags?: string;
+  likeCount: number;
+  createdAt: string;
+  author?: { username: string; name?: string };
+};
+type TemplateSummary = {
+  id: string;
+  title: string;
+  description: string;
+  category: string;
+  tags: string;
+  imageUrl: string;
+  downloadUrl: string;
+  price: number;
+  isFree: boolean;
+  isPublished: boolean;
+  authorId: string;
+};
+
 export default function HomePage() {
   // 精选内容
   const [template, setTemplate] = useState<any>(null);
   const [blog, setBlog] = useState<any>(null);
   const [timelog, setTimelog] = useState<any[]>([]);
+  const [blogs, setBlogs] = useState<BlogSummary[]>([]);
+  const [templates, setTemplates] = useState<TemplateSummary[]>([]);
 
   useEffect(() => {
     fetch("/api/templates").then(res => res.json()).then(data => setTemplate(data.templates?.[0] || null));
