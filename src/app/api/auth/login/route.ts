@@ -24,7 +24,13 @@ export async function POST(req: NextRequest) {
     const token = jwt.sign({ id: user.id, username: user.username, role: user.role }, JWT_SECRET, { expiresIn: '7d' });
     // 设置 Cookie
     const response = NextResponse.json({ message: '登录成功', user: { id: user.id, username: user.username, email: user.email } });
-    response.cookies.set('token', token, { httpOnly: true, path: '/', maxAge: 60 * 60 * 24 * 7 });
+    response.cookies.set('token', token, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'lax',
+      path: '/',
+      maxAge: 60 * 60 * 24 * 7
+    });
     return response;
   } catch (error: unknown) {
     return NextResponse.json({ error: '登录失败', detail: error instanceof Error ? error.message : String(error) }, { status: 500 });
