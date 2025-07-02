@@ -1,0 +1,139 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// 用户表
+model User {
+  id        String   @id @default(cuid())
+  username  String   @unique
+  email     String   @unique
+  password  String
+  name      String?
+  avatar    String?
+  role      Role     @default(USER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // 关联
+  templates Template[]
+  posts     Post[]
+  timeRecords TimeRecord[]
+  likes     Like[]
+  comments  Comment[]
+
+  @@map("users")
+}
+
+// 角色枚举
+enum Role {
+  ADMIN
+  USER
+}
+
+// Notion模板表
+model Template {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  category    String
+  tags        String?  // JSON格式存储标签
+  imageUrl    String?
+  downloadUrl String?
+  price       Float    @default(0)
+  isFree      Boolean  @default(true)
+  downloads   Int      @default(0)
+  rating      Float    @default(0)
+  isPublished Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // 关联
+  authorId String
+  author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@map("templates")
+}
+
+// 博客文章表
+model Post {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  content     String
+  excerpt     String?
+  coverImage  String?
+  tags        String?  // JSON格式存储标签
+  isPublished Boolean  @default(false)
+  viewCount   Int      @default(0)
+  likeCount   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // 关联
+  authorId String
+  author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  likes    Like[]
+  comments Comment[]
+
+  @@map("posts")
+}
+
+// 时间记录表
+model TimeRecord {
+  id          String   @id @default(cuid())
+  date        DateTime
+  category    String   // 工作、学习、运动、休息等
+  activity    String
+  duration    Int      // 分钟
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // 关联
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("time_records")
+}
+
+// 点赞表
+model Like {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+
+  // 关联
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  postId String
+  post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, postId])
+  @@map("likes")
+}
+
+// 评论表
+model Comment {
+  id        String   @id @default(cuid())
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // 关联
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  postId String
+  post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@map("comments")
+}
