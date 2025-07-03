@@ -2,6 +2,7 @@
 import React, { useEffect, useState, useRef, FormEvent, ChangeEvent } from "react";
 import Image from "next/image";
 import dynamic from "next/dynamic";
+import "@mantine/rte/styles.css";
 
 type BlogPost = {
   id: string;
