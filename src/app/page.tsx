@@ -38,11 +38,19 @@ export default function HomePage() {
   const [timelog, setTimelog] = useState<any[]>([]);
   const [blogs, setBlogs] = useState<BlogSummary[]>([]);
   const [templates, setTemplates] = useState<TemplateSummary[]>([]);
+  const [user, setUser] = useState<any>(null);
+  const [userLoading, setUserLoading] = useState(true);
 
   useEffect(() => {
     fetch("/api/templates").then(res => res.json()).then(data => setTemplate(data.templates?.[0] || null));
     fetch("/api/blog").then(res => res.json()).then(data => setBlog(data.posts?.[0] || null));
     fetch("/api/timelog?limit=30").then(res => res.json()).then(data => setTimelog(data.records || []));
+    fetch("/api/user/profile", { credentials: "include" })
+      .then(res => res.json())
+      .then(data => {
+        setUser(data.user);
+        setUserLoading(false);
+      });
   }, []);
 
   return (
@@ -61,9 +69,17 @@ export default function HomePage() {
 
       {/* 个人简介横幅 */}
       <section className="flex flex-col items-center justify-center py-12 border-b border-gray-200 bg-white">
-        <Image src="/avatar.png" alt="avatar" width={96} height={96} className="rounded-full mb-4 border border-gray-300" />
-        <h1 className="text-3xl font-bold mb-2 text-black">Helen Chen</h1>
-        <p className="text-gray-700 text-lg">Notion 爱好者 | 个人成长记录者 | 分享高效生活方式</p>
+        {userLoading ? (
+          <div className="w-24 h-24 rounded-full bg-gray-100 flex items-center justify-center mb-4 border border-gray-300 animate-pulse" />
+        ) : user && user.avatar ? (
+          <img src={user.avatar} alt={user.name || user.username} width={96} height={96} className="rounded-full mb-4 border border-gray-300 object-cover w-24 h-24" />
+        ) : (
+          <div className="w-24 h-24 rounded-full bg-gray-100 flex items-center justify-center mb-4 border border-gray-300 text-4xl text-gray-400">
+            {user?.name?.[0] || user?.username?.[0] || "?"}
+          </div>
+        )}
+        <h1 className="text-3xl font-bold mb-2 text-black">{user?.name || user?.username || "Helen Chen"}</h1>
+        <p className="text-gray-700 text-lg">{user?.bio || "Notion 爱好者 | 个人成长记录者 | 分享高效生活方式"}</p>
       </section>
 
       {/* Notion模板横幅 */}
