@@ -1,6 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
+import "@mantine/rte/styles.css";
 
 export default function BlogPage() {
   const [posts, setPosts] = useState<any[]>([]);
