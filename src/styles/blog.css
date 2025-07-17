@@ -1,0 +1,140 @@
+/* Blog-specific responsive styles */
+
+/* Clamp text to improve mobile reading */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Blog content styles */
+.blog-content {
+  line-height: 1.7;
+}
+
+.blog-content h1,
+.blog-content h2,
+.blog-content h3 {
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+.blog-content p {
+  margin-bottom: 1rem;
+}
+
+.blog-content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  margin: 1rem 0;
+}
+
+.blog-content code {
+  background-color: #f3f4f6;
+  padding: 0.125rem 0.25rem;
+  border-radius: 0.25rem;
+  font-size: 0.875em;
+}
+
+.blog-content pre {
+  background-color: #1f2937;
+  color: #f9fafb;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  overflow-x: auto;
+  margin: 1rem 0;
+}
+
+.blog-content blockquote {
+  border-left: 4px solid #3b82f6;
+  padding-left: 1rem;
+  margin: 1rem 0;
+  font-style: italic;
+  color: #6b7280;
+}
+
+/* Mobile-specific improvements */
+@media (max-width: 640px) {
+  .blog-content {
+    font-size: 14px;
+    line-height: 1.6;
+  }
+  
+  .blog-content h1 {
+    font-size: 1.5rem;
+  }
+  
+  .blog-content h2 {
+    font-size: 1.25rem;
+  }
+  
+  .blog-content h3 {
+    font-size: 1.125rem;
+  }
+  
+  .blog-content pre {
+    padding: 0.75rem;
+    font-size: 12px;
+  }
+  
+  .blog-content code {
+    font-size: 12px;
+  }
+}
+
+/* Smooth scrolling for pagination */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Loading spinner improvements */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* Hover effects for better mobile experience */
+@media (hover: hover) {
+  .group:hover .group-hover\:scale-105 {
+    transform: scale(1.05);
+  }
+  
+  .hover\:-translate-y-1:hover {
+    transform: translateY(-0.25rem);
+  }
+}
+
+/* Touch-friendly buttons */
+@media (max-width: 640px) {
+  button, 
+  .button,
+  input[type="submit"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  select {
+    min-height: 40px;
+  }
+  
+  input[type="text"],
+  input[type="search"],
+  textarea {
+    min-height: 40px;
+  }
+}

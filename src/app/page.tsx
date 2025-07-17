@@ -3,39 +3,10 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import dynamic from "next/dynamic";
+import { BlogSummary, TemplateSummary, TimeLogSummary, UserProfile, CardProps } from '@/types';
 
 const Chart = dynamic(() => import("../components/TimeChart"), { ssr: false });
 
-type BlogSummary = {
-  id: string;
-  title: string;
-  slug: string;
-  excerpt?: string;
-  coverImage?: string;
-  tags?: string;
-  likeCount: number;
-  createdAt: string;
-  author?: { username: string; name?: string };
-};
-type TemplateSummary = {
-  id: string;
-  title: string;
-  description: string;
-  category: string;
-  tags: string;
-  imageUrl: string;
-  downloadUrl: string;
-  price: number;
-  isFree: boolean;
-  isPublished: boolean;
-  authorId: string;
-};
-
-// Card 组件类型注解
-interface CardProps {
-  children: React.ReactNode;
-  className?: string;
-}
 const Card = ({ children, className = "" }: CardProps) => (
   <div className={`bg-white rounded-2xl shadow-md hover:shadow-xl transition-shadow duration-200 p-8 flex flex-col items-start group cursor-pointer ${className}`}>
     {children}
@@ -44,22 +15,38 @@ const Card = ({ children, className = "" }: CardProps) => (
 
 export default function HomePage() {
   // 精选内容
-  const [template, setTemplate] = useState<any>(null);
-  const [blog, setBlog] = useState<any>(null);
-  const [timelog, setTimelog] = useState<any[]>([]);
+  const [template, setTemplate] = useState<TemplateSummary | null>(null);
+  const [blog, setBlog] = useState<BlogSummary | null>(null);
+  const [timelog, setTimelog] = useState<TimeLogSummary[]>([]);
   const [blogs, setBlogs] = useState<BlogSummary[]>([]);
   const [templates, setTemplates] = useState<TemplateSummary[]>([]);
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<UserProfile | null>(null);
   const [userLoading, setUserLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/api/templates").then(res => res.json()).then(data => setTemplate(data.templates?.[0] || null));
-    fetch("/api/blog").then(res => res.json()).then(data => setBlog(data.posts?.[0] || null));
-    fetch("/api/timelog?limit=30").then(res => res.json()).then(data => setTimelog(data.records || []));
+    fetch("/api/templates")
+      .then(res => res.json())
+      .then(data => setTemplate(data.templates?.[0] || null))
+      .catch(error => console.error('Error fetching templates:', error));
+    
+    fetch("/api/blog")
+      .then(res => res.json())
+      .then(data => setBlog(data.posts?.[0] || null))
+      .catch(error => console.error('Error fetching blog:', error));
+    
+    fetch("/api/time/summary?limit=30")
+      .then(res => res.json())
+      .then(data => setTimelog(data.records || []))
+      .catch(error => console.error('Error fetching timelog:', error));
+    
     fetch("/api/user/profile", { credentials: "include" })
       .then(res => res.json())
       .then(data => {
         setUser(data.user);
+        setUserLoading(false);
+      })
+      .catch(error => {
+        console.error('Error fetching user profile:', error);
         setUserLoading(false);
       });
   }, []);

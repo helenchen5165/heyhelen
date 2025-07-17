@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '@/lib/prisma';
+import { asyncHandler, createSuccessResponse } from '@/lib/error-handler';
 
-const prisma = new PrismaClient();
-
-export async function GET() {
+export const GET = asyncHandler(async () => {
   const posts = await prisma.post.findMany({
     where: { isPublished: true },
     orderBy: { createdAt: 'desc' },
     include: { author: { select: { username: true, name: true } } },
   });
-  return NextResponse.json({ posts });
-} 
+  
+  return createSuccessResponse({ posts });
+}); 
