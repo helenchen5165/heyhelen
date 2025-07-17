@@ -38,7 +38,7 @@ const updateRoleSchema = z.object({
 
 export const PATCH = asyncHandler(async (req: NextRequest) => {
   await requireAdmin(req);
-  const data = await validateRequest(req, updateRoleSchema);
+  const data = await validateRequest<{ userId: string; role: 'ADMIN' | 'USER' }>(req, updateRoleSchema);
   
   const user = await prisma.user.update({
     where: { id: data.userId },
