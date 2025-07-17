@@ -118,11 +118,19 @@ export function createErrorResponse(error: string, status: number = 400): NextRe
 
 // 异步错误处理包装器
 export function asyncHandler(
-  fn: (req: any, params?: any) => Promise<NextResponse>
+  fn: (req: any, params?: any) => Promise<NextResponse | Response>
 ) {
   return async (req: any, params?: any): Promise<NextResponse> => {
     try {
-      return await fn(req, params);
+      const result = await fn(req, params);
+      // 如果返回的是Response，转换为NextResponse
+      if (result instanceof Response && !(result instanceof NextResponse)) {
+        return new NextResponse(result.body, {
+          status: result.status,
+          headers: result.headers,
+        });
+      }
+      return result as NextResponse;
     } catch (error) {
       return handleError(error);
     }

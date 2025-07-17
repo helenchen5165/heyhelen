@@ -1,17 +1,21 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import { NextRequest } from 'next/server';
+import { prisma } from '@/lib/prisma';
+import { asyncHandler, createSuccessResponse } from '@/lib/error-handler';
 
-const prisma = new PrismaClient();
-
-export async function GET(req: NextRequest) {
-  const url = new URL(req.url);
-  const slug = url.pathname.split('/')[4]; // /api/blog/[slug]
+export const GET = asyncHandler(async (req: NextRequest, { params }: { params: { slug: string } }) => {
+  const slug = decodeURIComponent(params.slug);
+  
   const post = await prisma.post.findUnique({
     where: { slug, isPublished: true },
     include: { author: { select: { username: true, name: true } } },
   });
+  
   if (!post) {
-    return NextResponse.json({ error: '未找到该文章' }, { status: 404 });
+    return new Response(JSON.stringify({ error: '未找到该文章' }), { 
+      status: 404,
+      headers: { 'Content-Type': 'application/json' }
+    });
   }
-  return NextResponse.json({ post });
-} 
+  
+  return createSuccessResponse({ post });
+}); 

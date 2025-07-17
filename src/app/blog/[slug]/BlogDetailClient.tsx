@@ -40,8 +40,12 @@ export default function BlogDetailClient({ slug }: { slug: string }) {
 
   const fetchPost = async () => {
     try {
-      const res = await fetch(`/api/blog/${slug}`);
-      if (!res.ok) return notFound();
+      const encodedSlug = encodeURIComponent(slug);
+      const res = await fetch(`/api/blog/${encodedSlug}`);
+      if (!res.ok) {
+        if (res.status === 404) return notFound();
+        throw new Error(`HTTP ${res.status}`);
+      }
       const data = await res.json();
       if (data.success) {
         setPost(data.data?.post || data.post);
@@ -57,7 +61,8 @@ export default function BlogDetailClient({ slug }: { slug: string }) {
 
   const fetchComments = async () => {
     try {
-      const res = await fetch(`/api/blog/${slug}/comments`);
+      const encodedSlug = encodeURIComponent(slug);
+      const res = await fetch(`/api/blog/${encodedSlug}/comments`);
       if (res.ok) {
         const data = await res.json();
         setComments(data.success ? (data.data?.comments || []) : (data.comments || []));
@@ -88,7 +93,8 @@ export default function BlogDetailClient({ slug }: { slug: string }) {
     e.preventDefault();
     if (!newComment.trim()) return;
     setLoading(true);
-    const res = await fetch(`/api/blog/${slug}/comments`, {
+    const encodedSlug = encodeURIComponent(slug);
+    const res = await fetch(`/api/blog/${encodedSlug}/comments`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ content: newComment }),
@@ -106,7 +112,8 @@ export default function BlogDetailClient({ slug }: { slug: string }) {
   const handleDeleteComment = async (commentId: string) => {
     if (!confirm("确定要删除此评论吗？")) return;
     setLoading(true);
-    const res = await fetch(`/api/blog/${slug}/comments/${commentId}`, {
+    const encodedSlug = encodeURIComponent(slug);
+    const res = await fetch(`/api/blog/${encodedSlug}/comments/${commentId}`, {
       method: "DELETE",
     });
     setLoading(false);

@@ -25,7 +25,18 @@ export const POST = asyncHandler(async (req: NextRequest) => {
   // 如果没有提供 slug，则从 title 生成
   let slug = data.slug;
   if (!slug) {
-    slug = data.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+    // 生成更好的slug：移除中文字符，保留英文和数字
+    slug = data.title
+      .toLowerCase()
+      .replace(/[\u4e00-\u9fff]/g, '') // 移除中文字符
+      .replace(/[^a-z0-9]+/g, '-') // 替换非字母数字为连字符
+      .replace(/^-+|-+$/g, '') // 移除首尾连字符
+      .substring(0, 50); // 限制长度
+    
+    // 如果slug为空（全是中文），则使用时间戳
+    if (!slug) {
+      slug = `post-${Date.now()}`;
+    }
   }
   
   // 检查 slug 是否唯一
