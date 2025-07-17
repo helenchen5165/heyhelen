@@ -31,7 +31,10 @@ export default function HomePage() {
     
     fetch("/api/blog")
       .then(res => res.json())
-      .then(data => setBlog(data.posts?.[0] || null))
+      .then(data => {
+        console.log('Blog API response:', data); // Debug log
+        setBlog(data.data?.posts?.[0] || data.posts?.[0] || null);
+      })
       .catch(error => console.error('Error fetching blog:', error));
     
     fetch("/api/time/summary?limit=30")

@@ -19,20 +19,23 @@ async function updateUserRole() {
       console.log(`- ${user.username} (${user.email}): ${user.role}`);
     });
 
-    // 更新第一个用户为管理员（通常是注册的第一个用户）
-    if (users.length > 0) {
-      const firstUser = users[0];
-      
-      if (firstUser.role !== 'ADMIN') {
+    // 更新特定用户为管理员
+    const targetUserId = 'cmcmaai560000le04jtxj9ii3'; // heyhelen用户ID
+    const targetUser = users.find(u => u.id === targetUserId);
+    
+    if (targetUser) {
+      if (targetUser.role !== 'ADMIN') {
         await prisma.user.update({
-          where: { id: firstUser.id },
+          where: { id: targetUserId },
           data: { role: 'ADMIN' }
         });
         
-        console.log(`\n✅ Updated ${firstUser.username} to ADMIN role`);
+        console.log(`\n✅ Updated ${targetUser.username} to ADMIN role`);
       } else {
-        console.log(`\n✅ ${firstUser.username} is already an ADMIN`);
+        console.log(`\n✅ ${targetUser.username} is already an ADMIN`);
       }
+    } else {
+      console.log('\n❌ Target user not found');
     }
 
     // 或者，如果你知道具体的用户名，可以直接更新
