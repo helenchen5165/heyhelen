@@ -5,6 +5,9 @@ import { asyncHandler, createSuccessResponse, validateRequest } from '@/lib/erro
 import { blogSchema } from '@/lib/validations';
 import { BlogInput } from '@/lib/validations';
 
+// 强制动态渲染
+export const dynamic = 'force-dynamic';
+
 // 获取所有博客（管理员专用）
 export const GET = asyncHandler(async (req: NextRequest) => {
   await requireAdmin(req);

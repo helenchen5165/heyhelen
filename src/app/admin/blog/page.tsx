@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState, useRef, FormEvent, ChangeEvent } from "react";
 import Image from "next/image";
-import AdvancedBlogEditor from "@/components/AdvancedBlogEditor";
+import RichTextEditor from "@/components/RichTextEditor";
 import ErrorBoundary from "@/components/ErrorBoundary";
 // import "@mantine/rte/styles.css"; // Commented out due to missing styles
 
@@ -378,7 +378,7 @@ export default function AdminBlogPage() {
                     </div>
                   }
                 >
-                  <AdvancedBlogEditor
+                  <RichTextEditor
                     value={form.content}
                     onChange={val => {
                       console.log('内容更新:', val);

@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getUserFromRequest } from '@/lib/auth';
 
+// 强制动态渲染
+export const dynamic = 'force-dynamic';
+
 // 获取当前用户信息
 export async function GET(req: NextRequest) {
   try {
