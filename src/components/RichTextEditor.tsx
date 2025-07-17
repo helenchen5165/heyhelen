@@ -116,156 +116,145 @@ export default function RichTextEditor({
 
   // 粘贴处理 - 保留格式
   const handlePaste = useCallback((e: React.ClipboardEvent) => {
-    e.preventDefault();
-    
-    // 显示粘贴处理状态
     const editor = editorRef.current;
-    if (editor) {
+    if (!editor) {
+      console.warn('编辑器引用不存在');
+      return;
+    }
+    
+    // 检查剪贴板API是否可用
+    if (!e.clipboardData) {
+      console.warn('剪贴板API不可用，使用默认粘贴行为');
+      return;
+    }
+    
+    try {
+      // 获取当前选择区域
       const selection = window.getSelection();
+      if (!selection || selection.rangeCount === 0) {
+        // 如果没有选择区域，先聚焦到编辑器末尾
+        editor.focus();
+        const range = document.createRange();
+        range.selectNodeContents(editor);
+        range.collapse(false);
+        selection?.removeAllRanges();
+        selection?.addRange(range);
+        
+        console.log('已设置焦点到编辑器末尾');
+      }
+      
+      // 阻止默认行为
+      e.preventDefault();
+      
+      // 获取选择范围
       const range = selection?.getRangeAt(0);
-      const tempSpan = document.createElement('span');
-      tempSpan.textContent = '粘贴处理中...';
-      tempSpan.style.color = '#6b7280';
-      tempSpan.style.fontStyle = 'italic';
-      range?.insertNode(tempSpan);
       
-      // 异步处理粘贴内容
-      setTimeout(() => {
-        try {
-          tempSpan.remove();
-          processPasteContent(e);
-        } catch (error) {
-          console.error('粘贴处理失败:', error);
-          tempSpan.textContent = '粘贴失败，请重试';
-          setTimeout(() => tempSpan.remove(), 2000);
+      // 立即处理粘贴内容
+      processPasteContent(e, range);
+    } catch (error) {
+      console.error('粘贴处理失败:', error);
+      // 发生错误时，尝试简单的文本粘贴
+      try {
+        const textData = e.clipboardData.getData('text/plain');
+        if (textData) {
+          document.execCommand('insertText', false, textData);
+          if (editorRef.current) {
+            const content = editorRef.current.innerHTML;
+            onChange(content);
+            setIsDirty(true);
+            setWordCount(calculateWordCount(content));
+          }
         }
-      }, 100);
-    }
-  }, []);
-
-  const processPasteContent = useCallback((e: React.ClipboardEvent) => {
-    // 优先使用HTML格式，然后是纯文本
-    const htmlData = e.clipboardData.getData('text/html');
-    const textData = e.clipboardData.getData('text/plain');
-    
-    if (htmlData) {
-      // 智能清理HTML，保留有用的格式和样式
-      let cleanHtml = htmlData
-        // 移除危险的标签和属性
-        .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
-        .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
-        .replace(/on\w+="[^"]*"/gi, '')
-        .replace(/javascript:/gi, '')
-        // 移除HTML文档结构标签，保留内容
-        .replace(/<html[^>]*>/gi, '')
-        .replace(/<\/html>/gi, '')
-        .replace(/<head[^>]*>[\s\S]*?<\/head>/gi, '')
-        .replace(/<body[^>]*>/gi, '')
-        .replace(/<\/body>/gi, '')
-        .replace(/<article[^>]*>/gi, '')
-        .replace(/<\/article>/gi, '')
-        .replace(/<header[^>]*>[\s\S]*?<\/header>/gi, '')
-        .replace(/<footer[^>]*>[\s\S]*?<\/footer>/gi, '')
-        .replace(/<nav[^>]*>[\s\S]*?<\/nav>/gi, '')
-        // 移除meta和其他非内容标签
-        .replace(/<meta[^>]*>/gi, '')
-        .replace(/<link[^>]*>/gi, '')
-        .replace(/<title[^>]*>[\s\S]*?<\/title>/gi, '')
-        // 保留有用的class属性，移除其他不必要的属性
-        .replace(/\s(id|contenteditable|spellcheck|draggable|tabindex|data-[^=]*|aria-[^=]*)="[^"]*"/gi, '')
-        // 保留颜色和格式相关的class
-        .replace(/\sclass="([^"]*)"/gi, (match, className) => {
-          const usefulClasses = className.split(' ').filter((cls: string) => 
-            cls.includes('highlight-') || 
-            cls.includes('block-color-') ||
-            cls.includes('select-value-color-') ||
-            cls.includes('bulleted-list') ||
-            cls.includes('numbered-list') ||
-            cls.includes('page-title') ||
-            cls.includes('page-description') ||
-            cls === 'callout' ||
-            cls === 'indented' ||
-            cls === 'sans' ||
-            cls === 'serif' ||
-            cls === 'mono' ||
-            // 保留基本格式类
-            cls === 'bold' ||
-            cls === 'italic' ||
-            cls === 'underline'
-          ).join(' ');
-          return usefulClasses ? ` class="${usefulClasses}"` : '';
-        })
-        // 移除空的class属性
-        .replace(/\sclass=""\s*/gi, ' ')
-        // 保留安全的内联样式
-        .replace(/\sstyle="([^"]*)"/gi, (match, styleValue) => {
-          const safeStyles = styleValue.split(';').filter((style: string) => {
-            const prop = style.trim().split(':')[0].toLowerCase();
-            return prop && (
-              prop.includes('color') ||
-              prop.includes('background') ||
-              prop.includes('font-weight') ||
-              prop.includes('font-style') ||
-              prop.includes('font-size') ||
-              prop.includes('text-decoration') ||
-              prop.includes('text-align') ||
-              prop.includes('list-style') ||
-              prop.includes('margin') ||
-              prop.includes('padding')
-            );
-          }).join(';');
-          return safeStyles ? ` style="${safeStyles}"` : '';
-        })
-        // 清理空的style属性
-        .replace(/\sstyle=""\s*/gi, ' ')
-        // 智能提取主要内容区域
-        .replace(/<div[^>]*class="[^"]*page-body[^"]*"[^>]*>([\s\S]*?)<\/div>/gi, '$1')
-        .replace(/<div[^>]*class="[^"]*notion-page-content[^"]*"[^>]*>([\s\S]*?)<\/div>/gi, '$1')
-        .replace(/<main[^>]*>([\s\S]*?)<\/main>/gi, '$1')
-        // 清理多余的空白和空元素
-        .replace(/\s+>/gi, '>')
-        .replace(/<p[^>]*>\s*<\/p>/gi, '')
-        .replace(/<div[^>]*>\s*<\/div>/gi, '')
-        .replace(/\n\s*\n/g, '\n')
-        // 简化复杂的表格结构
-        .replace(/<table[^>]*>[\s\S]*?<\/table>/gi, (match) => {
-          // 如果表格包含有用内容，尝试提取文本
-          const textContent = match.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
-          return textContent ? `<p>${textContent}</p>` : '';
-        });
-
-      // 最终内容清理
-      cleanHtml = cleanHtml
-        .replace(/\s{2,}/g, ' ')
-        .replace(/(<\/[^>]+>)\s+(<[^>]+>)/g, '$1$2')
-        .trim();
-      
-      if (cleanHtml) {
-        document.execCommand('insertHTML', false, cleanHtml);
-      } else if (textData) {
-        // 如果HTML处理后为空，回退到纯文本
-        document.execCommand('insertText', false, textData);
-      }
-    } else if (textData) {
-      // 如果只有纯文本，智能格式化
-      const formattedText = textData
-        .replace(/\n{3,}/g, '\n\n') // 限制最多两个换行
-        .replace(/\n\n/g, '</p><p>') // 段落分隔
-        .replace(/\n/g, '<br>'); // 单换行转为<br>
-      
-      if (formattedText.includes('<p>') || formattedText.includes('<br>')) {
-        document.execCommand('insertHTML', false, `<p>${formattedText}</p>`);
-      } else {
-        document.execCommand('insertText', false, textData);
+      } catch (fallbackError) {
+        console.error('回退粘贴也失败:', fallbackError);
       }
     }
-    
-    // 触发内容变化事件
-    if (editorRef.current) {
-      const content = editorRef.current.innerHTML;
-      onChange(content);
-      setIsDirty(true);
-      setWordCount(calculateWordCount(content));
+  }, [onChange, calculateWordCount]);
+
+  const processPasteContent = useCallback((e: React.ClipboardEvent, range?: Range) => {
+    try {
+      // 获取剪贴板数据
+      const htmlData = e.clipboardData.getData('text/html');
+      const textData = e.clipboardData.getData('text/plain');
+      
+      if (!htmlData && !textData) {
+        console.warn('剪贴板中没有可用的内容');
+        return;
+      }
+      
+      let contentToInsert = '';
+      
+      if (htmlData) {
+        // 简化HTML清理逻辑，专注于安全和实用性
+        contentToInsert = htmlData
+          // 移除危险的标签和属性
+          .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
+          .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
+          .replace(/on\w+="[^"]*"/gi, '')
+          .replace(/javascript:/gi, '')
+          // 移除HTML文档结构标签
+          .replace(/<html[^>]*>|<\/html>|<head[^>]*>[\s\S]*?<\/head>|<body[^>]*>|<\/body>/gi, '')
+          // 保留基本格式标签
+          .replace(/<(\/?)(?:div|span|article|section|header|footer|nav|main)[^>]*>/gi, '<$1p>')
+          // 移除不必要的属性，保留基本格式
+          .replace(/\s(id|class|style|data-[^=]*|aria-[^=]*)="[^"]*"/gi, '')
+          // 清理空白和空元素
+          .replace(/\s+>/gi, '>')
+          .replace(/<p[^>]*>\s*<\/p>/gi, '')
+          .replace(/\n\s*\n/g, '\n')
+          .trim();
+      }
+      
+      // 如果HTML处理后为空或没有HTML，使用纯文本
+      if (!contentToInsert && textData) {
+        // 简单格式化纯文本
+        contentToInsert = textData
+          .replace(/\n{3,}/g, '\n\n') // 限制最多两个换行
+          .replace(/\n\n/g, '</p><p>') // 段落分隔
+          .replace(/\n/g, '<br>'); // 单换行转为<br>
+        
+        if (contentToInsert.includes('<p>') || contentToInsert.includes('<br>')) {
+          contentToInsert = `<p>${contentToInsert}</p>`;
+        }
+      }
+      
+      if (contentToInsert) {
+        // 使用现代API或回退到execCommand
+        if (range) {
+          // 使用提供的range
+          range.deleteContents();
+          range.insertNode(document.createTextNode(''));
+          document.execCommand('insertHTML', false, contentToInsert);
+        } else {
+          // 回退到execCommand
+          document.execCommand('insertHTML', false, contentToInsert);
+        }
+        
+        // 触发内容变化事件
+        if (editorRef.current) {
+          const content = editorRef.current.innerHTML;
+          onChange(content);
+          setIsDirty(true);
+          setWordCount(calculateWordCount(content));
+        }
+      }
+    } catch (error) {
+      console.error('粘贴内容处理失败:', error);
+      // 尝试使用纯文本作为回退
+      const textData = e.clipboardData.getData('text/plain');
+      if (textData) {
+        try {
+          document.execCommand('insertText', false, textData);
+          if (editorRef.current) {
+            const content = editorRef.current.innerHTML;
+            onChange(content);
+            setIsDirty(true);
+            setWordCount(calculateWordCount(content));
+          }
+        } catch (fallbackError) {
+          console.error('纯文本粘贴也失败:', fallbackError);
+        }
+      }
     }
   }, [onChange, calculateWordCount]);
 
@@ -421,6 +410,25 @@ export default function RichTextEditor({
         </button>
         
         <div className="ml-auto flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => {
+              const textContent = prompt('如果粘贴有问题，请在此直接输入内容:');
+              if (textContent && editorRef.current) {
+                // 简单的文本格式化
+                const formatted = textContent
+                  .replace(/\n\n+/g, '</p><p>')
+                  .replace(/\n/g, '<br>');
+                editorRef.current.innerHTML = `<p>${formatted}</p>`;
+                onChange(editorRef.current.innerHTML);
+                setWordCount(calculateWordCount(textContent));
+              }
+            }}
+            className="px-3 py-1 rounded hover:bg-gray-200 text-green-600"
+            title="手动输入内容"
+          >
+            手动输入
+          </button>
           <button
             type="button"
             onClick={() => setShowPreview(!showPreview)}
