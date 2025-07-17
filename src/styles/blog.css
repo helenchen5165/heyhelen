@@ -205,6 +205,144 @@
   border-bottom: none;
 }
 
+/* Notion风格的样式支持 */
+
+/* 页面标题样式 */
+.blog-content .page-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-top: 0;
+  margin-bottom: 0.75em;
+  color: #111827;
+}
+
+.blog-content .page-description {
+  margin-bottom: 2em;
+  color: #6b7280;
+  font-size: 1.1em;
+}
+
+/* 高亮文字颜色 */
+.blog-content .highlight-default { color: rgba(50, 48, 44, 1); }
+.blog-content .highlight-gray { color: rgba(115, 114, 110, 1); }
+.blog-content .highlight-brown { color: rgba(159, 107, 83, 1); }
+.blog-content .highlight-orange { color: rgba(217, 115, 13, 1); }
+.blog-content .highlight-yellow { color: rgba(203, 145, 47, 1); }
+.blog-content .highlight-teal { color: rgba(68, 131, 97, 1); }
+.blog-content .highlight-blue { color: rgba(51, 126, 169, 1); }
+.blog-content .highlight-purple { color: rgba(144, 101, 176, 1); }
+.blog-content .highlight-pink { color: rgba(193, 76, 138, 1); }
+.blog-content .highlight-red { color: rgba(205, 60, 58, 1); }
+
+/* 高亮背景色 */
+.blog-content .highlight-gray_background { background: rgba(248, 248, 247, 1); }
+.blog-content .highlight-brown_background { background: rgba(244, 238, 238, 1); }
+.blog-content .highlight-orange_background { background: rgba(251, 236, 221, 1); }
+.blog-content .highlight-yellow_background { background: rgba(251, 243, 219, 1); }
+.blog-content .highlight-teal_background { background: rgba(237, 243, 236, 1); }
+.blog-content .highlight-blue_background { background: rgba(231, 243, 248, 1); }
+.blog-content .highlight-purple_background { background: rgba(248, 243, 252, 1); }
+.blog-content .highlight-pink_background { background: rgba(252, 241, 246, 1); }
+.blog-content .highlight-red_background { background: rgba(253, 235, 236, 1); }
+
+/* 块级元素颜色 */
+.blog-content .block-color-gray { color: rgba(115, 114, 110, 1); }
+.blog-content .block-color-brown { color: rgba(159, 107, 83, 1); }
+.blog-content .block-color-orange { color: rgba(217, 115, 13, 1); }
+.blog-content .block-color-yellow { color: rgba(203, 145, 47, 1); }
+.blog-content .block-color-teal { color: rgba(68, 131, 97, 1); }
+.blog-content .block-color-blue { color: rgba(51, 126, 169, 1); }
+.blog-content .block-color-purple { color: rgba(144, 101, 176, 1); }
+.blog-content .block-color-pink { color: rgba(193, 76, 138, 1); }
+.blog-content .block-color-red { color: rgba(205, 60, 58, 1); }
+
+/* 块级背景色 */
+.blog-content .block-color-gray_background { background: rgba(248, 248, 247, 1); }
+.blog-content .block-color-brown_background { background: rgba(244, 238, 238, 1); }
+.blog-content .block-color-orange_background { background: rgba(251, 236, 221, 1); }
+.blog-content .block-color-yellow_background { background: rgba(251, 243, 219, 1); }
+.blog-content .block-color-teal_background { background: rgba(237, 243, 236, 1); }
+.blog-content .block-color-blue_background { background: rgba(231, 243, 248, 1); }
+.blog-content .block-color-purple_background { background: rgba(248, 243, 252, 1); }
+.blog-content .block-color-pink_background { background: rgba(252, 241, 246, 1); }
+.blog-content .block-color-red_background { background: rgba(253, 235, 236, 1); }
+
+/* 列表样式 */
+.blog-content .bulleted-list {
+  list-style-type: disc;
+  margin-left: 1.5rem;
+  margin-bottom: 0.6em;
+  margin-block-start: 0.6em;
+  margin-block-end: 0.6em;
+}
+
+.blog-content .numbered-list {
+  list-style-type: decimal;
+  margin-left: 1.5rem;
+  margin-bottom: 0.6em;
+  margin-block-start: 0.6em;
+  margin-block-end: 0.6em;
+}
+
+.blog-content .bulleted-list li,
+.blog-content .numbered-list li {
+  padding-left: 0.1em;
+  margin-bottom: 0.2em;
+}
+
+/* 选择值样式 */
+.blog-content .select-value-color-default { 
+  background-color: rgba(84, 72, 49, 0.08); 
+  padding: 0 0.5em;
+  border-radius: 3px;
+  margin-right: 0.5em;
+  display: inline-block;
+}
+.blog-content .select-value-color-gray { background-color: rgba(84, 72, 49, 0.15); }
+.blog-content .select-value-color-brown { background-color: rgba(210, 162, 141, 0.35); }
+.blog-content .select-value-color-orange { background-color: rgba(224, 124, 57, 0.27); }
+.blog-content .select-value-color-yellow { background-color: rgba(236, 191, 66, 0.39); }
+.blog-content .select-value-color-green { background-color: rgba(123, 183, 129, 0.27); }
+.blog-content .select-value-color-blue { background-color: rgba(93, 165, 206, 0.27); }
+.blog-content .select-value-color-purple { background-color: rgba(168, 129, 197, 0.27); }
+.blog-content .select-value-color-pink { background-color: rgba(225, 136, 179, 0.27); }
+.blog-content .select-value-color-red { background-color: rgba(244, 171, 159, 0.4); }
+
+/* 提示框样式 */
+.blog-content .callout {
+  border-radius: 6px;
+  padding: 1rem;
+  margin: 1rem 0;
+  border-left: 4px solid #3b82f6;
+  background-color: #f8fafc;
+}
+
+/* 缩进样式 */
+.blog-content .indented {
+  padding-left: 1.5em;
+}
+
+/* 字体家族 */
+.blog-content .sans { 
+  font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; 
+}
+.blog-content .serif { 
+  font-family: Georgia, ui-serif, serif; 
+}
+.blog-content .mono { 
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace; 
+}
+
+/* 改进嵌套列表样式 */
+.blog-content ul ul,
+.blog-content ol ol,
+.blog-content ul ol,
+.blog-content ol ul {
+  margin-top: 0.3em;
+  margin-bottom: 0.3em;
+  margin-left: 1.2em;
+}
+
 /* 响应式调整 */
 @media (max-width: 640px) {
   .blog-content h1 {
@@ -217,6 +355,10 @@
   
   .blog-content h3 {
     font-size: 1.125rem;
+  }
+  
+  .blog-content .page-title {
+    font-size: 2rem;
   }
 }
 
