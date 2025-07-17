@@ -5,6 +5,9 @@ import { asyncHandler, createSuccessResponse, validateRequest, NotFoundError } f
 import { blogUpdateSchema } from '@/lib/validations';
 import { BlogUpdateInput } from '@/lib/validations';
 
+// 强制动态渲染
+export const dynamic = 'force-dynamic';
+
 // 获取单个博客详情（管理员专用）
 export const GET = asyncHandler(async (req: NextRequest, { params }: { params: { id: string } }) => {
   await requireAdmin(req);
@@ -40,11 +43,23 @@ export const PUT = asyncHandler(async (req: NextRequest, { params }: { params: {
     }
   }
   
+  // 处理tags字段：可能是字符串或数组
+  let tagsArray: string[] = [];
+  if (data.tags) {
+    if (typeof data.tags === 'string') {
+      // 如果是字符串，按逗号分割
+      tagsArray = data.tags.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0);
+    } else if (Array.isArray(data.tags)) {
+      // 如果是数组，直接使用
+      tagsArray = data.tags;
+    }
+  }
+  
   const post = await prisma.post.update({ 
     where: { id: params.id }, 
     data: {
       ...data,
-      tags: data.tags ? JSON.stringify(data.tags) : undefined
+      tags: data.tags !== undefined ? (tagsArray.length > 0 ? JSON.stringify(tagsArray) : null) : undefined
     },
     include: { author: { select: { username: true, name: true } } }
   });

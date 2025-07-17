@@ -124,15 +124,24 @@ export default function RichTextEditor({
     
     if (htmlData) {
       // 清理HTML，保留基本格式标签
-      const allowedTags = ['p', 'br', 'strong', 'b', 'em', 'i', 'u', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'ol', 'li', 'blockquote', 'a', 'img'];
+      const allowedTags = ['p', 'br', 'strong', 'b', 'em', 'i', 'u', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'ol', 'li', 'blockquote', 'a', 'img', 'div', 'span'];
+      
       const cleanHtml = htmlData
+        // 移除危险的标签和属性
         .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
         .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
         .replace(/on\w+="[^"]*"/gi, '')
         .replace(/javascript:/gi, '')
-        .replace(/<(\/?(?!(?:${allowedTags.join('|')}))[^>]+)>/gi, '')
-        .replace(/style="[^"]*"/gi, '')
-        .replace(/class="[^"]*"/gi, '');
+        // 移除不必要的属性，但保留href和src
+        .replace(/\s(id|class|style|data-[^=]*|contenteditable|spellcheck|draggable|tabindex)="[^"]*"/gi, '')
+        // 清理空的标签属性
+        .replace(/\s+>/gi, '>')
+        // 移除多余的空白
+        .replace(/\s+/g, ' ')
+        // 移除空的段落
+        .replace(/<p[^>]*>\s*<\/p>/gi, '')
+        // 规范化换行
+        .replace(/\n\s*\n/g, '\n');
       
       document.execCommand('insertHTML', false, cleanHtml);
     } else if (textData) {

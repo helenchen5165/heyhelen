@@ -48,11 +48,23 @@ export const POST = asyncHandler(async (req: NextRequest) => {
     slug = `${slug}-${Date.now()}`;
   }
   
+  // 处理tags字段：可能是字符串或数组
+  let tagsArray: string[] = [];
+  if (data.tags) {
+    if (typeof data.tags === 'string') {
+      // 如果是字符串，按逗号分割
+      tagsArray = data.tags.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0);
+    } else if (Array.isArray(data.tags)) {
+      // 如果是数组，直接使用
+      tagsArray = data.tags;
+    }
+  }
+  
   const post = await prisma.post.create({ 
     data: {
       ...data,
       slug,
-      tags: data.tags ? JSON.stringify(data.tags) : null,
+      tags: tagsArray.length > 0 ? JSON.stringify(tagsArray) : null,
       authorId: user.id
     },
     include: { author: { select: { username: true, name: true } } }

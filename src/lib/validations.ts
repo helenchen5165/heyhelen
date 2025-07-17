@@ -23,10 +23,13 @@ export const registerSchema = z.object({
 export const blogSchema = z.object({
   title: z.string().min(1, '标题不能为空').max(200, '标题不能超过200个字符'),
   slug: z.string().min(1, 'Slug不能为空').max(200, 'Slug不能超过200个字符').optional(),
-  content: z.string().min(10, '内容至少10个字符').max(50000, '内容不能超过50000个字符'),
+  content: z.string().min(1, '内容不能为空').max(100000, '内容不能超过100000个字符'),
   excerpt: z.string().max(500, '摘要不能超过500个字符').optional(),
   coverImage: z.string().url('请输入有效的图片URL').optional().or(z.literal('')),
-  tags: z.array(z.string().max(50, '标签不能超过50个字符')).max(10, '最多10个标签').optional(),
+  tags: z.union([
+    z.array(z.string().max(50, '标签不能超过50个字符')).max(10, '最多10个标签'),
+    z.string().max(500, '标签字符串不能超过500个字符')
+  ]).optional(),
   isPublished: z.boolean(),
 });
 
