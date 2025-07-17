@@ -129,7 +129,10 @@ export default function HomePage() {
               {blog ? (
                 <>
                   <div className="text-lg font-semibold mb-1 text-black">{blog.title}</div>
-                  <div className="text-gray-700 mb-2 line-clamp-2">{blog.excerpt}</div>
+                  <div 
+                    className="text-gray-700 mb-2 line-clamp-2"
+                    dangerouslySetInnerHTML={{ __html: blog.excerpt || '' }}
+                  />
                   <div className="flex flex-wrap gap-2 mb-2">
                     {blog.tags && JSON.parse(blog.tags).map((tag: string) => (
                       <span key={tag} className="px-3 py-1 bg-gray-100 rounded-full text-xs text-gray-700 border border-gray-200">{tag}</span>

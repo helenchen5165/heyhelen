@@ -158,7 +158,10 @@ export default function BlogPage() {
                       <span>·</span>
                       <span>{new Date(post.createdAt).toLocaleDateString()}</span>
                     </div>
-                    <div className="mb-2 text-sm sm:text-base text-gray-700 line-clamp-2 min-h-[32px] sm:min-h-[40px]">{post.excerpt || '暂无摘要'}</div>
+                    <div 
+                      className="mb-2 text-sm sm:text-base text-gray-700 line-clamp-2 min-h-[32px] sm:min-h-[40px]"
+                      dangerouslySetInnerHTML={{ __html: post.excerpt || '暂无摘要' }}
+                    />
                     <div className="flex flex-wrap gap-1 sm:gap-2 mb-2">
                       {post.tags && JSON.parse(post.tags).map((tag: string) => (
                         <span key={tag} className="px-2 py-0.5 sm:py-1 bg-blue-50 rounded-full text-xs text-blue-700 border border-blue-100 font-medium">#{tag}</span>

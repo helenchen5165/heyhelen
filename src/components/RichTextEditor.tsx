@@ -336,10 +336,12 @@ export default function RichTextEditor({
       {/* 编辑区域 */}
       <div className="relative">
         {showPreview ? (
-          <div 
-            className="p-4 min-h-[300px] prose prose-sm max-w-none"
-            dangerouslySetInnerHTML={{ __html: value }}
-          />
+          <div className="p-4 min-h-[300px] max-w-none">
+            <div 
+              className="blog-content"
+              dangerouslySetInnerHTML={{ __html: value }}
+            />
+          </div>
         ) : (
           <div
             ref={editorRef}
