@@ -55,8 +55,8 @@ export default function BlogPage() {
   // 应用过滤器
   const applyFilters = useCallback((posts: any[]) => {
     let filtered = posts.filter((p: any) => {
-      // 分类过滤 (基于标签或者添加新的category字段)
-      const matchCategory = !selectedCategory || (p.tags && JSON.parse(p.tags).includes(selectedCategory));
+      // 分类过滤 (使用专门的category字段)
+      const matchCategory = !selectedCategory || p.category === selectedCategory;
       // 标签过滤
       const matchTag = !selectedTag || (p.tags && JSON.parse(p.tags).includes(selectedTag));
       return matchCategory && matchTag;
@@ -187,6 +187,15 @@ export default function BlogPage() {
                       </p>
                       <div className="flex items-center gap-4 text-sm zen-subtitle">
                         <span>{new Date(post.createdAt).toLocaleDateString()}</span>
+                        {post.category && (
+                          <>
+                            <span>·</span>
+                            <span className="flex items-center gap-1">
+                              <span>{categories.find(c => c.id === post.category)?.icon || '○'}</span>
+                              <span>{categories.find(c => c.id === post.category)?.name || post.category}</span>
+                            </span>
+                          </>
+                        )}
                         {post.tags && JSON.parse(post.tags).length > 0 && (
                           <>
                             <span>·</span>

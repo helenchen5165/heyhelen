@@ -27,9 +27,17 @@ const emptyForm = {
   content: "",
   excerpt: "",
   coverImage: "",
+  category: "",
   tags: "",
   isPublished: true,
 };
+
+// 分类选项
+const categories = [
+  { id: '', name: '无分类', icon: '○' },
+  { id: 'investment', name: '投资思考', icon: '◐' },
+  { id: 'psychology', name: '心理学', icon: '◑' },
+];
 
 
 function ImageUploadButton({ onInsert }: { onInsert: (url: string) => void }) {
@@ -91,7 +99,7 @@ function ImageUploadButton({ onInsert }: { onInsert: (url: string) => void }) {
 export default function AdminBlogPage() {
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [showForm, setShowForm] = useState(false);
-  const [form, setForm] = useState<Omit<BlogPost, 'id'|'createdAt'|'updatedAt'|'authorId'|'author'|'likeCount'>>({ ...emptyForm });
+  const [form, setForm] = useState<Omit<BlogPost, 'id'|'createdAt'|'updatedAt'|'authorId'|'author'|'likeCount'> & {category?: string}>({ ...emptyForm });
   const [editId, setEditId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -115,7 +123,11 @@ export default function AdminBlogPage() {
 
   const handleEdit = (post: BlogPost) => {
     const tags = post.tags ? JSON.parse(post.tags) : [];
-    setForm({ ...post, tags: Array.isArray(tags) ? tags.join(", ") : "" });
+    setForm({ 
+      ...post, 
+      category: (post as any).category || "",
+      tags: Array.isArray(tags) ? tags.join(", ") : "" 
+    });
     setEditId(post.id);
     setShowForm(true);
   };
@@ -251,6 +263,15 @@ export default function AdminBlogPage() {
             <h2 className="zen-title text-xl mb-3 group-hover:text-current transition">{post.title}</h2>
             <div className="zen-subtitle text-sm mb-3 flex items-center gap-2">
               <span>{new Date(post.createdAt).toLocaleDateString()}</span>
+              {(post as any).category && (
+                <>
+                  <span>·</span>
+                  <span className="flex items-center gap-1">
+                    <span>{categories.find(c => c.id === (post as any).category)?.icon || '○'}</span>
+                    <span>{categories.find(c => c.id === (post as any).category)?.name || (post as any).category}</span>
+                  </span>
+                </>
+              )}
               {post.tags && JSON.parse(post.tags).length > 0 && (
                 <>
                   <span>·</span>
@@ -301,6 +322,7 @@ export default function AdminBlogPage() {
                 <div className="space-y-1">
                   <div>标题: {form.title.length} 字</div>
                   <div>内容: {form.content.length} 字</div>
+                  <div>分类: {categories.find(c => c.id === form.category)?.name || '无分类'}</div>
                   <div>标签: {form.tags || '无'}</div>
                 </div>
                 <div className="text-right space-y-1">
@@ -332,9 +354,24 @@ export default function AdminBlogPage() {
                 value={form.slug}
                 onChange={e => setForm({ ...form, slug: e.target.value })}
               />
+              <div>
+                <label className="block zen-subtitle mb-2">分类</label>
+                <select
+                  className="w-full p-4 border focus:outline-none zen-subtitle"
+                  style={{ borderColor: 'var(--zen-border)', background: 'transparent' }}
+                  value={form.category || ""}
+                  onChange={e => setForm({ ...form, category: e.target.value })}
+                >
+                  {categories.map(category => (
+                    <option key={category.id} value={category.id}>
+                      {category.icon} {category.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
               <input
                 type="text"
-                placeholder="标签（逗号分隔，如：投资思考, 心理学）"
+                placeholder="标签（逗号分隔，如：长期价值, 行为金融）"
                 className="w-full p-4 border focus:outline-none zen-subtitle"
                 style={{ borderColor: 'var(--zen-border)', background: 'transparent' }}
                 value={form.tags ?? ""}

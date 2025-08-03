@@ -74,6 +74,7 @@ model Post {
   content     String
   excerpt     String?
   coverImage  String?
+  category    String?  // 主分类：investment, psychology 等
   tags        String?  // JSON格式存储标签
   isPublished Boolean  @default(false)
   viewCount   Int      @default(0)

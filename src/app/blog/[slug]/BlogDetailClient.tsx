@@ -17,6 +17,7 @@ type BlogPost = {
   content: string;
   excerpt?: string;
   coverImage?: string;
+  category?: string;
   tags?: string;
   isPublished: boolean;
   likeCount: number;
@@ -33,6 +34,12 @@ type Comment = {
   authorEmail?: string;
   user?: { username: string; name?: string };
 };
+
+// 分类定义
+const categories = [
+  { id: 'investment', name: '投资思考', icon: '◐' },
+  { id: 'psychology', name: '心理学', icon: '◑' },
+];
 
 export default function BlogDetailClient({ slug }: { slug: string }) {
   const [post, setPost] = useState<BlogPost | null>(null);
@@ -177,6 +184,15 @@ export default function BlogDetailClient({ slug }: { slug: string }) {
           </h1>
           <div className="zen-subtitle flex items-center justify-center gap-4 mb-4">
             <span>{new Date(post.createdAt).toLocaleDateString()}</span>
+            {post.category && (
+              <>
+                <span>·</span>
+                <span className="flex items-center gap-1">
+                  <span>{categories.find(c => c.id === post.category)?.icon || '○'}</span>
+                  <span>{categories.find(c => c.id === post.category)?.name || post.category}</span>
+                </span>
+              </>
+            )}
             {post.tags && JSON.parse(post.tags).length > 0 && (
               <>
                 <span>·</span>
