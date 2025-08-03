@@ -101,12 +101,12 @@ export default function AboutPage() {
               <img 
                 src={user.avatar} 
                 alt="Helen" 
-                className="w-48 h-48 rounded-full object-cover"
+                className="w-32 h-32 rounded-full object-cover"
                 style={{ filter: 'grayscale(80%)' }}
               />
             ) : (
-              <div className="w-48 h-48 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
-                <span className="text-6xl zen-subtitle">○</span>
+              <div className="w-32 h-32 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+                <span className="text-4xl zen-subtitle">○</span>
               </div>
             )}
           </div>
