@@ -32,6 +32,35 @@ const TimeCircle = ({ progress = 75, size = 120 }: { progress?: number, size?: n
   );
 };
 
+// 价值计数器组件
+const ValueCounter = () => {
+  const [currentValue, setCurrentValue] = useState(0);
+  
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentValue(prev => {
+        if (prev >= 10000) {
+          return 0;
+        }
+        return prev + 833; // 每次增加833，12步到达10000
+      });
+    }, 300);
+    
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <div className="text-center">
+      <div className="zen-title text-7xl mb-4 font-light tracking-tight">
+        ${currentValue.toLocaleString()}
+      </div>
+      <div className="zen-subtitle text-xl">
+        每小时价值目标
+      </div>
+    </div>
+  );
+};
+
 export default function HomePage() {
   // 精选内容
   const [template, setTemplate] = useState<TemplateSummary | null>(null);
@@ -101,19 +130,43 @@ export default function HomePage() {
         </nav>
       </header>
 
-      {/* 核心理念区域 */}
+      {/* Hero区域 - 价值主张 */}
       <section className="flex flex-col items-center justify-center py-32">
-        <ZenCircle size="xl">
-          <div className="text-center">
-            <h1 className="zen-title text-5xl mb-4">时的力量</h1>
-            <p className="zen-subtitle text-xl max-w-md">
-              通过时间可视化，见证智识的数字化呈现
-            </p>
-          </div>
-        </ZenCircle>
+        {/* 动态价值计数器 */}
+        <div className="text-center mb-16">
+          <ValueCounter />
+        </div>
         
-        <div className="mt-16 zen-subtitle text-center max-w-2xl px-8">
-          如柳比歇夫的时间实验，每一刻都值得记录与思考
+        {/* 核心宣言 */}
+        <div className="text-center mb-12">
+          <h1 className="zen-title text-5xl mb-6">
+            海伦的一个小时价值$10,000
+          </h1>
+          <p className="zen-subtitle text-2xl mb-4">
+            25岁投资青年的自由宣言
+          </p>
+          <p className="zen-subtitle text-lg max-w-2xl mx-auto px-8">
+            不是为了炫富，而是为了选择的权利<br />
+            想不做什么就不做什么的自由
+          </p>
+        </div>
+        
+        {/* CTA按钮组 */}
+        <div className="flex flex-wrap gap-6 justify-center">
+          <Link href="/about" className="zen-button px-8 py-3">
+            看我如何做到
+          </Link>
+          <Link href="/blog" className="zen-button px-8 py-3">
+            投资思考笔记
+          </Link>
+          <Link href="/about" className="zen-button px-8 py-3 zen-subtitle">
+            关于Helen
+          </Link>
+        </div>
+        
+        {/* 装饰性圆环 */}
+        <div className="mt-16 opacity-20">
+          <ZenCircle size="xl" />
         </div>
       </section>
 
