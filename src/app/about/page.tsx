@@ -93,22 +93,29 @@ export default function AboutPage() {
     <div className="min-h-screen" style={{ background: 'var(--background)' }}>
       {/* 个人头像区域 */}
       <div className="py-20 text-center">
-        <ZenCircle size="xl">
+        {/* Zen Circle 装饰 */}
+        <div className="mb-16">
+          <ZenCircle size="xl" />
+        </div>
+        
+        {/* 头像展示 */}
+        <div className="mb-12">
           {user?.avatar ? (
             <img 
               src={user.avatar} 
               alt="Helen" 
-              className="w-48 h-48 rounded-full object-cover ml-48"
+              className="w-48 h-48 rounded-full object-cover mx-auto"
               style={{ filter: 'grayscale(80%)' }}
             />
           ) : (
-            <div className="w-48 h-48 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center ml-48">
+            <div className="w-48 h-48 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center mx-auto">
               <span className="text-6xl zen-subtitle">○</span>
             </div>
           )}
-        </ZenCircle>
+        </div>
         
-        <div className="mt-12">
+        {/* 个人信息 */}
+        <div>
           <h1 className="zen-title text-5xl mb-4">
             {user?.name || "Helen"}
           </h1>
