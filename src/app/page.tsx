@@ -81,7 +81,7 @@ const HourlyValueCounter = () => {
         </div>
       </ZenCircle>
       <div className="zen-subtitle text-lg mt-4">
-        一小时价值创造进度
+        一小时创造进度
       </div>
     </div>
   );
