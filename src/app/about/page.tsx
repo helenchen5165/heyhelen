@@ -93,28 +93,26 @@ export default function AboutPage() {
     <div className="min-h-screen" style={{ background: 'var(--background)' }}>
       {/* 个人头像区域 */}
       <div className="py-20 text-center">
-        {/* Zen Circle 装饰 */}
-        <div className="mb-16">
+        {/* 头像在 Zen Circle 内 */}
+        <div className="relative inline-block mb-16">
           <ZenCircle size="xl" />
+          <div className="absolute inset-0 flex items-center justify-center">
+            {user?.avatar ? (
+              <img 
+                src={user.avatar} 
+                alt="Helen" 
+                className="w-48 h-48 rounded-full object-cover"
+                style={{ filter: 'grayscale(80%)' }}
+              />
+            ) : (
+              <div className="w-48 h-48 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+                <span className="text-6xl zen-subtitle">○</span>
+              </div>
+            )}
+          </div>
         </div>
         
-        {/* 头像展示 */}
-        <div className="mb-12">
-          {user?.avatar ? (
-            <img 
-              src={user.avatar} 
-              alt="Helen" 
-              className="w-48 h-48 rounded-full object-cover mx-auto"
-              style={{ filter: 'grayscale(80%)' }}
-            />
-          ) : (
-            <div className="w-48 h-48 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center mx-auto">
-              <span className="text-6xl zen-subtitle">○</span>
-            </div>
-          )}
-        </div>
-        
-        {/* 个人信息 */}
+        {/* 个人信息在 Circle 外 */}
         <div>
           <h1 className="zen-title text-5xl mb-4">
             {user?.name || "Helen"}
