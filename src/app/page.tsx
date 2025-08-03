@@ -143,7 +143,7 @@ export default function HomePage() {
             海伦的一个小时价值$10,000
           </h1>
           <p className="zen-subtitle text-2xl mb-4">
-            25岁投资青年的自由宣言
+            投资青年的自由宣言
           </p>
           <p className="zen-subtitle text-lg max-w-2xl mx-auto px-8">
             想不做什么就不做什么的自由
