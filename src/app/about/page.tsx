@@ -94,9 +94,14 @@ export default function AboutPage() {
       {/* 个人头像区域 */}
       <div className="py-20 text-center">
         {/* 头像在 Zen Circle 内 */}
-        <div className="relative inline-block mb-16">
-          <ZenCircle size="xl" />
-          <div className="absolute inset-0 flex items-center justify-center">
+        <div className="relative flex items-center justify-center mb-16">
+          {/* Zen Circle 背景层 */}
+          <div className="absolute">
+            <ZenCircle size="xl" />
+          </div>
+          
+          {/* 头像前景层 */}
+          <div className="relative z-20">
             {user?.avatar ? (
               <img 
                 src={user.avatar} 
