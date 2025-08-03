@@ -114,8 +114,8 @@ export default function RichTextEditor({
     input.click();
   }, [formatText]);
 
-  // 粘贴处理 - 保留格式
-  const handlePaste = useCallback((e: React.ClipboardEvent) => {
+  // 粘贴处理 - 保留格式和图片
+  const handlePaste = useCallback(async (e: React.ClipboardEvent) => {
     const editor = editorRef.current;
     if (!editor) {
       console.warn('编辑器引用不存在');
@@ -150,7 +150,7 @@ export default function RichTextEditor({
       const range = selection?.getRangeAt(0);
       
       // 立即处理粘贴内容
-      processPasteContent(e, range);
+      await processPasteContent(e, range);
     } catch (error) {
       console.error('粘贴处理失败:', error);
       // 发生错误时，尝试简单的文本粘贴
@@ -171,9 +171,71 @@ export default function RichTextEditor({
     }
   }, [onChange, calculateWordCount]);
 
-  const processPasteContent = useCallback((e: React.ClipboardEvent, range?: Range) => {
+  const processPasteContent = useCallback(async (e: React.ClipboardEvent, range?: Range) => {
     try {
-      // 获取剪贴板数据
+      // 检查是否有图片文件
+      const items = Array.from(e.clipboardData.items);
+      const imageItem = items.find(item => item.type.startsWith('image/'));
+      
+      if (imageItem) {
+        // 处理图片粘贴
+        const file = imageItem.getAsFile();
+        if (file) {
+          try {
+            // 显示上传提示
+            const placeholder = '<div style="color: var(--zen-gray); font-style: italic; padding: 1rem; text-align: center; border: 1px dashed var(--zen-border);">○ 正在上传图片...</div>';
+            if (range) {
+              range.deleteContents();
+              document.execCommand('insertHTML', false, placeholder);
+            } else {
+              document.execCommand('insertHTML', false, placeholder);
+            }
+            
+            // 上传图片
+            const formData = new FormData();
+            formData.append('file', file);
+            
+            const res = await fetch('/api/upload', {
+              method: 'POST',
+              body: formData
+            });
+            
+            if (!res.ok) {
+              throw new Error('上传失败');
+            }
+            
+            const data = await res.json();
+            if (data.success && data.data?.url) {
+              // 替换占位符为实际图片
+              if (editorRef.current) {
+                const content = editorRef.current.innerHTML;
+                const updatedContent = content.replace(
+                  placeholder,
+                  `<img src="${data.data.url}" alt="粘贴的图片" style="max-width: 100%; height: auto; margin: 1rem 0; filter: grayscale(100%);" />`
+                );
+                editorRef.current.innerHTML = updatedContent;
+                onChange(updatedContent);
+                setIsDirty(true);
+                setWordCount(calculateWordCount(updatedContent));
+              }
+            } else {
+              throw new Error(data.error || '上传失败');
+            }
+          } catch (error) {
+            console.error('图片上传失败:', error);
+            // 移除占位符
+            if (editorRef.current) {
+              const content = editorRef.current.innerHTML;
+              const updatedContent = content.replace(placeholder, '<div style="color: var(--zen-gray); padding: 1rem; text-align: center; border: 1px solid var(--zen-border);">○ 图片上传失败，请重试</div>');
+              editorRef.current.innerHTML = updatedContent;
+              onChange(updatedContent);
+            }
+          }
+          return; // 图片处理完成，不继续处理文本
+        }
+      }
+      
+      // 获取剪贴板文本数据
       const htmlData = e.clipboardData.getData('text/html');
       const textData = e.clipboardData.getData('text/plain');
       
@@ -392,7 +454,7 @@ export default function RichTextEditor({
           type="button"
           onClick={insertImage}
           className="zen-button text-sm"
-          title="插入图片"
+          title="插入图片 (或直接粘贴图片)"
         >
           图片
         </button>
@@ -472,6 +534,11 @@ export default function RichTextEditor({
             background: var(--zen-light);
           }
         `}</style>
+      </div>
+      
+      {/* 使用提示 */}
+      <div className="p-3 text-center zen-subtitle text-xs border-t" style={{ borderColor: 'var(--zen-border)' }}>
+        支持直接粘贴图片 (Ctrl+V) · 快捷键: 粗体 Ctrl+B · 斜体 Ctrl+I · 预览 Ctrl+P · 保存 Ctrl+S
       </div>
     </div>
   );
