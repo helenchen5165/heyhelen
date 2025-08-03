@@ -32,30 +32,56 @@ const TimeCircle = ({ progress = 75, size = 120 }: { progress?: number, size?: n
   );
 };
 
-// 价值计数器组件
-const ValueCounter = () => {
+// 一小时价值创造计数器组件
+const HourlyValueCounter = () => {
   const [currentValue, setCurrentValue] = useState(0);
+  const [minutes, setMinutes] = useState(0);
+  const [seconds, setSeconds] = useState(0);
   
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentValue(prev => {
-        if (prev >= 10000) {
+      setSeconds(prev => {
+        const newSeconds = prev + 1;
+        if (newSeconds >= 60) {
+          setMinutes(prevMin => {
+            const newMinutes = prevMin + 1;
+            if (newMinutes >= 60) {
+              // 一小时完成，重置
+              setCurrentValue(0);
+              return 0;
+            }
+            return newMinutes;
+          });
           return 0;
         }
-        return prev + 833; // 每次增加833，12步到达10000
+        return newSeconds;
       });
-    }, 300);
+      
+      // 每秒增加约166.67 ($10,000 / 3600 seconds)
+      setCurrentValue(prev => {
+        const totalSeconds = minutes * 60 + seconds + 1;
+        const newValue = Math.floor((totalSeconds / 3600) * 10000);
+        return Math.min(newValue, 10000);
+      });
+    }, 1000); // 每秒更新一次
     
     return () => clearInterval(interval);
-  }, []);
+  }, [minutes, seconds]);
 
   return (
     <div className="text-center">
-      <div className="zen-title text-7xl mb-4 font-light tracking-tight">
-        ${currentValue.toLocaleString()}
-      </div>
-      <div className="zen-subtitle text-xl">
-        每小时价值目标
+      <ZenCircle size="xl">
+        <div className="text-center">
+          <div className="zen-title text-4xl mb-2 font-light tracking-tight">
+            ${currentValue.toLocaleString()}
+          </div>
+          <div className="zen-subtitle text-sm">
+            {String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}
+          </div>
+        </div>
+      </ZenCircle>
+      <div className="zen-subtitle text-lg mt-4">
+        一小时价值创造进度
       </div>
     </div>
   );
@@ -132,9 +158,9 @@ export default function HomePage() {
 
       {/* Hero区域 - 价值主张 */}
       <section className="flex flex-col items-center justify-center py-32">
-        {/* 动态价值计数器 */}
+        {/* 一小时价值创造计数器 */}
         <div className="text-center mb-16">
-          <ValueCounter />
+          <HourlyValueCounter />
         </div>
         
         {/* 核心宣言 */}
@@ -163,10 +189,6 @@ export default function HomePage() {
           </Link>
         </div>
         
-        {/* 装饰性圆环 */}
-        <div className="mt-16 opacity-20">
-          <ZenCircle size="xl" />
-        </div>
       </section>
 
       {/* 三大功能模块 */}
