@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>富文本编辑器粘贴测试</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .test-area {
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 16px;
+            min-height: 200px;
+            margin: 16px 0;
+            outline: none;
+        }
+        .test-area:focus {
+            border-color: #3b82f6;
+        }
+        .instructions {
+            background: #f3f4f6;
+            padding: 16px;
+            border-radius: 8px;
+            margin: 16px 0;
+        }
+        .status {
+            margin: 16px 0;
+            padding: 12px;
+            border-radius: 6px;
+            font-weight: 500;
+        }
+        .success { background: #d1fae5; color: #065f46; }
+        .error { background: #fee2e2; color: #991b1b; }
+        .info { background: #dbeafe; color: #1e40af; }
+    </style>
+</head>
+<body>
+    <h1>富文本编辑器粘贴功能测试</h1>
+    
+    <div class="instructions">
+        <h3>测试步骤：</h3>
+        <ol>
+            <li>复制您的博客内容（Ctrl+C 或 Cmd+C）</li>
+            <li>点击下方测试区域</li>
+            <li>粘贴内容（Ctrl+V 或 Cmd+V）</li>
+            <li>查看是否正常显示和格式化</li>
+        </ol>
+    </div>
+    
+    <div id="status" class="status info">等待粘贴测试...</div>
+    
+    <h3>测试区域：</h3>
+    <div 
+        id="test-editor" 
+        class="test-area" 
+        contenteditable="true" 
+        data-placeholder="在此粘贴您的内容进行测试..."
+    ></div>
+    
+    <h3>调试信息：</h3>
+    <pre id="debug-info" style="background: #f9fafb; padding: 12px; border-radius: 6px; font-size: 12px; overflow-x: auto;"></pre>
+
+    <script>
+        const editor = document.getElementById('test-editor');
+        const status = document.getElementById('status');
+        const debugInfo = document.getElementById('debug-info');
+        
+        function log(message) {
+            const timestamp = new Date().toLocaleTimeString();
+            debugInfo.textContent += `[${timestamp}] ${message}\n`;
+            console.log(message);
+        }
+        
+        function updateStatus(message, type = 'info') {
+            status.textContent = message;
+            status.className = `status ${type}`;
+        }
+        
+        // 检查环境
+        log('开始环境检查...');
+        log(`用户代理: ${navigator.userAgent}`);
+        log(`协议: ${window.location.protocol}`);
+        log(`是否支持剪贴板API: ${!!navigator.clipboard}`);
+        
+        editor.addEventListener('paste', function(e) {
+            log('检测到粘贴事件');
+            
+            try {
+                // 检查剪贴板数据
+                const clipboardData = e.clipboardData;
+                if (!clipboardData) {
+                    log('错误: 无法访问剪贴板数据');
+                    updateStatus('错误: 无法访问剪贴板数据', 'error');
+                    return;
+                }
+                
+                // 获取数据类型
+                const types = Array.from(clipboardData.types);
+                log(`剪贴板数据类型: ${types.join(', ')}`);
+                
+                // 获取HTML和文本数据
+                const htmlData = clipboardData.getData('text/html');
+                const textData = clipboardData.getData('text/plain');
+                
+                log(`HTML数据长度: ${htmlData.length}`);
+                log(`文本数据长度: ${textData.length}`);
+                
+                if (htmlData) {
+                    log('HTML数据预览: ' + htmlData.substring(0, 200) + '...');
+                }
+                
+                if (textData) {
+                    log('文本数据预览: ' + textData.substring(0, 200) + '...');
+                }
+                
+                // 允许默认粘贴行为进行测试
+                updateStatus('粘贴成功！检查内容是否正确显示', 'success');
+                
+                // 延迟检查粘贴结果
+                setTimeout(() => {
+                    const content = editor.innerHTML;
+                    log(`粘贴后编辑器内容长度: ${content.length}`);
+                    if (content.length > 0) {
+                        log('粘贴后内容预览: ' + content.substring(0, 200) + '...');
+                        updateStatus('粘贴完成！内容已显示在上方', 'success');
+                    } else {
+                        updateStatus('警告: 粘贴后编辑器为空', 'error');
+                    }
+                }, 100);
+                
+            } catch (error) {
+                log(`粘贴处理出错: ${error.message}`);
+                updateStatus(`粘贴失败: ${error.message}`, 'error');
+            }
+        });
+        
+        editor.addEventListener('focus', function() {
+            log('编辑器获得焦点');
+            updateStatus('编辑器已就绪，请粘贴内容', 'info');
+        });
+        
+        // 添加占位符样式
+        const style = document.createElement('style');
+        style.textContent = `
+            .test-area:empty:before {
+                content: attr(data-placeholder);
+                color: #9ca3af;
+                pointer-events: none;
+            }
+        `;
+        document.head.appendChild(style);
+        
+        log('测试页面初始化完成');
+        updateStatus('点击测试区域，然后粘贴您的内容', 'info');
+    </script>
+</body>
+</html>

@@ -1,37 +1,180 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# HeyHelen - 智识数字化平台
 
-## Getting Started
+## 🎯 项目概述
 
-First, run the development server:
+HeyHelen 是一个基于禅意极简设计的个人博客平台，专注于**投资思考**和**心理学分享**，同时融入**柳比歇夫式时间实验**理念。
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+### 核心理念
+- **智识的数字化呈现**: 将思考过程可视化展示
+- **时的力量**: 通过时间记录发现生活规律
+- **禅意美学**: 《降临》式圆环设计，极简而有力
+
+## ✨ 主要功能
+
+### 🧘 禅意博客系统
+- **思考记录**: 投资分析 + 心理学洞察
+- **分类导航**: 圆环符号 (○◐◑) 区分内容类型  
+- **极简阅读**: 专业排版，去色图片，大量留白
+- **思考回响**: 重新设计的评论互动体验
+
+### ⏰ 时间实验 
+- **可视化记录**: 生产/投资/支出时间分类
+- **效率分析**: 饼图、进度环、趋势图表
+- **柳比歇夫理念**: 让时间变得可见可感
+
+### 📋 Notion模板展示
+- **分类浏览**: 时间管理、投资跟踪、知识管理
+- **极简展示**: 一致的视觉风格
+- **下载功能**: 支持免费和付费模板
+
+## 🎨 设计特色
+
+### 视觉系统
+- **配色**: 黑白灰极简配色，支持深/浅色模式
+- **圆环**: 核心设计元素，象征时间循环
+- **字体**: font-weight 200-300，减少视觉负担
+- **留白**: 让内容自然呼吸的空间艺术
+
+### 交互体验  
+- **微妙动效**: 缓慢脉动，不抢夺注意力
+- **响应式**: 完美的移动端适配
+- **无干扰**: 专注内容本身的阅读体验
+
+## 🛠 技术栈
+
+```
+Frontend: Next.js 14 + TypeScript + Tailwind CSS
+Backend:  Next.js API Routes + Prisma ORM  
+Database: SQLite
+Auth:     NextAuth.js
+Deploy:   Netlify
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🚀 快速开始
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 环境要求
+- Node.js 18+
+- npm 或 yarn
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 本地开发
 
-## Learn More
+1. **克隆项目**
+```bash
+git clone [repository-url]
+cd heyhelen
+```
 
-To learn more about Next.js, take a look at the following resources:
+2. **安装依赖**  
+```bash
+npm install
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+3. **环境配置**
+```bash
+cp .env.example .env.local
+# 填写必要的环境变量
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+4. **数据库初始化**
+```bash
+npx prisma generate
+npx prisma db push
+```
 
-## Deploy on Vercel
+5. **启动开发服务器**
+```bash
+npm run dev
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+访问 [http://localhost:3000](http://localhost:3000) 查看效果。
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-# Blog System Update - Thu Jul 17 11:22:17 +03 2025
+### 构建命令
+```bash
+npm run build    # 构建项目
+npm run start    # 生产环境启动
+npm run lint     # 代码检查
+npm run test     # 运行测试
+```
+
+## 📁 项目结构
+
+```
+src/
+├── app/
+│   ├── page.tsx              # 首页 (三大模块展示)
+│   ├── blog/                 # 博客系统
+│   │   ├── page.tsx          # 文章列表
+│   │   └── [slug]/           # 文章详情
+│   ├── time/                 # 时间可视化
+│   ├── templates/            # 模板展示  
+│   ├── admin/                # 管理后台
+│   ├── api/                  # API 路由
+│   └── globals.css           # 禅意样式系统
+├── components/               # 可复用组件
+├── lib/                      # 工具函数
+└── types/                    # TypeScript 类型
+```
+
+## 🎨 设计资产
+
+### CSS 类系统
+```css
+.zen-title     /* 主标题样式 */
+.zen-subtitle  /* 副标题样式 */  
+.zen-card      /* 卡片容器 */
+.zen-button    /* 极简按钮 */
+.zen-article   /* 文章内容 */
+.zen-circle    /* 圆环组件 */
+```
+
+### 颜色变量
+```css
+--circle-primary   /* 圆环主色 */
+--zen-gray        /* 副文字颜色 */
+--zen-border      /* 边框颜色 */
+--zen-light       /* 浅色背景 */
+```
+
+## 📝 开发规范
+
+### 内容分类
+- **投资思考**: 市场分析、价值投资、风险管理
+- **心理学**: 认知偏误、行为经济学、心理建设
+
+### 写作风格
+- 简洁明了，避免冗余
+- 数据支撑，逻辑清晰  
+- 个人思考，避免空谈
+
+### 设计原则
+- **极简主义**: 去除一切不必要的元素
+- **内容为王**: 设计服务于内容表达
+- **一致性**: 统一的视觉语言和交互模式
+
+## 📋 开发状态
+
+### ✅ 已完成
+- 禅意视觉系统重构
+- 首页三模块对齐
+- 博客列表/详情页重设计
+- 深色模式优化
+- 响应式布局
+
+### 🔄 进行中
+- 匿名评论系统
+- 博客分类完善
+
+### 📅 计划中
+- 时间可视化增强
+- 模板商店完善
+- 付费内容系统
+
+## 📞 联系方式
+
+如有问题或建议，欢迎通过以下方式联系：
+- Email: [你的邮箱]
+- Blog: [网站地址]
+
+---
+
+*"始于记录，成于思考"* - HeyHelen 2025
