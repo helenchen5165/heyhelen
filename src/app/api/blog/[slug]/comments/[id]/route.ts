@@ -37,8 +37,13 @@ export async function DELETE(req: NextRequest) {
     }
 
     // 只有评论作者或管理员可以删除
-    if (comment.userId !== user.id && user.role !== 'ADMIN') {
+    // 对于匿名评论，只有管理员可以删除
+    if (comment.userId && comment.userId !== user.id && user.role !== 'ADMIN') {
       return NextResponse.json({ error: '无权限删除此评论' }, { status: 403 });
+    }
+    
+    if (!comment.userId && user.role !== 'ADMIN') {
+      return NextResponse.json({ error: '只有管理员可以删除匿名评论' }, { status: 403 });
     }
 
     await prisma.comment.delete({ where: { id } });

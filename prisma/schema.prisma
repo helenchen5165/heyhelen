@@ -125,16 +125,18 @@ model Like {
 
 // 评论表
 model Comment {
-  id        String   @id @default(cuid())
-  content   String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id          String   @id @default(cuid())
+  content     String
+  authorName  String?  // 匿名评论者的昵称
+  authorEmail String?  // 匿名评论者的邮箱（可选）
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
-  // 关联
-  userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  // 关联（可选，支持匿名评论）
+  userId String?
+  user   User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
   postId String
-  post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
+  post   Post    @relation(fields: [postId], references: [id], onDelete: Cascade)
 
   @@map("comments")
 }

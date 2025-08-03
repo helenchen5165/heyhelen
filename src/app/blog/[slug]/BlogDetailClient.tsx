@@ -29,13 +29,17 @@ type Comment = {
   id: string;
   content: string;
   createdAt: string;
-  user: { username: string; name?: string };
+  authorName?: string;
+  authorEmail?: string;
+  user?: { username: string; name?: string };
 };
 
 export default function BlogDetailClient({ slug }: { slug: string }) {
   const [post, setPost] = useState<BlogPost | null>(null);
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState("");
+  const [authorName, setAuthorName] = useState("");
+  const [authorEmail, setAuthorEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [liked, setLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(0);
@@ -100,16 +104,27 @@ export default function BlogDetailClient({ slug }: { slug: string }) {
   const handleComment = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!newComment.trim()) return;
+    if (!authorName.trim()) {
+      alert("请输入昵称");
+      return;
+    }
+    
     setLoading(true);
     const encodedSlug = encodeURIComponent(slug);
     const res = await fetch(`/api/blog/${encodedSlug}/comments`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ content: newComment }),
+      body: JSON.stringify({ 
+        content: newComment,
+        authorName: authorName.trim(),
+        authorEmail: authorEmail.trim() || undefined
+      }),
     });
     setLoading(false);
     if (res.ok) {
       setNewComment("");
+      setAuthorName("");
+      setAuthorEmail("");
       fetchComments();
     } else {
       const data = await res.json();
@@ -222,6 +237,28 @@ export default function BlogDetailClient({ slug }: { slug: string }) {
             
             {/* 发表评论 */}
             <form onSubmit={handleComment} className="mb-12">
+              {/* 匿名评论者信息 */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <input
+                  type="text"
+                  placeholder="昵称 *"
+                  className="p-4 border border-current border-opacity-20 focus:border-opacity-60 bg-transparent transition-all zen-subtitle"
+                  style={{ outline: 'none' }}
+                  value={authorName}
+                  onChange={e => setAuthorName(e.target.value)}
+                  disabled={loading}
+                  required
+                />
+                <input
+                  type="email"
+                  placeholder="邮箱（可选）"
+                  className="p-4 border border-current border-opacity-20 focus:border-opacity-60 bg-transparent transition-all zen-subtitle"
+                  style={{ outline: 'none' }}
+                  value={authorEmail}
+                  onChange={e => setAuthorEmail(e.target.value)}
+                  disabled={loading}
+                />
+              </div>
               <textarea
                 placeholder="留下你的思考..."
                 className="w-full p-6 border border-current border-opacity-20 focus:border-opacity-60 bg-transparent resize-none transition-all zen-subtitle"
@@ -234,7 +271,7 @@ export default function BlogDetailClient({ slug }: { slug: string }) {
                 <button
                   type="submit"
                   className="zen-button"
-                  disabled={loading || !newComment.trim()}
+                  disabled={loading || !newComment.trim() || !authorName.trim()}
                 >
                   {loading ? "发表中..." : "发表思考"}
                 </button>
@@ -247,7 +284,7 @@ export default function BlogDetailClient({ slug }: { slug: string }) {
                 <div key={comment.id} className="border-l border-current border-opacity-20 pl-6">
                   <div className="flex justify-between items-start mb-3">
                     <div className="zen-subtitle font-medium">
-                      {comment.user?.name || comment.user?.username || "匿名"}
+                      {comment.user?.name || comment.user?.username || comment.authorName || "匿名"}
                     </div>
                     <div className="zen-subtitle text-sm opacity-60">
                       {new Date(comment.createdAt).toLocaleDateString()}
@@ -256,12 +293,15 @@ export default function BlogDetailClient({ slug }: { slug: string }) {
                   <div className="zen-subtitle mb-3 whitespace-pre-line">
                     {comment.content}
                   </div>
-                  <button
-                    onClick={() => handleDeleteComment(comment.id)}
-                    className="zen-subtitle text-xs opacity-40 hover:opacity-100 transition-opacity"
-                  >
-                    删除
-                  </button>
+                  {/* 只显示删除按钮给有权限的用户 */}
+                  {(comment.user || comment.authorName) && (
+                    <button
+                      onClick={() => handleDeleteComment(comment.id)}
+                      className="zen-subtitle text-xs opacity-40 hover:opacity-100 transition-opacity"
+                    >
+                      删除
+                    </button>
+                  )}
                 </div>
               ))}
             </div>
