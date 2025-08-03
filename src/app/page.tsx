@@ -146,7 +146,6 @@ export default function HomePage() {
             25岁投资青年的自由宣言
           </p>
           <p className="zen-subtitle text-lg max-w-2xl mx-auto px-8">
-            不是为了炫富，而是为了选择的权利<br />
             想不做什么就不做什么的自由
           </p>
         </div>
