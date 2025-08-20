@@ -34,7 +34,7 @@ export default function BlogPage() {
         const res = await fetch("/api/blog");
         const data = await res.json();
         if (data.success) {
-          const posts = data.data?.posts || [];
+          const posts = data.data?.posts || data.posts || [];
           setAllPosts(posts);
           applyFilters(posts);
         } else {

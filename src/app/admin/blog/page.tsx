@@ -218,7 +218,13 @@ export default function AdminBlogPage() {
         setEditId(null);
         fetchPosts();
       } else {
-        setError(data.error || "操作失败");
+        // 改进错误显示 - 包含验证错误详情
+        if (data.details && Array.isArray(data.details)) {
+          const errorMessages = data.details.map((err: any) => err.message).join(', ');
+          setError(`验证错误: ${errorMessages}`);
+        } else {
+          setError(data.error || "操作失败");
+        }
       }
     } catch (err) {
       console.error('提交失败:', err);

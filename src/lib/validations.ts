@@ -26,6 +26,7 @@ export const blogSchema = z.object({
   content: z.string().min(1, '内容不能为空').max(100000, '内容不能超过100000个字符'),
   excerpt: z.string().max(500, '摘要不能超过500个字符').optional(),
   coverImage: z.string().url('请输入有效的图片URL').optional().or(z.literal('')),
+  category: z.string().max(50, '分类不能超过50个字符').optional(),
   tags: z.union([
     z.array(z.string().max(50, '标签不能超过50个字符')).max(10, '最多10个标签'),
     z.string().max(500, '标签字符串不能超过500个字符')
