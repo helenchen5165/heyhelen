@@ -4,19 +4,21 @@ import { prisma } from './prisma';
 import { AuthenticationError, AuthorizationError } from './error-handler';
 import { JwtPayload, User } from '@/types';
 
-const JWT_SECRET = process.env.JWT_SECRET;
-
-if (!JWT_SECRET) {
-  throw new Error('JWT_SECRET environment variable is not set');
+function getJWTSecret(): string {
+  const JWT_SECRET = process.env.JWT_SECRET;
+  if (!JWT_SECRET) {
+    throw new Error('JWT_SECRET environment variable is not set');
+  }
+  return JWT_SECRET;
 }
 
 export function generateToken(payload: Omit<JwtPayload, 'iat' | 'exp'>): string {
-  return jwt.sign(payload, JWT_SECRET!, { expiresIn: '7d' });
+  return jwt.sign(payload, getJWTSecret(), { expiresIn: '7d' });
 }
 
 export function verifyToken(token: string): JwtPayload {
   try {
-    return jwt.verify(token, JWT_SECRET!) as JwtPayload;
+    return jwt.verify(token, getJWTSecret()) as JwtPayload;
   } catch (error) {
     throw new AuthenticationError('无效的认证令牌');
   }
