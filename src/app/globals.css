@@ -257,3 +257,60 @@ body {
 .zen-article a:hover {
   border-bottom-color: var(--circle-primary);
 }
+
+/* 移动端阅读体验优化 */
+.mobile-optimized {
+  line-height: 1.75;
+}
+
+@media (max-width: 640px) {
+  .mobile-optimized {
+    font-size: 16px;
+    line-height: 1.8;
+  }
+  
+  .mobile-optimized p {
+    margin-bottom: 1.5rem !important;
+    line-height: 1.8 !important;
+    text-align: left !important;
+  }
+  
+  .mobile-optimized h1,
+  .mobile-optimized h2,
+  .mobile-optimized h3,
+  .mobile-optimized h4 {
+    margin-top: 2rem !important;
+    margin-bottom: 1rem !important;
+    line-height: 1.4 !important;
+  }
+  
+  .mobile-optimized h4 {
+    font-size: 1.1rem !important;
+    font-weight: 600 !important;
+  }
+  
+  .mobile-optimized img {
+    margin: 1.5rem 0 !important;
+    border-radius: 8px !important;
+    max-width: 100% !important;
+    height: auto !important;
+  }
+  
+  .mobile-optimized blockquote {
+    margin: 1.5rem 0 !important;
+    padding: 1rem !important;
+    font-size: 0.95rem !important;
+    line-height: 1.7 !important;
+  }
+  
+  .mobile-optimized strong {
+    font-weight: 600 !important;
+  }
+  
+  /* 优化按钮触摸体验 */
+  .zen-button {
+    min-height: 44px;
+    padding: 12px 24px;
+    font-size: 16px;
+  }
+}

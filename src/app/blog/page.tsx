@@ -98,24 +98,24 @@ export default function BlogPage() {
   return (
     <div className="min-h-screen" style={{ background: 'var(--background)' }}>
       {/* 禅意标题区 */}
-      <div className="py-20 text-center">
+      <div className="py-12 sm:py-20 text-center">
         <ZenCircle size="md">
-          <h1 className="zen-title text-4xl ml-12">思考记录</h1>
+          <h1 className="zen-title text-2xl sm:text-4xl ml-8 sm:ml-12">思考记录</h1>
         </ZenCircle>
-        <p className="zen-subtitle mt-8 max-w-2xl mx-auto px-8">
+        <p className="zen-subtitle mt-6 sm:mt-8 max-w-2xl mx-auto px-4 sm:px-8 text-sm sm:text-base">
           投资与心理学的交汇点，记录思维的轨迹
         </p>
       </div>
 
-      <div className="max-w-4xl mx-auto px-8">
+      <div className="max-w-4xl mx-auto px-4 sm:px-8">
         {/* 分类导航 */}
-        <div className="flex justify-center mb-16">
-          <div className="flex gap-12">
+        <div className="flex justify-center mb-12 sm:mb-16">
+          <div className="flex flex-col sm:flex-row gap-4 sm:gap-12">
             {categories.map(category => (
               <button
                 key={category.id}
                 onClick={() => setSelectedCategory(category.id)}
-                className={`zen-subtitle flex items-center gap-3 transition-colors duration-300 ${
+                className={`zen-subtitle flex items-center justify-center gap-3 transition-colors duration-300 py-2 sm:py-0 ${
                   selectedCategory === category.id 
                     ? 'text-current' 
                     : 'hover:text-current'

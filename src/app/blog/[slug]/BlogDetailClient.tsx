@@ -168,7 +168,7 @@ export default function BlogDetailClient({ slug }: { slug: string }) {
   return (
     <div className="min-h-screen" style={{ background: 'var(--background)' }}>
       {/* 返回导航 */}
-      <div className="py-8 px-8">
+      <div className="py-6 px-4 sm:py-8 sm:px-8">
         <Link href="/blog" className="zen-subtitle flex items-center gap-2 hover:text-current transition-colors">
           <span>←</span>
           <span>返回思考记录</span>
@@ -176,17 +176,17 @@ export default function BlogDetailClient({ slug }: { slug: string }) {
       </div>
 
       {/* 文章内容 */}
-      <div className="max-w-3xl mx-auto px-8 pb-20">
+      <div className="max-w-3xl mx-auto px-4 sm:px-8 pb-20">
         {/* 标题区域 */}
-        <div className="text-center mb-16">
-          <h1 className="zen-title text-4xl mb-6 leading-tight">
+        <div className="text-center mb-12 sm:mb-16">
+          <h1 className="zen-title text-2xl sm:text-4xl mb-4 sm:mb-6 leading-tight px-2">
             {post.title}
           </h1>
-          <div className="zen-subtitle flex items-center justify-center gap-4 mb-4">
+          <div className="zen-subtitle flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4 mb-4 text-sm sm:text-base">
             <span>{new Date(post.createdAt).toLocaleDateString()}</span>
             {post.category && (
               <>
-                <span>·</span>
+                <span className="hidden sm:inline">·</span>
                 <span className="flex items-center gap-1">
                   <span>{categories.find(c => c.id === post.category)?.icon || '○'}</span>
                   <span>{categories.find(c => c.id === post.category)?.name || post.category}</span>
@@ -195,8 +195,8 @@ export default function BlogDetailClient({ slug }: { slug: string }) {
             )}
             {post.tags && JSON.parse(post.tags).length > 0 && (
               <>
-                <span>·</span>
-                <div className="flex gap-2">
+                <span className="hidden sm:inline">·</span>
+                <div className="flex flex-wrap gap-2 justify-center">
                   {JSON.parse(post.tags).map((tag: string) => (
                     <span key={tag}>#{tag}</span>
                   ))}
@@ -208,36 +208,42 @@ export default function BlogDetailClient({ slug }: { slug: string }) {
 
         {/* 封面图片 */}
         {post.coverImage && (
-          <div className="mb-16 text-center">
+          <div className="mb-12 sm:mb-16 text-center">
             <img 
               src={post.coverImage} 
               alt={post.title} 
-              className="w-full max-w-2xl mx-auto"
-              style={{ filter: 'grayscale(100%)', maxHeight: '400px', objectFit: 'cover' }}
+              className="w-full max-w-2xl mx-auto rounded-lg"
+              style={{ 
+                filter: 'grayscale(100%)', 
+                maxHeight: '300px', 
+                objectFit: 'cover',
+                height: 'auto'
+              }}
+              loading="lazy"
             />
           </div>
         )}
 
         {/* 正文内容 */}
-        <article className="zen-article mb-16">
+        <article className="zen-article mb-12 sm:mb-16">
           <div 
             dangerouslySetInnerHTML={{ __html: post.content }} 
-            className="blog-content"
+            className="blog-content mobile-optimized"
           />
         </article>
 
         {/* 互动区域 */}
-        <div className="border-t border-current border-opacity-10 pt-16">
+        <div className="border-t border-current border-opacity-10 pt-12 sm:pt-16">
           {/* 点赞 */}
-          <div className="text-center mb-16">
+          <div className="text-center mb-12 sm:mb-16">
             <button
               onClick={handleLike}
               disabled={loading}
-              className={`zen-button flex items-center gap-3 mx-auto ${
+              className={`zen-button flex items-center gap-3 mx-auto px-6 py-3 min-h-[44px] ${
                 liked ? 'bg-current text-white' : ''
               }`}
             >
-              <span>{liked ? "●" : "○"}</span>
+              <span className="text-lg">{liked ? "●" : "○"}</span>
               <span>{liked ? "已赞同" : "赞同"}</span>
               <span>({likeCount})</span>
             </button>
