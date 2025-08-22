@@ -114,8 +114,8 @@ export default function RichTextEditor({
     input.click();
   }, [formatText]);
 
-  // 粘贴处理 - 保留格式
-  const handlePaste = useCallback((e: React.ClipboardEvent) => {
+  // 粘贴处理 - 保留格式和图片
+  const handlePaste = useCallback(async (e: React.ClipboardEvent) => {
     const editor = editorRef.current;
     if (!editor) {
       console.warn('编辑器引用不存在');
@@ -150,7 +150,7 @@ export default function RichTextEditor({
       const range = selection?.getRangeAt(0);
       
       // 立即处理粘贴内容
-      processPasteContent(e, range);
+      await processPasteContent(e, range);
     } catch (error) {
       console.error('粘贴处理失败:', error);
       // 发生错误时，尝试简单的文本粘贴
@@ -171,9 +171,71 @@ export default function RichTextEditor({
     }
   }, [onChange, calculateWordCount]);
 
-  const processPasteContent = useCallback((e: React.ClipboardEvent, range?: Range) => {
+  const processPasteContent = useCallback(async (e: React.ClipboardEvent, range?: Range) => {
     try {
-      // 获取剪贴板数据
+      // 检查是否有图片文件
+      const items = Array.from(e.clipboardData.items);
+      const imageItem = items.find(item => item.type.startsWith('image/'));
+      
+      if (imageItem) {
+        // 处理图片粘贴
+        const file = imageItem.getAsFile();
+        if (file) {
+          try {
+            // 显示上传提示
+            const placeholder = '<div style="color: var(--zen-gray); font-style: italic; padding: 1rem; text-align: center; border: 1px dashed var(--zen-border);">○ 正在上传图片...</div>';
+            if (range) {
+              range.deleteContents();
+              document.execCommand('insertHTML', false, placeholder);
+            } else {
+              document.execCommand('insertHTML', false, placeholder);
+            }
+            
+            // 上传图片
+            const formData = new FormData();
+            formData.append('file', file);
+            
+            const res = await fetch('/api/upload', {
+              method: 'POST',
+              body: formData
+            });
+            
+            if (!res.ok) {
+              throw new Error('上传失败');
+            }
+            
+            const data = await res.json();
+            if (data.success && data.data?.url) {
+              // 替换占位符为实际图片
+              if (editorRef.current) {
+                const content = editorRef.current.innerHTML;
+                const updatedContent = content.replace(
+                  placeholder,
+                  `<img src="${data.data.url}" alt="粘贴的图片" style="max-width: 100%; height: auto; margin: 1rem 0; filter: grayscale(100%);" />`
+                );
+                editorRef.current.innerHTML = updatedContent;
+                onChange(updatedContent);
+                setIsDirty(true);
+                setWordCount(calculateWordCount(updatedContent));
+              }
+            } else {
+              throw new Error(data.error || '上传失败');
+            }
+          } catch (error) {
+            console.error('图片上传失败:', error);
+            // 移除占位符
+            if (editorRef.current) {
+              const content = editorRef.current.innerHTML;
+              const updatedContent = content.replace(placeholder, '<div style="color: var(--zen-gray); padding: 1rem; text-align: center; border: 1px solid var(--zen-border);">○ 图片上传失败，请重试</div>');
+              editorRef.current.innerHTML = updatedContent;
+              onChange(updatedContent);
+            }
+          }
+          return; // 图片处理完成，不继续处理文本
+        }
+      }
+      
+      // 获取剪贴板文本数据
       const htmlData = e.clipboardData.getData('text/html');
       const textData = e.clipboardData.getData('text/plain');
       
@@ -308,64 +370,62 @@ export default function RichTextEditor({
   }, []);
 
   return (
-    <div className={`border border-gray-300 rounded-lg ${className}`}>
-      {/* 工具栏 */}
-      <div className="flex flex-wrap items-center gap-1 p-2 border-b border-gray-200 bg-gray-50">
+    <div className={`zen-card ${className}`}>
+      {/* 禅意工具栏 */}
+      <div className="flex flex-wrap items-center gap-2 p-4 border-b" style={{ borderColor: 'var(--zen-border)' }}>
+        {/* 基础格式 */}
         <button
           type="button"
           onClick={() => formatText('bold')}
-          className="px-3 py-1 rounded hover:bg-gray-200 font-bold"
+          className="zen-button text-sm font-bold"
           title="粗体 (Ctrl+B)"
         >
-          B
+          粗体
         </button>
         <button
           type="button"
           onClick={() => formatText('italic')}
-          className="px-3 py-1 rounded hover:bg-gray-200 italic"
+          className="zen-button text-sm italic"
           title="斜体 (Ctrl+I)"
         >
-          I
-        </button>
-        <button
-          type="button"
-          onClick={() => formatText('underline')}
-          className="px-3 py-1 rounded hover:bg-gray-200 underline"
-          title="下划线 (Ctrl+U)"
-        >
-          U
+          斜体
         </button>
         
-        <div className="w-px h-6 bg-gray-300 mx-1"></div>
+        <span className="text-xs zen-subtitle">|</span>
         
+        {/* 标题层级 */}
         <button
           type="button"
           onClick={() => formatText('formatBlock', 'h1')}
-          className="px-3 py-1 rounded hover:bg-gray-200 font-bold text-lg"
+          className="zen-button text-sm"
+          title="一级标题"
         >
           H1
         </button>
         <button
           type="button"
           onClick={() => formatText('formatBlock', 'h2')}
-          className="px-3 py-1 rounded hover:bg-gray-200 font-bold"
+          className="zen-button text-sm"
+          title="二级标题"
         >
           H2
         </button>
         <button
           type="button"
           onClick={() => formatText('formatBlock', 'h3')}
-          className="px-3 py-1 rounded hover:bg-gray-200 font-semibold text-sm"
+          className="zen-button text-sm"
+          title="三级标题"
         >
           H3
         </button>
         
-        <div className="w-px h-6 bg-gray-300 mx-1"></div>
+        <span className="text-xs zen-subtitle">|</span>
         
+        {/* 列表 */}
         <button
           type="button"
           onClick={() => formatText('insertUnorderedList')}
-          className="px-3 py-1 rounded hover:bg-gray-200"
+          className="zen-button text-sm"
           title="无序列表"
         >
           • 列表
@@ -373,80 +433,62 @@ export default function RichTextEditor({
         <button
           type="button"
           onClick={() => formatText('insertOrderedList')}
-          className="px-3 py-1 rounded hover:bg-gray-200"
+          className="zen-button text-sm"
           title="有序列表"
         >
           1. 列表
         </button>
         
-        <div className="w-px h-6 bg-gray-300 mx-1"></div>
+        <span className="text-xs zen-subtitle">|</span>
         
+        {/* 插入元素 */}
         <button
           type="button"
           onClick={insertLink}
-          className="px-3 py-1 rounded hover:bg-gray-200"
+          className="zen-button text-sm"
           title="插入链接"
         >
-          🔗
+          链接
         </button>
         <button
           type="button"
           onClick={insertImage}
-          className="px-3 py-1 rounded hover:bg-gray-200"
-          title="插入图片"
+          className="zen-button text-sm"
+          title="插入图片 (或直接粘贴图片)"
         >
-          🖼️
+          图片
         </button>
         
-        <div className="w-px h-6 bg-gray-300 mx-1"></div>
+        <span className="text-xs zen-subtitle">|</span>
         
         <button
           type="button"
           onClick={() => formatText('removeFormat')}
-          className="px-3 py-1 rounded hover:bg-gray-200 text-red-600"
+          className="zen-button text-sm zen-subtitle"
           title="清除格式"
         >
           清除
         </button>
         
-        <div className="ml-auto flex items-center gap-2">
-          <button
-            type="button"
-            onClick={() => {
-              const textContent = prompt('如果粘贴有问题，请在此直接输入内容:');
-              if (textContent && editorRef.current) {
-                // 简单的文本格式化
-                const formatted = textContent
-                  .replace(/\n\n+/g, '</p><p>')
-                  .replace(/\n/g, '<br>');
-                editorRef.current.innerHTML = `<p>${formatted}</p>`;
-                onChange(editorRef.current.innerHTML);
-                setWordCount(calculateWordCount(textContent));
-              }
-            }}
-            className="px-3 py-1 rounded hover:bg-gray-200 text-green-600"
-            title="手动输入内容"
-          >
-            手动输入
-          </button>
+        <div className="ml-auto flex items-center gap-3">
           <button
             type="button"
             onClick={() => setShowPreview(!showPreview)}
-            className="px-3 py-1 rounded hover:bg-gray-200 text-blue-600"
+            className="zen-button text-sm"
             title="预览 (Ctrl+P)"
           >
             {showPreview ? '编辑' : '预览'}
           </button>
           
           {wordCount > 0 && (
-            <span className="text-sm text-gray-500">
+            <span className="text-sm zen-subtitle">
               {wordCount} 字
             </span>
           )}
           
           {autoSave && (
-            <span className="text-xs text-gray-400">
-              {isDirty ? '未保存' : lastSaved ? `已保存 ${lastSaved.toLocaleTimeString()}` : ''}
+            <span className="text-xs zen-subtitle">
+              {isDirty ? '○ 未保存' : lastSaved ? `● 已保存 ${lastSaved.toLocaleTimeString().slice(0, 5)}` : ''}
             </span>
           )}
         </div>
@@ -455,7 +497,7 @@ export default function RichTextEditor({
       {/* 编辑区域 */}
       <div className="relative">
         {showPreview ? (
-          <div className="p-4 min-h-[300px] max-w-none">
+          <div className="zen-article p-8 min-h-[400px]">
             <div 
               className="blog-content"
               dangerouslySetInnerHTML={{ __html: value }}
@@ -468,24 +510,35 @@ export default function RichTextEditor({
             onInput={handleInput}
             onPaste={handlePaste}
             onKeyDown={handleKeyDown}
-            className="p-4 min-h-[300px] focus:outline-none"
+            className="zen-article p-8 min-h-[400px] focus:outline-none"
             style={{ 
               wordBreak: 'break-word',
-              whiteSpace: 'pre-wrap'
+              whiteSpace: 'pre-wrap',
+              lineHeight: '1.8'
             }}
             data-placeholder={placeholder}
             suppressContentEditableWarning={true}
           />
         )}
         
-        {/* 占位符样式 */}
+        {/* 禅意占位符样式 */}
         <style jsx>{`
           div[contenteditable]:empty:before {
             content: attr(data-placeholder);
-            color: #9ca3af;
+            color: var(--zen-gray);
             pointer-events: none;
+            font-style: italic;
+          }
+          
+          div[contenteditable]:focus {
+            background: var(--zen-light);
           }
         `}</style>
+      </div>
+      
+      {/* 使用提示 */}
+      <div className="p-3 text-center zen-subtitle text-xs border-t" style={{ borderColor: 'var(--zen-border)' }}>
+        支持直接粘贴图片 (Ctrl+V) · 快捷键: 粗体 Ctrl+B · 斜体 Ctrl+I · 预览 Ctrl+P · 保存 Ctrl+S
       </div>
     </div>
   );

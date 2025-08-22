@@ -2,7 +2,12 @@
 
 :root {
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #1a1a1a;
+  --zen-gray: #6b7280;
+  --zen-light: #f8fafc;
+  --zen-border: #e2e8f0;
+  --circle-primary: #000000;
+  --circle-secondary: #94a3b8;
 }
 
 @theme inline {
@@ -15,12 +20,297 @@
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
-    --foreground: #ededed;
+    --foreground: #ffffff;
+    --zen-gray: #d1d5db;
+    --zen-light: #1f2937;
+    --zen-border: #374151;
+    --circle-primary: #ffffff;
+    --circle-secondary: #9ca3af;
   }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  font-weight: 300;
+  line-height: 1.6;
+}
+
+/* 禅意圆环组件 */
+.zen-circle {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.zen-circle::before {
+  content: '';
+  position: absolute;
+  border: 1px solid var(--circle-primary);
+  border-radius: 50%;
+  animation: zen-pulse 4s ease-in-out infinite;
+}
+
+.zen-circle-sm::before {
+  width: 24px;
+  height: 24px;
+}
+
+.zen-circle-md::before {
+  width: 48px;
+  height: 48px;
+}
+
+.zen-circle-lg::before {
+  width: 120px;
+  height: 120px;
+}
+
+.zen-circle-xl::before {
+  width: 200px;
+  height: 200px;
+}
+
+@keyframes zen-pulse {
+  0%, 100% { 
+    opacity: 0.3; 
+    transform: scale(0.95);
+  }
+  50% { 
+    opacity: 0.8; 
+    transform: scale(1.05);
+  }
+}
+
+/* 时间圆环样式 */
+.time-circle {
+  stroke: var(--circle-primary);
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  animation: time-draw 2s ease-out;
+}
+
+@keyframes time-draw {
+  from {
+    stroke-dasharray: 0 628;
+  }
+  to {
+    stroke-dasharray: 628 0;
+  }
+}
+
+/* 极简卡片样式 */
+.zen-card {
+  background: var(--background);
+  border: 1px solid var(--zen-border);
+  border-radius: 2px;
+  padding: 3rem;
+  margin: 2rem 0;
+  transition: all 0.3s ease;
+}
+
+.zen-card:hover {
+  border-color: var(--circle-primary);
+  box-shadow: 0 0 0 1px var(--circle-primary);
+}
+
+/* 极简导航 */
+.zen-nav {
+  border-bottom: 1px solid var(--zen-border);
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(8px);
+}
+
+@media (prefers-color-scheme: dark) {
+  .zen-nav {
+    background: rgba(10, 10, 10, 0.8);
+  }
+}
+
+/* 文字样式 */
+.zen-title {
+  font-weight: 200;
+  letter-spacing: 0.05em;
+  color: var(--foreground);
+}
+
+.zen-subtitle {
+  font-weight: 300;
+  color: var(--zen-gray);
+  letter-spacing: 0.02em;
+}
+
+/* 深色模式下的文字对比度增强 */
+@media (prefers-color-scheme: dark) {
+  .zen-title {
+    color: #ffffff;
+  }
+  
+  .zen-subtitle {
+    color: #e5e7eb;
+  }
+  
+  .zen-article {
+    color: #f9fafb;
+  }
+  
+  .zen-article h1, .zen-article h2, .zen-article h3 {
+    color: #ffffff;
+  }
+  
+  .zen-article blockquote {
+    color: #d1d5db;
+  }
+}
+
+/* 极简按钮 */
+.zen-button {
+  background: transparent;
+  border: 1px solid var(--circle-primary);
+  color: var(--circle-primary);
+  padding: 0.75rem 2rem;
+  font-weight: 300;
+  letter-spacing: 0.02em;
+  transition: all 0.3s ease;
+}
+
+.zen-button:hover {
+  background: var(--circle-primary);
+  color: var(--background);
+}
+
+/* 禅意文章样式 */
+.zen-article {
+  line-height: 2;
+  font-size: 1.1rem;
+  font-weight: 300;
+  color: var(--foreground);
+}
+
+.zen-article h1, .zen-article h2, .zen-article h3 {
+  font-weight: 400;
+  color: var(--foreground);
+  margin: 2rem 0 1rem 0;
+  letter-spacing: 0.02em;
+}
+
+.zen-article h1 { font-size: 1.8rem; }
+.zen-article h2 { font-size: 1.5rem; }
+.zen-article h3 { font-size: 1.3rem; }
+
+.zen-article p {
+  margin: 1.5rem 0;
+  text-align: justify;
+}
+
+.zen-article blockquote {
+  border-left: 1px solid var(--circle-primary);
+  padding-left: 2rem;
+  margin: 2rem 0;
+  font-style: italic;
+  color: var(--zen-gray);
+}
+
+.zen-article ul, .zen-article ol {
+  margin: 1.5rem 0;
+  padding-left: 2rem;
+}
+
+.zen-article li {
+  margin: 0.5rem 0;
+}
+
+.zen-article code {
+  background: var(--zen-light);
+  padding: 0.2rem 0.4rem;
+  border-radius: 2px;
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+}
+
+.zen-article pre {
+  background: var(--zen-light);
+  padding: 1.5rem;
+  border-radius: 2px;
+  overflow-x: auto;
+  margin: 1.5rem 0;
+}
+
+.zen-article img {
+  max-width: 100%;
+  height: auto;
+  margin: 2rem auto;
+  display: block;
+  filter: grayscale(100%);
+}
+
+.zen-article a {
+  color: var(--circle-primary);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.3s ease;
+}
+
+.zen-article a:hover {
+  border-bottom-color: var(--circle-primary);
+}
+
+/* 移动端阅读体验优化 */
+.mobile-optimized {
+  line-height: 1.75;
+}
+
+@media (max-width: 640px) {
+  .mobile-optimized {
+    font-size: 16px;
+    line-height: 1.8;
+  }
+  
+  .mobile-optimized p {
+    margin-bottom: 1.5rem !important;
+    line-height: 1.8 !important;
+    text-align: left !important;
+  }
+  
+  .mobile-optimized h1,
+  .mobile-optimized h2,
+  .mobile-optimized h3,
+  .mobile-optimized h4 {
+    margin-top: 2rem !important;
+    margin-bottom: 1rem !important;
+    line-height: 1.4 !important;
+  }
+  
+  .mobile-optimized h4 {
+    font-size: 1.1rem !important;
+    font-weight: 600 !important;
+  }
+  
+  .mobile-optimized img {
+    margin: 1.5rem 0 !important;
+    border-radius: 8px !important;
+    max-width: 100% !important;
+    height: auto !important;
+  }
+  
+  .mobile-optimized blockquote {
+    margin: 1.5rem 0 !important;
+    padding: 1rem !important;
+    font-size: 0.95rem !important;
+    line-height: 1.7 !important;
+  }
+  
+  .mobile-optimized strong {
+    font-weight: 600 !important;
+  }
+  
+  /* 优化按钮触摸体验 */
+  .zen-button {
+    min-height: 44px;
+    padding: 12px 24px;
+    font-size: 16px;
+  }
 }

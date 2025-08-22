@@ -29,16 +29,17 @@ export const POST = asyncHandler(async (req: NextRequest, { params }: { params: 
   const slug = decodeURIComponent(params.slug);
   const user = await getUserFromRequest(req);
   
-  if (!user) {
-    return new Response(JSON.stringify({ error: '请先登录' }), { 
-      status: 401,
+  const { content, authorName, authorEmail } = await req.json();
+  if (!content || content.trim().length === 0) {
+    return new Response(JSON.stringify({ error: '评论内容不能为空' }), { 
+      status: 400,
       headers: { 'Content-Type': 'application/json' }
     });
   }
 
-  const { content } = await req.json();
-  if (!content || content.trim().length === 0) {
-    return new Response(JSON.stringify({ error: '评论内容不能为空' }), { 
+  // 如果没有登录用户，检查是否提供了匿名评论者信息
+  if (!user && (!authorName || authorName.trim().length === 0)) {
+    return new Response(JSON.stringify({ error: '请提供昵称' }), { 
       status: 400,
       headers: { 'Content-Type': 'application/json' }
     });
@@ -52,8 +53,20 @@ export const POST = asyncHandler(async (req: NextRequest, { params }: { params: 
     });
   }
 
+  const commentData = {
+    content: content.trim(),
+    postId: post.id,
+    ...(user 
+      ? { userId: user.id }
+      : { 
+          authorName: authorName.trim(),
+          authorEmail: authorEmail?.trim() || null
+        }
+    )
+  };
+
   const comment = await prisma.comment.create({
-    data: { content: content.trim(), userId: user.id, postId: post.id },
+    data: commentData,
     include: { user: { select: { username: true, name: true } } }
   });
 

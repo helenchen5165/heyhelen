@@ -1,6 +1,14 @@
 "use client";
 import React, { useEffect, useState, FormEvent } from "react";
 import { notFound } from "next/navigation";
+import Link from "next/link";
+
+// 禅意圆环组件
+const ZenCircle = ({ size = "sm", children }: { size?: "sm" | "md", children?: React.ReactNode }) => (
+  <div className={`zen-circle zen-circle-${size}`}>
+    {children}
+  </div>
+);
 
 type BlogPost = {
   id: string;
@@ -9,6 +17,7 @@ type BlogPost = {
   content: string;
   excerpt?: string;
   coverImage?: string;
+  category?: string;
   tags?: string;
   isPublished: boolean;
   likeCount: number;
@@ -21,13 +30,23 @@ type Comment = {
   id: string;
   content: string;
   createdAt: string;
-  user: { username: string; name?: string };
+  authorName?: string;
+  authorEmail?: string;
+  user?: { username: string; name?: string };
 };
+
+// 分类定义
+const categories = [
+  { id: 'investment', name: '投资思考', icon: '◐' },
+  { id: 'psychology', name: '心理学', icon: '◑' },
+];
 
 export default function BlogDetailClient({ slug }: { slug: string }) {
   const [post, setPost] = useState<BlogPost | null>(null);
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState("");
+  const [authorName, setAuthorName] = useState("");
+  const [authorEmail, setAuthorEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [liked, setLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(0);
@@ -92,16 +111,27 @@ export default function BlogDetailClient({ slug }: { slug: string }) {
   const handleComment = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!newComment.trim()) return;
+    if (!authorName.trim()) {
+      alert("请输入昵称");
+      return;
+    }
+    
     setLoading(true);
     const encodedSlug = encodeURIComponent(slug);
     const res = await fetch(`/api/blog/${encodedSlug}/comments`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ content: newComment }),
+      body: JSON.stringify({ 
+        content: newComment,
+        authorName: authorName.trim(),
+        authorEmail: authorEmail.trim() || undefined
+      }),
     });
     setLoading(false);
     if (res.ok) {
       setNewComment("");
+      setAuthorName("");
+      setAuthorEmail("");
       fetchComments();
     } else {
       const data = await res.json();
@@ -127,115 +157,177 @@ export default function BlogDetailClient({ slug }: { slug: string }) {
 
   if (!post) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <div className="text-gray-600">加载中...</div>
-        </div>
+      <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--background)' }}>
+        <ZenCircle size="md">
+          <div className="zen-subtitle ml-12">加载中...</div>
+        </ZenCircle>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-white py-6 sm:py-12 px-4 sm:px-8 lg:px-12 max-w-4xl mx-auto">
-      {post.coverImage && (
-        <div className="w-full h-48 sm:h-64 lg:h-80 rounded-xl sm:rounded-2xl overflow-hidden mb-6 sm:mb-8 shadow border border-gray-100">
-          <img src={post.coverImage} alt={post.title} className="object-cover w-full h-full" />
-        </div>
-      )}
-      <div className="mb-6">
-        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold mb-3 text-black leading-tight tracking-tight drop-shadow-sm">{post.title}</h1>
-        <div className="flex items-center gap-2 sm:gap-3 text-gray-500 text-xs sm:text-sm mb-2">
-          <span className="inline-block w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-sm sm:text-lg">{post.author?.name?.[0] || post.author?.username?.[0]}</span>
-          <span className="truncate">{post.author?.name || post.author?.username}</span>
-          <span>·</span>
-          <span>{new Date(post.createdAt).toLocaleDateString()}</span>
-        </div>
-        <div className="flex flex-wrap gap-1 sm:gap-2 mb-2">
-          {post.tags && JSON.parse(post.tags).map((tag: string) => (
-            <span key={tag} className="px-2 sm:px-3 py-0.5 sm:py-1 bg-blue-50 rounded-full text-xs text-blue-700 border border-blue-100 font-medium">#{tag}</span>
-          ))}
-        </div>
+    <div className="min-h-screen" style={{ background: 'var(--background)' }}>
+      {/* 返回导航 */}
+      <div className="py-6 px-4 sm:py-8 sm:px-8">
+        <Link href="/blog" className="zen-subtitle flex items-center gap-2 hover:text-current transition-colors">
+          <span>←</span>
+          <span>返回思考记录</span>
+        </Link>
       </div>
-      <article className="prose prose-sm sm:prose-base lg:prose-lg max-w-none text-gray-800 mb-8 sm:mb-10">
-        <div 
-          dangerouslySetInnerHTML={{ __html: post.content }} 
-          className="blog-content"
-        />
-      </article>
-      
-      {/* 文章信息 */}
-      <div className="bg-gray-50 rounded-lg sm:rounded-xl p-4 sm:p-6 mb-6 sm:mb-8">
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 text-center text-xs sm:text-sm">
-          <div>
-            <div className="font-semibold text-gray-800">发布时间</div>
-            <div className="text-gray-600">{new Date(post.createdAt).toLocaleDateString()}</div>
-          </div>
-          <div>
-            <div className="font-semibold text-gray-800">更新时间</div>
-            <div className="text-gray-600">{new Date(post.updatedAt).toLocaleDateString()}</div>
-          </div>
-          <div>
-            <div className="font-semibold text-gray-800">阅读量</div>
-            <div className="text-gray-600">👁️ {Math.floor(Math.random() * 1000) + 100}</div>
-          </div>
-          <div>
-            <div className="font-semibold text-gray-800">点赞数</div>
-            <div className="text-gray-600">❤️ {likeCount}</div>
+
+      {/* 文章内容 */}
+      <div className="max-w-3xl mx-auto px-4 sm:px-8 pb-20">
+        {/* 标题区域 */}
+        <div className="text-center mb-12 sm:mb-16">
+          <h1 className="zen-title text-2xl sm:text-4xl mb-4 sm:mb-6 leading-tight px-2">
+            {post.title}
+          </h1>
+          <div className="zen-subtitle flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4 mb-4 text-sm sm:text-base">
+            <span>{new Date(post.createdAt).toLocaleDateString()}</span>
+            {post.category && (
+              <>
+                <span className="hidden sm:inline">·</span>
+                <span className="flex items-center gap-1">
+                  <span>{categories.find(c => c.id === post.category)?.icon || '○'}</span>
+                  <span>{categories.find(c => c.id === post.category)?.name || post.category}</span>
+                </span>
+              </>
+            )}
+            {post.tags && JSON.parse(post.tags).length > 0 && (
+              <>
+                <span className="hidden sm:inline">·</span>
+                <div className="flex flex-wrap gap-2 justify-center">
+                  {JSON.parse(post.tags).map((tag: string) => (
+                    <span key={tag}>#{tag}</span>
+                  ))}
+                </div>
+              </>
+            )}
           </div>
         </div>
-      </div>
-      {/* 点赞按钮 */}
-      <div className="border-t border-gray-100 pt-6 sm:pt-8 mb-6 sm:mb-8 flex items-center justify-center sm:justify-start">
-        <button
-          onClick={handleLike}
-          disabled={loading}
-          className={`px-4 sm:px-7 py-2 rounded-full font-semibold transition flex items-center gap-2 shadow-sm border border-pink-100 text-sm sm:text-lg focus:outline-none focus:ring-2 focus:ring-pink-200/50
-            ${liked ? "bg-pink-500 text-white hover:bg-pink-600 scale-105" : "bg-white text-pink-500 hover:bg-pink-50"}
-            active:scale-95 duration-150`}
-        >
-          <span className="text-lg sm:text-xl">{liked ? "❤️" : "🤍"}</span>
-          <span>{liked ? "已点赞" : "点赞"}</span>
-          <span className="ml-1 text-sm sm:text-base">({likeCount})</span>
-        </button>
-      </div>
-      {/* 评论区 */}
-      <div className="border-t border-gray-100 pt-6 sm:pt-8">
-        <h3 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 text-black">评论 ({comments.length})</h3>
-        {/* 发表评论 */}
-        <form onSubmit={handleComment} className="mb-6 sm:mb-8">
-          <textarea
-            placeholder="写下你的评论..."
-            className="w-full px-3 sm:px-4 py-2 sm:py-3 rounded-xl sm:rounded-2xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-200 min-h-[80px] sm:min-h-[100px] resize-none transition-all text-sm sm:text-base"
-            value={newComment}
-            onChange={e => setNewComment(e.target.value)}
-            disabled={loading}
+
+        {/* 封面图片 */}
+        {post.coverImage && (
+          <div className="mb-12 sm:mb-16 text-center">
+            <img 
+              src={post.coverImage} 
+              alt={post.title} 
+              className="w-full max-w-2xl mx-auto rounded-lg"
+              style={{ 
+                filter: 'grayscale(100%)', 
+                maxHeight: '300px', 
+                objectFit: 'cover',
+                height: 'auto'
+              }}
+              loading="lazy"
+            />
+          </div>
+        )}
+
+        {/* 正文内容 */}
+        <article className="zen-article mb-12 sm:mb-16">
+          <div 
+            dangerouslySetInnerHTML={{ __html: post.content }} 
+            className="blog-content mobile-optimized"
           />
-          <button
-            type="submit"
-            className="mt-2 px-4 sm:px-7 py-2 rounded-full bg-blue-600 text-white font-semibold hover:bg-blue-700 disabled:opacity-50 shadow text-sm sm:text-base"
-            disabled={loading || !newComment.trim()}
-          >
-            {loading ? "发表中..." : "发表评论"}
-          </button>
-        </form>
-        {/* 评论列表 */}
-        <div className="space-y-3 sm:space-y-4">
-          {comments.map((comment: Comment) => (
-            <div key={comment.id} className="bg-blue-50 rounded-xl sm:rounded-2xl p-3 sm:p-4 border border-blue-100 shadow-sm">
-              <div className="flex justify-between items-start mb-2 gap-2">
-                <div className="font-semibold text-black text-sm sm:text-base truncate">{comment.user?.name || comment.user?.username}</div>
-                <div className="text-gray-500 text-xs flex-shrink-0">{new Date(comment.createdAt).toLocaleDateString()}</div>
-              </div>
-              <div className="text-gray-700 mb-2 whitespace-pre-line text-sm sm:text-base">{comment.content}</div>
-              <button
-                onClick={() => handleDeleteComment(comment.id)}
-                className="text-red-500 text-xs hover:underline"
-              >
-                删除
-              </button>
+        </article>
+
+        {/* 互动区域 */}
+        <div className="border-t border-current border-opacity-10 pt-12 sm:pt-16">
+          {/* 点赞 */}
+          <div className="text-center mb-12 sm:mb-16">
+            <button
+              onClick={handleLike}
+              disabled={loading}
+              className={`zen-button flex items-center gap-3 mx-auto px-6 py-3 min-h-[44px] ${
+                liked ? 'bg-current text-white' : ''
+              }`}
+            >
+              <span className="text-lg">{liked ? "●" : "○"}</span>
+              <span>{liked ? "已赞同" : "赞同"}</span>
+              <span>({likeCount})</span>
+            </button>
+          </div>
+
+          {/* 评论区 */}
+          <div>
+            <div className="text-center mb-12">
+              <h3 className="zen-title text-2xl">
+                思考回响 ({comments.length})
+              </h3>
             </div>
-          ))}
+            
+            {/* 发表评论 */}
+            <form onSubmit={handleComment} className="mb-12">
+              {/* 匿名评论者信息 */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <input
+                  type="text"
+                  placeholder="昵称 *"
+                  className="p-4 border border-current border-opacity-20 focus:border-opacity-60 bg-transparent transition-all zen-subtitle"
+                  style={{ outline: 'none' }}
+                  value={authorName}
+                  onChange={e => setAuthorName(e.target.value)}
+                  disabled={loading}
+                  required
+                />
+                <input
+                  type="email"
+                  placeholder="邮箱（可选）"
+                  className="p-4 border border-current border-opacity-20 focus:border-opacity-60 bg-transparent transition-all zen-subtitle"
+                  style={{ outline: 'none' }}
+                  value={authorEmail}
+                  onChange={e => setAuthorEmail(e.target.value)}
+                  disabled={loading}
+                />
+              </div>
+              <textarea
+                placeholder="留下你的思考..."
+                className="w-full p-6 border border-current border-opacity-20 focus:border-opacity-60 bg-transparent resize-none transition-all zen-subtitle"
+                style={{ minHeight: '120px', outline: 'none' }}
+                value={newComment}
+                onChange={e => setNewComment(e.target.value)}
+                disabled={loading}
+              />
+              <div className="text-center mt-4">
+                <button
+                  type="submit"
+                  className="zen-button"
+                  disabled={loading || !newComment.trim() || !authorName.trim()}
+                >
+                  {loading ? "发表中..." : "发表思考"}
+                </button>
+              </div>
+            </form>
+            
+            {/* 评论列表 */}
+            <div className="space-y-8">
+              {comments.map((comment: Comment) => (
+                <div key={comment.id} className="border-l border-current border-opacity-20 pl-6">
+                  <div className="flex justify-between items-start mb-3">
+                    <div className="zen-subtitle font-medium">
+                      {comment.user?.name || comment.user?.username || comment.authorName || "匿名"}
+                    </div>
+                    <div className="zen-subtitle text-sm opacity-60">
+                      {new Date(comment.createdAt).toLocaleDateString()}
+                    </div>
+                  </div>
+                  <div className="zen-subtitle mb-3 whitespace-pre-line">
+                    {comment.content}
+                  </div>
+                  {/* 只显示删除按钮给有权限的用户 */}
+                  {(comment.user || comment.authorName) && (
+                    <button
+                      onClick={() => handleDeleteComment(comment.id)}
+                      className="zen-subtitle text-xs opacity-40 hover:opacity-100 transition-opacity"
+                    >
+                      删除
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     </div>
