@@ -176,8 +176,8 @@ export default function AboutPage() {
       <div className="py-20">
         <div className="max-w-4xl mx-auto px-8">
           <div className="text-center mb-16">
-            <h3 className="zen-title text-3xl mb-4">成长轨迹</h3>
-            <p className="zen-subtitle">每一个转折点都是价值创造的起点</p>
+            <h3 className="zen-title text-3xl mb-4">2017年</h3>
+            <p className="zen-subtitle">借姐姐1万块，开启了我的投资第一步</p>
           </div>
           
           <div className="space-y-12">
@@ -186,8 +186,8 @@ export default function AboutPage() {
                 <span className="zen-subtitle">○</span>
               </div>
               <div>
-                <h4 className="zen-title text-xl mb-2">价值觉醒</h4>
-                <p className="zen-subtitle">意识到时间是最宝贵的资产，开始追求高价值创造</p>
+                <h4 className="zen-title text-xl mb-2">2018年</h4>
+                <p className="zen-subtitle">选修双专业，跟着汤光华教授等前辈开始系统学习财务管理</p>
               </div>
             </div>
             
@@ -196,8 +196,8 @@ export default function AboutPage() {
                 <span className="zen-subtitle">◐</span>
               </div>
               <div>
-                <h4 className="zen-title text-xl mb-2">投资思维</h4>
-                <p className="zen-subtitle">将投资理念应用到人生各个层面，理性决策，长期思维</p>
+                <h4 className="zen-title text-xl mb-2">2020年</h4>
+                <p className="zen-subtitle">大量阅读，在大学期间广发阅读霍华德马斯克/查理芒格/费雪等投资大家的书籍</p>
               </div>
             </div>
             
@@ -206,8 +206,8 @@ export default function AboutPage() {
                 <span className="zen-subtitle">◑</span>
               </div>
               <div>
-                <h4 className="zen-title text-xl mb-2">影响力构建</h4>
-                <p className="zen-subtitle">通过内容创作和思想分享，构建个人影响力生态</p>
+                <h4 className="zen-title text-xl mb-2">2022年</h4>
+                <p className="zen-subtitle">偶然加入唐书房，开始一种从更实战的方式配置资产</p>
               </div>
             </div>
           </div>
