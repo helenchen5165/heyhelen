@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { asyncHandler, createSuccessResponse } from '@/lib/error-handler';
 
+// 强制动态渲染，防止缓存
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export const GET = asyncHandler(async () => {
   console.log('📍 公开博客API被调用');
   
@@ -24,6 +28,11 @@ export const GET = asyncHandler(async () => {
     postsCount: posts.length,
     structure: 'data.posts' 
   });
+  
+  // 设置缓存控制头，防止CDN和浏览器缓存
+  response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate');
+  response.headers.set('Pragma', 'no-cache');
+  response.headers.set('Expires', '0');
   
   return response;
 }); 

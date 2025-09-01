@@ -3,6 +3,9 @@ import React, { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import Pagination from "@/components/Pagination";
 
+// 强制动态渲染，确保每次都获取最新数据
+export const dynamic = 'force-dynamic';
+
 // 禅意圆环组件
 const ZenCircle = ({ size = "sm", children }: { size?: "sm" | "md", children?: React.ReactNode }) => (
   <div className={`zen-circle zen-circle-${size}`}>
