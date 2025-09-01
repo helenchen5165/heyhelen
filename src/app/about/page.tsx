@@ -176,11 +176,21 @@ export default function AboutPage() {
       <div className="py-20">
         <div className="max-w-4xl mx-auto px-8">
           <div className="text-center mb-16">
-            <h3 className="zen-title text-3xl mb-4">2017年</h3>
-            <p className="zen-subtitle">借姐姐1万块，开启了我的投资第一步</p>
+            <h3 className="zen-title text-3xl mb-4">我的投资之旅</h3>
+            <p className="zen-subtitle">日积硅步，功不唐捐</p>
           </div>
           
           <div className="space-y-12">
+            <div className="flex items-start gap-8">
+              <div className="flex-shrink-0 w-16 h-16 rounded-full border-2 border-current flex items-center justify-center">
+                <span className="zen-subtitle">○</span>
+              </div>
+              <div>
+                <h4 className="zen-title text-xl mb-2">2017年</h4>
+                <p className="zen-subtitle">借姐姐1万块，开启了我的投资第一步</p>
+              </div>
+            </div>
+            
             <div className="flex items-start gap-8">
               <div className="flex-shrink-0 w-16 h-16 rounded-full border-2 border-current flex items-center justify-center">
                 <span className="zen-subtitle">○</span>
@@ -190,7 +200,7 @@ export default function AboutPage() {
                 <p className="zen-subtitle">选修双专业，跟着汤光华教授等前辈开始系统学习财务管理</p>
               </div>
             </div>
-            
+
             <div className="flex items-start gap-8">
               <div className="flex-shrink-0 w-16 h-16 rounded-full border-2 border-current flex items-center justify-center">
                 <span className="zen-subtitle">◐</span>
