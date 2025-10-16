@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
-import { getUserFromRequest } from '@/utils/auth';
+import { getUserFromRequest } from '@/lib/auth';
 
 const prisma = new PrismaClient();
 
