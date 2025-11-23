@@ -39,7 +39,6 @@ export default function BlogPage() {
         if (data.success) {
           const posts = data.data?.posts || data.posts || [];
           setAllPosts(posts);
-          applyFilters(posts);
         } else {
           console.error('获取博客列表失败:', data.error);
         }
