@@ -65,10 +65,10 @@ export default function Pagination({
   const endItem = Math.min(currentPage * itemsPerPage, totalItems || 0);
 
   return (
-    <div className="flex flex-col lg:flex-row items-center justify-between gap-3 sm:gap-4 py-4 sm:py-6">
+    <div className="flex flex-col items-center gap-4 py-4 sm:py-6">
       {/* 分页信息 */}
       {showInfo && totalItems && (
-        <div className="text-xs sm:text-sm text-gray-700 text-center lg:text-left">
+        <div className="text-xs sm:text-sm zen-subtitle text-center">
           显示第 <span className="font-medium">{startItem}</span> 到{' '}
           <span className="font-medium">{endItem}</span> 项，共{' '}
           <span className="font-medium">{totalItems}</span> 项
@@ -76,69 +76,73 @@ export default function Pagination({
       )}
 
       {/* 分页控件 */}
-      <nav className="flex items-center space-x-1 overflow-x-auto">
-        {/* 上一页 */}
-        <button
-          onClick={() => onPageChange(currentPage - 1)}
-          disabled={currentPage === 1}
-          className="relative inline-flex items-center px-2 sm:px-3 py-1 sm:py-2 text-xs sm:text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-l-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
-        >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-          </svg>
-          <span className="ml-1 hidden md:inline">上一页</span>
-        </button>
+      <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
+        <nav className="flex items-center space-x-1">
+          {/* 上一页 */}
+          <button
+            onClick={() => onPageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+            className="zen-button px-3 py-2 text-xs sm:text-sm disabled:opacity-30 disabled:cursor-not-allowed flex items-center gap-1"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+            <span className="hidden sm:inline">上一页</span>
+          </button>
 
-        {/* 页码 */}
-        {visiblePages.map((page, index) => (
-          <React.Fragment key={index}>
-            {page === '...' ? (
-              <span className="relative inline-flex items-center px-2 sm:px-4 py-1 sm:py-2 text-xs sm:text-sm font-medium text-gray-700 bg-white border border-gray-300">
-                ...
-              </span>
-            ) : (
-              <button
-                onClick={() => onPageChange(page as number)}
-                className={`relative inline-flex items-center px-2 sm:px-4 py-1 sm:py-2 text-xs sm:text-sm font-medium border whitespace-nowrap ${
-                  currentPage === page
-                    ? 'z-10 bg-blue-50 border-blue-500 text-blue-600'
-                    : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
-                }`}
-              >
+          {/* 页码 */}
+          <div className="flex items-center space-x-1 mx-2">
+            {visiblePages.map((page, index) => (
+              <React.Fragment key={index}>
+                {page === '...' ? (
+                  <span className="px-2 sm:px-3 py-2 text-xs sm:text-sm zen-subtitle">
+                    ...
+                  </span>
+                ) : (
+                  <button
+                    onClick={() => onPageChange(page as number)}
+                    className={`px-3 py-2 text-xs sm:text-sm font-medium transition-all ${
+                      currentPage === page
+                        ? 'zen-button bg-current text-white'
+                        : 'zen-button'
+                    }`}
+                  >
+                    {page}
+                  </button>
+                )}
+              </React.Fragment>
+            ))}
+          </div>
+
+          {/* 下一页 */}
+          <button
+            onClick={() => onPageChange(currentPage + 1)}
+            disabled={currentPage === totalPages}
+            className="zen-button px-3 py-2 text-xs sm:text-sm disabled:opacity-30 disabled:cursor-not-allowed flex items-center gap-1"
+          >
+            <span className="hidden sm:inline">下一页</span>
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+        </nav>
+
+        {/* 快速跳转 */}
+        <div className="flex items-center space-x-2 text-xs sm:text-sm">
+          <span className="zen-subtitle whitespace-nowrap">跳转到</span>
+          <select
+            value={currentPage}
+            onChange={(e) => onPageChange(Number(e.target.value))}
+            className="zen-button px-2 py-1 text-xs sm:text-sm min-w-[60px] cursor-pointer"
+          >
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+              <option key={page} value={page}>
                 {page}
-              </button>
-            )}
-          </React.Fragment>
-        ))}
-
-        {/* 下一页 */}
-        <button
-          onClick={() => onPageChange(currentPage + 1)}
-          disabled={currentPage === totalPages}
-          className="relative inline-flex items-center px-2 sm:px-3 py-1 sm:py-2 text-xs sm:text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-r-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
-        >
-          <span className="mr-1 hidden md:inline">下一页</span>
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-          </svg>
-        </button>
-      </nav>
-
-      {/* 快速跳转 */}
-      <div className="flex items-center space-x-1 sm:space-x-2 text-xs sm:text-sm">
-        <span className="text-gray-700 whitespace-nowrap">跳转到</span>
-        <select
-          value={currentPage}
-          onChange={(e) => onPageChange(Number(e.target.value))}
-          className="border border-gray-300 rounded px-1 sm:px-2 py-1 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 min-w-[60px]"
-        >
-          {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-            <option key={page} value={page}>
-              {page}
-            </option>
-          ))}
-        </select>
-        <span className="text-gray-700 whitespace-nowrap">页</span>
+              </option>
+            ))}
+          </select>
+          <span className="zen-subtitle whitespace-nowrap">页</span>
+        </div>
       </div>
     </div>
   );

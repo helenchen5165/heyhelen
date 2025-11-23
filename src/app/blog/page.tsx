@@ -179,21 +179,21 @@ export default function BlogPage() {
                   href={`/blog/${post.slug}`}
                   className="zen-card block group"
                 >
-                  <div className="flex gap-8 items-start">
+                  <div className="flex flex-col sm:flex-row gap-4 sm:gap-8 items-start">
                     {/* 左侧内容 */}
-                    <div className="flex-1">
-                      <h2 className="zen-title text-2xl mb-3 group-hover:text-current transition-colors">
+                    <div className="flex-1 min-w-0">
+                      <h2 className="zen-title text-xl sm:text-2xl mb-3 group-hover:text-current transition-colors">
                         {post.title}
                       </h2>
-                      <p className="zen-subtitle mb-4 line-clamp-2">
+                      <p className="zen-subtitle mb-4 line-clamp-2 text-sm sm:text-base">
                         {post.excerpt?.replace(/<[^>]*>/g, '') || ''}
                       </p>
-                      <div className="flex items-center gap-4 text-sm zen-subtitle">
-                        <span>{new Date(post.createdAt).toLocaleDateString()}</span>
+                      <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs sm:text-sm zen-subtitle">
+                        <span className="whitespace-nowrap">{new Date(post.createdAt).toLocaleDateString()}</span>
                         {post.category && (
                           <>
-                            <span>·</span>
-                            <span className="flex items-center gap-1">
+                            <span className="hidden sm:inline">·</span>
+                            <span className="flex items-center gap-1 whitespace-nowrap">
                               <span>{categories.find(c => c.id === post.category)?.icon || '○'}</span>
                               <span>{categories.find(c => c.id === post.category)?.name || post.category}</span>
                             </span>
@@ -201,26 +201,26 @@ export default function BlogPage() {
                         )}
                         {post.tags && JSON.parse(post.tags).length > 0 && (
                           <>
-                            <span>·</span>
-                            <div className="flex gap-2">
+                            <span className="hidden sm:inline">·</span>
+                            <div className="flex flex-wrap gap-2">
                               {JSON.parse(post.tags).slice(0, 2).map((tag: string) => (
-                                <span key={tag}>#{tag}</span>
+                                <span key={tag} className="whitespace-nowrap">#{tag}</span>
                               ))}
                             </div>
                           </>
                         )}
                         {post.likeCount > 0 && (
                           <>
-                            <span>·</span>
-                            <span>{post.likeCount} 赞</span>
+                            <span className="hidden sm:inline">·</span>
+                            <span className="whitespace-nowrap">{post.likeCount} 赞</span>
                           </>
                         )}
                       </div>
                     </div>
-                    
+
                     {/* 右侧图片 */}
                     {post.coverImage && (
-                      <div className="w-32 h-24 flex-shrink-0">
+                      <div className="w-full sm:w-32 h-48 sm:h-24 flex-shrink-0 overflow-hidden rounded">
                         <img
                           src={post.coverImage}
                           alt={post.title}

@@ -117,6 +117,14 @@ body {
   box-shadow: 0 0 0 1px var(--circle-primary);
 }
 
+/* 移动端卡片适配 */
+@media (max-width: 640px) {
+  .zen-card {
+    padding: 1.5rem;
+    margin: 1rem 0;
+  }
+}
+
 /* 极简导航 */
 .zen-nav {
   border-bottom: 1px solid var(--zen-border);
