@@ -54,43 +54,37 @@ export default function BlogPage() {
 
   // 提取所有标签
   const allTags = Array.from(new Set<string>(allPosts.flatMap((p: any) => p.tags ? JSON.parse(p.tags) : [])));
-  
-  // 应用过滤器
-  const applyFilters = useCallback((posts: any[]) => {
-    let filtered = posts.filter((p: any) => {
+
+  // 过滤和排序数据
+  useEffect(() => {
+    let filtered = allPosts.filter((p: any) => {
       // 分类过滤 (使用专门的category字段)
       const matchCategory = !selectedCategory || p.category === selectedCategory;
       // 标签过滤
       const matchTag = !selectedTag || (p.tags && JSON.parse(p.tags).includes(selectedTag));
       return matchCategory && matchTag;
     });
-    
+
     // 按时间排序 (最新的在前)
     filtered.sort((a: any, b: any) => {
       return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
     });
-    
+
     // 计算分页
-    const totalPages = Math.ceil(filtered.length / postsPerPage);
-    setTotalPages(totalPages);
-    
+    const totalPagesCount = Math.ceil(filtered.length / postsPerPage);
+    setTotalPages(totalPagesCount);
+
     // 分页数据
     const startIndex = (currentPage - 1) * postsPerPage;
     const paginatedPosts = filtered.slice(startIndex, startIndex + postsPerPage);
-    
+
     setPosts(paginatedPosts);
-  }, [currentPage, postsPerPage, selectedCategory, selectedTag]);
-  
-  // 过滤器变化时重新过滤
+  }, [allPosts, currentPage, selectedCategory, selectedTag, postsPerPage]);
+
+  // 过滤器变化时重置到第一页
   useEffect(() => {
-    setCurrentPage(1); // 重置到第一页
-    applyFilters(allPosts);
-  }, [selectedCategory, selectedTag, allPosts, applyFilters]);
-  
-  // 分页变化时重新过滤
-  useEffect(() => {
-    applyFilters(allPosts);
-  }, [currentPage, allPosts, applyFilters]);
+    setCurrentPage(1);
+  }, [selectedCategory, selectedTag]);
   
   // 处理分页
   const handlePageChange = useCallback((page: number) => {

@@ -131,13 +131,13 @@ export default function HomePage() {
   return (
     <div className="min-h-screen" style={{ background: 'var(--background)' }}>
       {/* 极简导航栏 */}
-      <header className="zen-nav w-full flex justify-between items-center px-12 py-6 sticky top-0 z-10">
-        <div className="zen-title text-3xl">
+      <header className="zen-nav w-full flex justify-between items-center px-4 sm:px-8 lg:px-12 py-4 sm:py-6 sticky top-0 z-10">
+        <div className="zen-title text-xl sm:text-2xl lg:text-3xl">
           <ZenCircle size="sm">
-            <span className="ml-8">Helen</span>
+            <span className="ml-6 sm:ml-8">Helen</span>
           </ZenCircle>
         </div>
-        <nav className="flex gap-12">
+        <nav className="flex gap-4 sm:gap-8 lg:gap-12 text-sm sm:text-base">
           {[
             { name: '时间', href: '/time', icon: '○' },
             { name: '投资', href: '/blog', icon: '◐' },
@@ -147,9 +147,9 @@ export default function HomePage() {
             <Link
               key={item.name}
               href={item.href}
-              className="zen-subtitle hover:text-current transition-colors duration-300 flex items-center gap-2"
+              className="zen-subtitle hover:text-current transition-colors duration-300 flex items-center gap-1 sm:gap-2"
             >
-              <span className="text-xs">{item.icon}</span>
+              <span className="text-xs hidden sm:inline">{item.icon}</span>
               <span>{item.name}</span>
             </Link>
           ))}
@@ -157,99 +157,99 @@ export default function HomePage() {
       </header>
 
       {/* Hero区域 - 价值主张 */}
-      <section className="flex flex-col items-center justify-center py-32">
+      <section className="flex flex-col items-center justify-center py-12 sm:py-20 lg:py-32 px-4">
         {/* 一小时价值创造计数器 */}
-        <div className="text-center mb-16">
+        <div className="text-center mb-8 sm:mb-12 lg:mb-16">
           <HourlyValueCounter />
         </div>
-        
+
         {/* 核心宣言 */}
-        <div className="text-center mb-12">
-          <h1 className="zen-title text-5xl mb-6">
+        <div className="text-center mb-8 sm:mb-12 px-4">
+          <h1 className="zen-title text-2xl sm:text-3xl lg:text-5xl mb-4 sm:mb-6">
             海伦的一个小时价值$10,000
           </h1>
-          <p className="zen-subtitle text-2xl mb-4">
+          <p className="zen-subtitle text-lg sm:text-xl lg:text-2xl mb-3 sm:mb-4">
             投资青年的自由宣言
           </p>
-          <p className="zen-subtitle text-lg max-w-2xl mx-auto px-8">
+          <p className="zen-subtitle text-sm sm:text-base lg:text-lg max-w-2xl mx-auto">
             想不做什么就不做什么的自由
           </p>
         </div>
-        
+
         {/* CTA按钮组 */}
-        <div className="flex flex-wrap gap-6 justify-center">
-          <Link href="/about" className="zen-button px-8 py-3">
+        <div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4 lg:gap-6 justify-center w-full sm:w-auto px-4">
+          <Link href="/about" className="zen-button px-6 sm:px-8 py-2 sm:py-3 text-sm sm:text-base text-center">
             看我如何做到
           </Link>
-          <Link href="/blog" className="zen-button px-8 py-3">
+          <Link href="/blog" className="zen-button px-6 sm:px-8 py-2 sm:py-3 text-sm sm:text-base text-center">
             投资思考笔记
           </Link>
-          <Link href="/about" className="zen-button px-8 py-3 zen-subtitle">
+          <Link href="/about" className="zen-button px-6 sm:px-8 py-2 sm:py-3 text-sm sm:text-base zen-subtitle text-center">
             关于Helen
           </Link>
         </div>
-        
+
       </section>
 
       {/* 三大功能模块 */}
-      <main className="max-w-6xl mx-auto px-12 py-20">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-16">
-          
+      <main className="max-w-6xl mx-auto px-4 sm:px-8 lg:px-12 py-12 sm:py-16 lg:py-20">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 sm:gap-12 lg:gap-16">
+
           {/* 时间实验 */}
           <div className="zen-card text-center h-full flex flex-col">
             <div className="flex-1 flex flex-col items-center justify-center">
               <ZenCircle size="lg">
                 <TimeCircle progress={75} size={100} />
               </ZenCircle>
-              <h3 className="zen-title text-2xl mt-8 mb-4">时间实验</h3>
-              <p className="zen-subtitle mb-8 min-h-[3rem] flex items-center">
+              <h3 className="zen-title text-xl sm:text-2xl mt-6 sm:mt-8 mb-3 sm:mb-4">时间实验</h3>
+              <p className="zen-subtitle mb-6 sm:mb-8 text-sm sm:text-base min-h-[3rem] flex items-center px-2">
                 如柳比歇夫般记录时间，将抽象的时间转化为可见的力量
               </p>
             </div>
-            <Link href="/time" className="zen-button">进入实验</Link>
+            <Link href="/time" className="zen-button text-sm sm:text-base">进入实验</Link>
           </div>
 
           {/* 投资思考 */}
           <div className="zen-card text-center h-full flex flex-col">
             <div className="flex-1 flex flex-col items-center justify-center">
               <ZenCircle size="lg">
-                <div className="w-[100px] h-[100px] flex items-center justify-center">
-                  <span className="text-6xl font-light leading-none">◐</span>
+                <div className="w-[80px] h-[80px] sm:w-[100px] sm:h-[100px] flex items-center justify-center">
+                  <span className="text-5xl sm:text-6xl font-light leading-none">◐</span>
                 </div>
               </ZenCircle>
-              <h3 className="zen-title text-2xl mt-8 mb-4">投资思考</h3>
-              <p className="zen-subtitle mb-8 min-h-[3rem] flex items-center">
+              <h3 className="zen-title text-xl sm:text-2xl mt-6 sm:mt-8 mb-3 sm:mb-4">投资思考</h3>
+              <p className="zen-subtitle mb-6 sm:mb-8 text-sm sm:text-base min-h-[3rem] flex items-center px-2">
                 分享投资智慧，记录市场观察，探索价值发现的艺术
               </p>
             </div>
-            <Link href="/blog" className="zen-button">阅读思考</Link>
+            <Link href="/blog" className="zen-button text-sm sm:text-base">阅读思考</Link>
           </div>
 
           {/* 模板工具 */}
           <div className="zen-card text-center h-full flex flex-col">
             <div className="flex-1 flex flex-col items-center justify-center">
               <ZenCircle size="lg">
-                <div className="w-[100px] h-[100px] flex items-center justify-center">
-                  <span className="text-6xl font-light leading-none">◑</span>
+                <div className="w-[80px] h-[80px] sm:w-[100px] sm:h-[100px] flex items-center justify-center">
+                  <span className="text-5xl sm:text-6xl font-light leading-none">◑</span>
                 </div>
               </ZenCircle>
-              <h3 className="zen-title text-2xl mt-8 mb-4">模板工具</h3>
-              <p className="zen-subtitle mb-8 min-h-[3rem] flex items-center">
+              <h3 className="zen-title text-xl sm:text-2xl mt-6 sm:mt-8 mb-3 sm:mb-4">模板工具</h3>
+              <p className="zen-subtitle mb-6 sm:mb-8 text-sm sm:text-base min-h-[3rem] flex items-center px-2">
                 精心设计的Notion模板，让知识管理回归本质
               </p>
             </div>
-            <Link href="/templates" className="zen-button">获取模板</Link>
+            <Link href="/templates" className="zen-button text-sm sm:text-base">获取模板</Link>
           </div>
         </div>
 
         {/* 时间可视化预览 */}
         {timelog.length > 0 && (
-          <div className="zen-card mt-20">
-            <div className="text-center mb-12">
-              <h3 className="zen-title text-3xl mb-4">近期时间流</h3>
-              <p className="zen-subtitle">每一条线都是时间的轨迹</p>
+          <div className="zen-card mt-12 sm:mt-16 lg:mt-20">
+            <div className="text-center mb-8 sm:mb-12">
+              <h3 className="zen-title text-2xl sm:text-3xl mb-3 sm:mb-4">近期时间流</h3>
+              <p className="zen-subtitle text-sm sm:text-base">每一条线都是时间的轨迹</p>
             </div>
-            <div className="h-64 flex items-center justify-center">
+            <div className="h-48 sm:h-64 flex items-center justify-center overflow-x-auto">
               <Chart data={timelog} />
             </div>
           </div>
@@ -257,10 +257,10 @@ export default function HomePage() {
       </main>
 
       {/* 极简页脚 */}
-      <footer className="py-16 text-center">
-        <div className="zen-subtitle">
+      <footer className="py-12 sm:py-16 text-center px-4">
+        <div className="zen-subtitle text-sm sm:text-base">
           <ZenCircle size="sm">
-            <span className="ml-8">始于记录，成于思考</span>
+            <span className="ml-6 sm:ml-8">始于记录，成于思考</span>
           </ZenCircle>
         </div>
       </footer>
