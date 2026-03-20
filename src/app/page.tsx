@@ -165,7 +165,7 @@ export default function HomePage() {
 
         {/* 核心宣言 */}
         <div className="text-center mb-8 sm:mb-12 px-4">
-          <h1 className="zen-title text-2xl sm:text-3xl lg:text-5xl mb-4 sm:mb-6">
+          <h1 className="zen-title text-2xl sm:text-3xl lg:text-5xl mb-4 sm:mb-6 font-light">
             海伦的一个小时价值$10,000
           </h1>
           <p className="zen-subtitle text-lg sm:text-xl lg:text-2xl mb-3 sm:mb-4">
