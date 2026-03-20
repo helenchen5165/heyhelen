@@ -157,14 +157,14 @@ export default function HomePage() {
       </header>
 
       {/* Hero区域 - 价值主张 */}
-      <section className="flex flex-col items-center justify-center py-12 sm:py-20 lg:py-32 px-4">
+      <section className="flex flex-col items-center justify-center py-10 sm:py-14 lg:py-20 px-4">
         {/* 一小时价值创造计数器 */}
-        <div className="text-center mb-8 sm:mb-12 lg:mb-16">
+        <div className="text-center mb-6 sm:mb-8 lg:mb-10">
           <HourlyValueCounter />
         </div>
 
         {/* 核心宣言 */}
-        <div className="text-center mb-8 sm:mb-12 px-4">
+        <div className="text-center mb-6 sm:mb-8 px-4">
           <h1 className="zen-title text-2xl sm:text-3xl lg:text-5xl mb-4 sm:mb-6 font-light">
             海伦的一个小时价值$10,000
           </h1>
