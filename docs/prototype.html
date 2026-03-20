@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HeyHelen — 原型</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #faf8f5;
+      --bg-card:   #f2ebe3;
+      --text:      #2c2825;
+      --muted:     #7a6a5e;
+      --accent:    #a8784a;
+      --border:    #e0d8cf;
+      --serif:     'PingFang SC', 'Microsoft YaHei', 'Hiragino Sans GB', sans-serif;
+      --sans:      'PingFang SC', 'Microsoft YaHei', 'Hiragino Sans GB', sans-serif;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      font-weight: 300;
+      line-height: 1.7;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Nav ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      padding: 24px 52px;
+      display: flex; align-items: center; justify-content: space-between;
+      background: rgba(250,248,245,0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid transparent;
+      transition: border-color 0.3s;
+    }
+    nav.scrolled { border-bottom-color: var(--border); }
+
+    .nav-logo {
+      font-family: var(--serif); font-size: 17px; font-weight: 400;
+      color: var(--text); text-decoration: none; letter-spacing: 0.02em; cursor: pointer;
+    }
+
+    .nav-links { display: flex; gap: 40px; list-style: none; }
+    .nav-links a {
+      font-size: 13px; color: var(--muted); text-decoration: none;
+      letter-spacing: 0.08em; transition: color 0.2s; cursor: pointer;
+    }
+    .nav-links a:hover, .nav-links a.active { color: var(--text); }
+
+    /* ── Pages ── */
+    .page { display: none; min-height: 100vh; padding-top: 80px; }
+    .page.active { display: block; }
+
+    /* ════════════════════════
+       HOME
+    ════════════════════════ */
+
+    .hero {
+      padding: 110px 52px 80px;
+      max-width: 860px; margin: 0 auto;
+    }
+
+    .hero-eyebrow {
+      font-size: 11px; letter-spacing: 0.18em; color: var(--accent);
+      text-transform: uppercase; margin-bottom: 36px;
+    }
+
+    .hero-headline {
+      font-family: var(--serif);
+      font-size: clamp(48px, 7.5vw, 88px);
+      font-weight: 300; line-height: 1.12;
+      letter-spacing: -0.02em; color: var(--text);
+    }
+
+    .hero-headline .accent { color: var(--accent); }
+
+    .hero-rule { width: 36px; height: 1px; background: var(--border); margin: 52px 0; }
+
+    .hero-sub {
+      font-size: 17px; color: var(--muted);
+      max-width: 480px; line-height: 1.9; font-weight: 300;
+    }
+
+    /* Posts */
+    .posts-section {
+      padding: 40px 52px 120px;
+      max-width: 860px; margin: 0 auto;
+    }
+
+    .section-eyebrow {
+      font-size: 11px; letter-spacing: 0.18em; color: var(--muted);
+      text-transform: uppercase; margin-bottom: 36px;
+    }
+
+    .post-list { display: flex; flex-direction: column; }
+
+    .post-item {
+      display: flex; align-items: baseline;
+      justify-content: space-between; gap: 24px;
+      padding: 26px 0;
+      border-bottom: 1px solid var(--border);
+      text-decoration: none; color: inherit;
+      transition: opacity 0.2s; cursor: pointer;
+    }
+    .post-item:first-child { border-top: 1px solid var(--border); }
+    .post-item:hover { opacity: 0.5; }
+
+    .post-title {
+      font-family: var(--serif); font-size: 17px; font-weight: 400;
+      flex: 1; line-height: 1.5;
+    }
+
+    .post-date {
+      font-size: 12px; color: var(--muted);
+      white-space: nowrap; letter-spacing: 0.06em;
+    }
+
+    .see-all {
+      display: inline-block; margin-top: 36px;
+      font-size: 13px; color: var(--accent); text-decoration: none;
+      letter-spacing: 0.08em; border-bottom: 1px solid var(--accent);
+      padding-bottom: 2px; cursor: pointer; transition: opacity 0.2s;
+    }
+    .see-all:hover { opacity: 0.6; }
+
+    /* ════════════════════════
+       ABOUT
+    ════════════════════════ */
+
+    .about-intro {
+      padding: 100px 52px 72px;
+      max-width: 700px; margin: 0 auto;
+    }
+
+    .about-name {
+      font-family: var(--serif);
+      font-size: clamp(34px, 5vw, 52px);
+      font-weight: 300; letter-spacing: -0.01em;
+      margin-bottom: 10px;
+    }
+
+    .about-tagline {
+      font-size: 13px; color: var(--accent);
+      letter-spacing: 0.12em; margin-bottom: 52px;
+    }
+
+    .about-bio {
+      font-size: 16px; line-height: 2;
+      color: var(--text); font-weight: 300;
+    }
+    .about-bio strong { font-weight: 400; }
+
+    /* Timeline */
+    .timeline-wrap {
+      padding: 72px 52px 80px;
+      max-width: 700px; margin: 0 auto;
+    }
+
+    .timeline {
+      position: relative;
+      padding-left: 20px;
+    }
+    .timeline::before {
+      content: ''; position: absolute;
+      left: 0; top: 10px; bottom: 10px;
+      width: 1px; background: var(--border);
+    }
+
+    .tl-item {
+      position: relative;
+      padding: 0 0 48px 44px;
+    }
+    .tl-item:last-child { padding-bottom: 0; }
+
+    .tl-dot {
+      position: absolute; left: -4px; top: 7px;
+      width: 9px; height: 9px; border-radius: 50%;
+      background: var(--bg); border: 1.5px solid var(--muted);
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .tl-dot.now { background: var(--accent); border-color: var(--accent); }
+
+    .tl-year {
+      font-size: 11px; letter-spacing: 0.14em;
+      color: var(--accent); margin-bottom: 8px;
+    }
+
+    .tl-head {
+      font-family: var(--serif); font-size: 17px;
+      font-weight: 400; line-height: 1.5;
+      color: var(--text); margin-bottom: 6px;
+    }
+
+    .tl-body {
+      font-size: 14px; color: var(--muted); line-height: 1.75;
+    }
+
+    /* Contact */
+    .contact-wrap {
+      padding: 0 52px 120px;
+      max-width: 700px; margin: 0 auto;
+    }
+
+    .contact-card {
+      background: var(--bg-card);
+      padding: 48px 52px;
+      border-radius: 3px;
+    }
+
+    .contact-head {
+      font-family: var(--serif); font-size: 22px;
+      font-weight: 400; margin-bottom: 14px;
+    }
+
+    .contact-desc {
+      font-size: 15px; color: var(--muted);
+      line-height: 1.85; margin-bottom: 28px;
+    }
+
+    .contact-cta {
+      font-size: 13px; color: var(--accent);
+      text-decoration: none; letter-spacing: 0.06em;
+      border-bottom: 1px solid var(--accent);
+      padding-bottom: 2px;
+    }
+
+    /* Footer */
+    footer {
+      padding: 36px 52px;
+      border-top: 1px solid var(--border);
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .footer-text { font-size: 12px; color: var(--muted); letter-spacing: 0.04em; }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 3px; }
+    ::-webkit-scrollbar-thumb { background: var(--border); }
+
+    /* Mobile */
+    @media (max-width: 640px) {
+      nav { padding: 18px 24px; }
+      .hero, .posts-section,
+      .about-intro, .timeline-wrap, .contact-wrap { padding-left: 24px; padding-right: 24px; }
+      .hero { padding-top: 80px; padding-bottom: 40px; }
+      .contact-card { padding: 32px 24px; }
+      footer { padding: 28px 24px; flex-direction: column; gap: 6px; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+<nav id="nav">
+  <span class="nav-logo" onclick="show('home')">heyhelen</span>
+  <ul class="nav-links">
+    <li><a id="nl-home" class="active" onclick="show('home')">博客</a></li>
+    <li><a id="nl-about" onclick="show('about')">关于我</a></li>
+  </ul>
+</nav>
+
+<!-- ── HOME ── -->
+<div class="page active" id="page-home">
+
+  <div class="hero">
+    <div class="hero-eyebrow">heyhelen.art</div>
+    <h1 class="hero-headline">
+      海伦的<br>一小时值<br><span class="accent">$10,000</span>
+    </h1>
+    <div class="hero-rule"></div>
+    <p class="hero-sub">
+      这不是宣言，而是一种选择。<br>
+      关于时间、思考、自由，<br>以及一个人如何活得更认真。
+    </p>
+  </div>
+
+  <div class="posts-section">
+    <div class="section-eyebrow">近期文章</div>
+    <div class="post-list">
+      <a class="post-item">
+        <span class="post-title">为什么我把自己的时间定价为 $10,000 / 小时</span>
+        <span class="post-date">2026.03</span>
+      </a>
+      <a class="post-item">
+        <span class="post-title">从伊斯坦布尔看全球资产配置：一个普通人的实践</span>
+        <span class="post-date">2025.11</span>
+      </a>
+      <a class="post-item">
+        <span class="post-title">读《穷查理宝典》：芒格教我的三件事</span>
+        <span class="post-date">2025.08</span>
+      </a>
+      <a class="post-item">
+        <span class="post-title">真正的自由是想不做什么就不做什么</span>
+        <span class="post-date">2025.04</span>
+      </a>
+    </div>
+    <a class="see-all">查看全部文章 →</a>
+  </div>
+
+</div>
+
+<!-- ── ABOUT ── -->
+<div class="page" id="page-about">
+
+  <div class="about-intro">
+    <h1 class="about-name">陈海伦 Helen</h1>
+    <div class="about-tagline">一个人类文明的样本</div>
+    <p class="about-bio">
+      我叫海伦，一个追求<strong>想不做什么就不做什么</strong>的自由的人。<br><br>
+      2017年借了姐姐一万块开始投资，此后九年我一直在研究一件事：
+      普通人如何通过复利思维，在时间的维度上建立真正的财富与自由。
+      现在我住在伊斯坦布尔，把思考写在这里，希望它对你也有一点点价值。
+    </p>
+  </div>
+
+  <div class="timeline-wrap">
+    <div class="section-eyebrow">我的轨迹</div>
+    <div class="timeline">
+
+      <div class="tl-item">
+        <div class="tl-dot"></div>
+        <div class="tl-year">2017</div>
+        <div class="tl-head">借姐姐一万块，开始投资</div>
+        <div class="tl-body">人生第一笔本金，第一次认真思考钱究竟是什么</div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-dot"></div>
+        <div class="tl-year">2018</div>
+        <div class="tl-head">选修金融双学位</div>
+        <div class="tl-body">跟着汤光华教授系统学习财务管理，开始建立投资框架</div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-dot"></div>
+        <div class="tl-year">2020</div>
+        <div class="tl-head">大量阅读投资经典</div>
+        <div class="tl-body">霍华德·马克斯、查理·芒格、费雪……让好书替我思考</div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-dot"></div>
+        <div class="tl-year">2022</div>
+        <div class="tl-head">加入唐书房</div>
+        <div class="tl-body">从理论走向实战，开始以更系统的方式配置资产</div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-dot"></div>
+        <div class="tl-year">2023</div>
+        <div class="tl-head">搬到伊斯坦布尔，投资全球化</div>
+        <div class="tl-body">补充债券配置，把资产分散到更宽广的地图上</div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-dot now"></div>
+        <div class="tl-year">2026</div>
+        <div class="tl-head">投资茅台</div>
+        <div class="tl-body">在全球化配置与本土优质资产之间找到自己的平衡</div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="contact-wrap">
+    <div class="contact-card">
+      <div class="contact-head">写信给我</div>
+      <p class="contact-desc">
+        如果我的思考对你有一点点价值，欢迎告诉我。<br>
+        我认真回复每一封信。
+      </p>
+      <a class="contact-cta" href="mailto:hello@heyhelen.art">hello@heyhelen.art →</a>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <span class="footer-text">© 2026 heyhelen.art</span>
+  <span class="footer-text">海伦的一小时值 $10,000</span>
+</footer>
+
+<script>
+  function show(name) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
+    document.getElementById('page-' + name).classList.add('active');
+    document.getElementById('nl-' + name).classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  window.addEventListener('scroll', () => {
+    document.getElementById('nav').classList.toggle('scrolled', window.scrollY > 20);
+  });
+</script>
+
+</body>
+</html>

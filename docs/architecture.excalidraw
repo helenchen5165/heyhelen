@@ -2855,8 +2855,8 @@
     },
     {
       "type": "arrow",
-      "version": 1,
-      "versionNonce": 1,
+      "version": 2,
+      "versionNonce": 1764344429,
       "isDeleted": false,
       "id": "arrow-api-comments-db",
       "fillStyle": "solid",
@@ -2869,7 +2869,7 @@
       "y": 740,
       "strokeColor": "#43a047",
       "backgroundColor": "transparent",
-      "width": 165,
+      "width": 150,
       "height": 520,
       "seed": 1,
       "groupIds": [],
@@ -2878,7 +2878,7 @@
         "type": 2
       },
       "boundElements": [],
-      "updated": 1,
+      "updated": 1761307318735,
       "link": null,
       "locked": false,
       "startBinding": {
