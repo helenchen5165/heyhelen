@@ -168,10 +168,10 @@ export default function HomePage() {
           <h1 className="zen-title text-2xl sm:text-3xl lg:text-5xl mb-4 sm:mb-6 font-light">
             海伦的一个小时价值$10,000
           </h1>
-          <p className="zen-subtitle text-lg sm:text-xl lg:text-2xl mb-3 sm:mb-4">
+          <p className="zen-subtitle text-base sm:text-lg lg:text-xl mb-3 sm:mb-4">
             投资青年的自由宣言
           </p>
-          <p className="zen-subtitle text-sm sm:text-base lg:text-lg max-w-2xl mx-auto">
+          <p className="zen-subtitle text-sm sm:text-sm lg:text-base max-w-2xl mx-auto">
             想不做什么就不做什么的自由
           </p>
         </div>
