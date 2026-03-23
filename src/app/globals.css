@@ -187,7 +187,8 @@ body {
   border: 1px solid var(--circle-primary);
   color: var(--circle-primary);
   padding: 0.75rem 2rem;
-  font-weight: 300;
+  font-family: 'Noto Sans SC', -apple-system, sans-serif;
+  font-weight: 400;
   letter-spacing: 0.02em;
   transition: all 0.3s ease;
 }
@@ -203,7 +204,8 @@ body {
   border: 1px solid var(--circle-primary);
   color: var(--background);
   padding: 0.75rem 2rem;
-  font-weight: 300;
+  font-family: 'Noto Sans SC', -apple-system, sans-serif;
+  font-weight: 400;
   letter-spacing: 0.02em;
   transition: all 0.3s ease;
 }
