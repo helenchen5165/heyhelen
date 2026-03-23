@@ -194,7 +194,7 @@ export default function HomePage() {
           <div className="zen-card text-center h-full flex flex-col">
             <div className="flex-1 flex flex-col items-center justify-center">
               <div className="h-20 flex items-center justify-center">
-                <TimeCircle progress={75} size={80} />
+                <span className="text-6xl font-light leading-none" style={{ color: 'var(--foreground)' }}>○</span>
               </div>
               <h3 className="zen-title text-xl sm:text-2xl mt-6 mb-3 sm:mb-4">时间实验</h3>
               <p className="zen-subtitle mb-6 sm:mb-8 text-sm sm:text-base min-h-[3rem] flex items-center px-2">
