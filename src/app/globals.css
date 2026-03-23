@@ -144,17 +144,18 @@ body {
 /* 文字样式 */
 .zen-title {
   font-family: 'Noto Serif SC', serif;
-  font-weight: 300;
+  font-weight: 400;
   letter-spacing: 0.02em;
   line-height: 1.3;
   color: var(--foreground);
 }
 
 .zen-subtitle {
+  font-family: 'Noto Sans SC', -apple-system, sans-serif;
   font-weight: 300;
   color: var(--zen-gray);
   letter-spacing: 0.02em;
-  line-height: 1.6;
+  line-height: 1.85;
 }
 
 /* 深色模式下的文字对比度增强 */
