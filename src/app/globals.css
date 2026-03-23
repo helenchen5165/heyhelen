@@ -1,13 +1,16 @@
 @import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;600&family=Noto+Sans+SC:wght@300;400&display=swap');
 
 :root {
-  --background: #ffffff;
-  --foreground: #1a1a1a;
-  --zen-gray: #6b7280;
-  --zen-light: #f8fafc;
-  --zen-border: #e2e8f0;
-  --circle-primary: #000000;
+  --background: #faf8f5;
+  --foreground: #2c2825;
+  --zen-gray: #8a7f78;
+  --zen-light: #f0ece6;
+  --zen-border: #e0d9d0;
+  --circle-primary: #2c2825;
   --circle-secondary: #94a3b8;
+  --accent: #8b5e3c;
+  --accent-light: #f5ede5;
 }
 
 @theme inline {
@@ -50,7 +53,7 @@ body {
   position: absolute;
   border: 1px solid var(--circle-primary);
   border-radius: 50%;
-  animation: zen-pulse 4s ease-in-out infinite;
+  animation: zen-pulse 6s ease-in-out infinite;
 }
 
 .zen-circle-sm::before {
@@ -74,13 +77,13 @@ body {
 }
 
 @keyframes zen-pulse {
-  0%, 100% { 
-    opacity: 0.3; 
-    transform: scale(0.95);
+  0%, 100% {
+    opacity: 0.25;
+    transform: scale(0.98);
   }
-  50% { 
-    opacity: 0.8; 
-    transform: scale(1.05);
+  50% {
+    opacity: 0.7;
+    transform: scale(1.02);
   }
 }
 
@@ -140,8 +143,9 @@ body {
 
 /* 文字样式 */
 .zen-title {
-  font-weight: 200;
-  letter-spacing: 0.05em;
+  font-family: 'Noto Serif SC', serif;
+  font-weight: 300;
+  letter-spacing: 0.02em;
   line-height: 1.3;
   color: var(--foreground);
 }
@@ -190,6 +194,21 @@ body {
 .zen-button:hover {
   background: var(--circle-primary);
   color: var(--background);
+}
+
+/* 主要行动按钮 */
+.zen-button-primary {
+  background: var(--circle-primary);
+  border: 1px solid var(--circle-primary);
+  color: var(--background);
+  padding: 0.75rem 2rem;
+  font-weight: 300;
+  letter-spacing: 0.02em;
+  transition: all 0.3s ease;
+}
+
+.zen-button-primary:hover {
+  opacity: 0.75;
 }
 
 /* 禅意文章样式 */

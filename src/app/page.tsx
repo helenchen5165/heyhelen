@@ -132,10 +132,8 @@ export default function HomePage() {
     <div className="min-h-screen" style={{ background: 'var(--background)' }}>
       {/* 极简导航栏 */}
       <header className="zen-nav w-full flex justify-between items-center px-4 sm:px-8 lg:px-12 py-4 sm:py-6 sticky top-0 z-10">
-        <div className="zen-title text-xl sm:text-2xl lg:text-3xl">
-          <ZenCircle size="sm">
-            <span className="ml-6 sm:ml-8">Helen</span>
-          </ZenCircle>
+        <div className="zen-title text-xl sm:text-2xl">
+          Helen
         </div>
         <nav className="flex gap-4 sm:gap-8 lg:gap-12 text-sm sm:text-base">
           {[
@@ -165,27 +163,24 @@ export default function HomePage() {
 
         {/* 核心宣言 */}
         <div className="text-center mb-6 sm:mb-8 px-4">
-          <h1 className="zen-title text-2xl sm:text-3xl lg:text-5xl mb-4 sm:mb-6 font-light">
-            海伦的一个小时价值$10,000
+          <h1 className="zen-title text-2xl sm:text-3xl lg:text-5xl mb-4 sm:mb-6">
+            海伦一小时值 $10,000
           </h1>
-          <p className="zen-subtitle text-base sm:text-lg lg:text-xl mb-3 sm:mb-4">
-            投资青年的自由宣言
+          <p className="zen-subtitle text-base sm:text-lg mb-3 sm:mb-4 max-w-xl mx-auto">
+            不是因为它真的值这么多——是因为这个数字让我不得不认真。
           </p>
-          <p className="zen-subtitle text-sm sm:text-sm lg:text-base max-w-2xl mx-auto">
-            想不做什么就不做什么的自由
+          <p className="zen-subtitle text-sm sm:text-base max-w-xl mx-auto">
+            这个网站记录我怎么思考、怎么做事，以及结果如何。
           </p>
         </div>
 
         {/* CTA按钮组 */}
-        <div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4 lg:gap-6 justify-center w-full sm:w-auto px-4">
-          <Link href="/about" className="zen-button px-6 sm:px-8 py-2 sm:py-3 text-sm sm:text-base text-center">
-            看我如何做到
-          </Link>
-          <Link href="/blog" className="zen-button px-6 sm:px-8 py-2 sm:py-3 text-sm sm:text-base text-center">
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center w-full sm:w-auto px-4">
+          <Link href="/blog" className="zen-button-primary px-6 sm:px-8 py-2 sm:py-3 text-sm sm:text-base text-center">
             投资思考笔记
           </Link>
-          <Link href="/about" className="zen-button px-6 sm:px-8 py-2 sm:py-3 text-sm sm:text-base zen-subtitle text-center">
-            关于Helen
+          <Link href="/about" className="zen-button px-6 sm:px-8 py-2 sm:py-3 text-sm sm:text-base text-center">
+            关于海伦
           </Link>
         </div>
 
@@ -198,10 +193,10 @@ export default function HomePage() {
           {/* 时间实验 */}
           <div className="zen-card text-center h-full flex flex-col">
             <div className="flex-1 flex flex-col items-center justify-center">
-              <ZenCircle size="lg">
-                <TimeCircle progress={75} size={100} />
-              </ZenCircle>
-              <h3 className="zen-title text-xl sm:text-2xl mt-6 sm:mt-8 mb-3 sm:mb-4">时间实验</h3>
+              <div className="h-20 flex items-center justify-center">
+                <TimeCircle progress={75} size={80} />
+              </div>
+              <h3 className="zen-title text-xl sm:text-2xl mt-6 mb-3 sm:mb-4">时间实验</h3>
               <p className="zen-subtitle mb-6 sm:mb-8 text-sm sm:text-base min-h-[3rem] flex items-center px-2">
                 如柳比歇夫般记录时间，将抽象的时间转化为可见的力量
               </p>
@@ -212,12 +207,10 @@ export default function HomePage() {
           {/* 投资思考 */}
           <div className="zen-card text-center h-full flex flex-col">
             <div className="flex-1 flex flex-col items-center justify-center">
-              <ZenCircle size="lg">
-                <div className="w-[80px] h-[80px] sm:w-[100px] sm:h-[100px] flex items-center justify-center">
-                  <span className="text-5xl sm:text-6xl font-light leading-none">◐</span>
-                </div>
-              </ZenCircle>
-              <h3 className="zen-title text-xl sm:text-2xl mt-6 sm:mt-8 mb-3 sm:mb-4">投资思考</h3>
+              <div className="h-20 flex items-center justify-center">
+                <span className="text-6xl font-light leading-none" style={{ color: 'var(--foreground)' }}>◐</span>
+              </div>
+              <h3 className="zen-title text-xl sm:text-2xl mt-6 mb-3 sm:mb-4">投资思考</h3>
               <p className="zen-subtitle mb-6 sm:mb-8 text-sm sm:text-base min-h-[3rem] flex items-center px-2">
                 分享投资智慧，记录市场观察，探索价值发现的艺术
               </p>
@@ -228,12 +221,10 @@ export default function HomePage() {
           {/* 模板工具 */}
           <div className="zen-card text-center h-full flex flex-col">
             <div className="flex-1 flex flex-col items-center justify-center">
-              <ZenCircle size="lg">
-                <div className="w-[80px] h-[80px] sm:w-[100px] sm:h-[100px] flex items-center justify-center">
-                  <span className="text-5xl sm:text-6xl font-light leading-none">◑</span>
-                </div>
-              </ZenCircle>
-              <h3 className="zen-title text-xl sm:text-2xl mt-6 sm:mt-8 mb-3 sm:mb-4">模板工具</h3>
+              <div className="h-20 flex items-center justify-center">
+                <span className="text-6xl font-light leading-none" style={{ color: 'var(--foreground)' }}>◑</span>
+              </div>
+              <h3 className="zen-title text-xl sm:text-2xl mt-6 mb-3 sm:mb-4">模板工具</h3>
               <p className="zen-subtitle mb-6 sm:mb-8 text-sm sm:text-base min-h-[3rem] flex items-center px-2">
                 精心设计的Notion模板，让知识管理回归本质
               </p>
@@ -258,11 +249,7 @@ export default function HomePage() {
 
       {/* 极简页脚 */}
       <footer className="py-12 sm:py-16 text-center px-4">
-        <div className="zen-subtitle text-sm sm:text-base">
-          <ZenCircle size="sm">
-            <span className="ml-6 sm:ml-8">始于记录，成于思考</span>
-          </ZenCircle>
-        </div>
+        <p className="zen-subtitle text-sm tracking-widest">始于记录，成于思考</p>
       </footer>
     </div>
   );
