@@ -156,6 +156,8 @@ body {
   color: var(--zen-gray);
   letter-spacing: 0.02em;
   line-height: 1.85;
+  text-wrap: balance;
+  word-break: keep-all;
 }
 
 /* 深色模式下的文字对比度增强 */
