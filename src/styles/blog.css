@@ -28,40 +28,46 @@
   }
 }
 
-/* 标题样式 */
+/* 标题样式 — 使用 Noto Serif SC（已加载 wght 400/600），避免 Noto Sans SC 回退到系统黑体 */
+.blog-content h1,
+.blog-content h2,
+.blog-content h3,
+.blog-content h4,
+.blog-content h5,
+.blog-content h6 {
+  font-family: 'Noto Serif SC', serif;
+  color: var(--foreground);
+}
+
 .blog-content h1 {
   font-size: 2rem;
-  font-weight: 700;
+  font-weight: 600;
   margin-top: 2rem;
   margin-bottom: 1rem;
-  color: #111827;
-  border-bottom: 2px solid #e5e7eb;
+  border-bottom: 1px solid var(--border, #e8e4de);
   padding-bottom: 0.5rem;
 }
 
 .blog-content h2 {
   font-size: 1.5rem;
-  font-weight: 600;
+  font-weight: 400;
   margin-top: 1.5rem;
   margin-bottom: 0.75rem;
-  color: #111827;
 }
 
 .blog-content h3 {
   font-size: 1.25rem;
-  font-weight: 600;
+  font-weight: 400;
   margin-top: 1.25rem;
   margin-bottom: 0.5rem;
-  color: #111827;
 }
 
 .blog-content h4,
 .blog-content h5,
 .blog-content h6 {
-  font-weight: 600;
+  font-weight: 400;
   margin-top: 1rem;
   margin-bottom: 0.5rem;
-  color: #111827;
 }
 
 /* 段落样式 */
