@@ -73,7 +73,7 @@
 /* 段落样式 */
 .blog-content p {
   margin-bottom: 1rem;
-  text-align: justify;
+  text-align: left;
 }
 
 /* 强调样式 */
