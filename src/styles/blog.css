@@ -170,14 +170,14 @@
   font-size: inherit;
 }
 
-/* 引用样式 */
+/* 引用样式 — 使用 zen accent 色，与整体调色板统一 */
 .blog-content blockquote {
-  border-left: 4px solid #3b82f6;
-  background-color: #f8fafc;
+  border-left: 1px solid var(--accent, #8b5e3c);
+  background-color: color-mix(in srgb, var(--accent, #8b5e3c) 5%, var(--background, #faf8f5));
   padding: 1rem 1.5rem;
   margin: 1.5rem 0;
   font-style: italic;
-  color: #475569;
+  color: var(--muted-foreground, #6b6560);
   border-radius: 0 0.5rem 0.5rem 0;
 }
 
@@ -327,8 +327,8 @@
   border-radius: 6px;
   padding: 1rem;
   margin: 1rem 0;
-  border-left: 4px solid #3b82f6;
-  background-color: #f8fafc;
+  border-left: 1px solid var(--accent, #8b5e3c);
+  background-color: color-mix(in srgb, var(--accent, #8b5e3c) 5%, var(--background, #faf8f5));
 }
 
 /* 缩进样式 */
