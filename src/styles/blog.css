@@ -454,35 +454,26 @@ html {
 
 /* 深色模式下的博客内容样式完整适配 */
 @media (prefers-color-scheme: dark) {
-  /* 标题样式 */
-  .blog-content h1,
-  .blog-content h2,
-  .blog-content h3,
-  .blog-content h4,
-  .blog-content h5,
-  .blog-content h6 {
-    color: #ffffff !important;
-  }
-  
+  /* 标题样式 — 继承 CSS 变量，无需覆盖 */
   .blog-content h1 {
-    border-bottom-color: #374151;
+    border-bottom-color: var(--border, #3a3530);
   }
-  
+
   /* 强调样式 */
   .blog-content strong,
   .blog-content b {
-    color: #ffffff;
+    color: var(--foreground);
   }
-  
-  /* 链接样式 */
+
+  /* 链接样式 — 深色模式下 accent 略亮 */
   .blog-content a {
-    color: #60a5fa;
-    text-decoration-color: #3b82f6;
+    color: var(--accent, #c4895a);
+    text-decoration-color: color-mix(in srgb, var(--accent, #c4895a) 40%, transparent);
   }
-  
+
   .blog-content a:hover {
-    color: #93c5fd;
-    text-decoration-color: #60a5fa;
+    color: var(--accent, #c4895a);
+    opacity: 0.8;
   }
   
   /* 代码样式 */
@@ -498,9 +489,9 @@ html {
   
   /* 引用样式 */
   .blog-content blockquote {
-    border-left-color: #60a5fa;
-    background-color: #1f2937;
-    color: #d1d5db;
+    border-left-color: var(--accent, #c4895a);
+    background-color: color-mix(in srgb, var(--accent, #c4895a) 8%, var(--background));
+    color: var(--muted-foreground, #9e9590);
   }
   
   /* 分割线 */
@@ -535,9 +526,9 @@ html {
   
   /* 提示框样式 */
   .blog-content .callout {
-    border-left-color: #60a5fa;
-    background-color: #1f2937;
-    color: #d1d5db;
+    border-left-color: var(--accent, #c4895a);
+    background-color: color-mix(in srgb, var(--accent, #c4895a) 8%, var(--background));
+    color: var(--foreground);
   }
   
   /* 高亮背景色 - 深色版本 */
