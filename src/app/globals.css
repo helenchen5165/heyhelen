@@ -237,7 +237,7 @@ body {
 
 .zen-article p {
   margin: 1.5rem 0;
-  text-align: justify;
+  text-align: left;
 }
 
 .zen-article blockquote {
