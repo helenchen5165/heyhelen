@@ -128,17 +128,18 @@
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
-/* 链接样式 */
+/* 链接样式 — 使用暖色 accent，与 zen 调色板一致 */
 .blog-content a {
-  color: #2563eb;
+  color: var(--accent, #8b5e3c);
   text-decoration: underline;
-  text-decoration-color: #93c5fd;
-  transition: color 0.2s;
+  text-decoration-color: color-mix(in srgb, var(--accent, #8b5e3c) 40%, transparent);
+  transition: color 0.2s, text-decoration-color 0.2s;
 }
 
 .blog-content a:hover {
-  color: #1d4ed8;
-  text-decoration-color: #2563eb;
+  color: var(--accent, #8b5e3c);
+  text-decoration-color: var(--accent, #8b5e3c);
+  opacity: 0.75;
 }
 
 /* 代码样式 */
