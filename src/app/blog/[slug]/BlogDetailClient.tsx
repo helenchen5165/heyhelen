@@ -167,9 +167,17 @@ export default function BlogDetailClient({ slug }: { slug: string }) {
 
   return (
     <div className="min-h-screen" style={{ background: 'var(--background)' }}>
-      {/* 返回导航 */}
-      <div className="py-6 px-4 sm:py-8 sm:px-8">
-        <Link href="/blog" className="zen-subtitle flex items-center gap-2 hover:text-current transition-colors">
+      {/* 返回导航 — sticky，滚动时保持可见 */}
+      <div
+        className="sticky top-0 z-10 py-4 px-4 sm:px-8 flex items-center"
+        style={{
+          background: 'var(--background)',
+          borderBottom: '1px solid var(--zen-border)',
+          backdropFilter: 'blur(8px)',
+          WebkitBackdropFilter: 'blur(8px)',
+        }}
+      >
+        <Link href="/blog" className="zen-subtitle flex items-center gap-2 hover:text-current transition-colors text-sm">
           <span>←</span>
           <span>返回思考记录</span>
         </Link>

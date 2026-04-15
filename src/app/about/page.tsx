@@ -136,7 +136,7 @@ export default function AboutPage() {
               海伦的一个小时价值$10,000
             </h2>
             <p className="zen-subtitle text-xl leading-relaxed">
-              这不是一个狂妄的宣言，而是一种生活方式的选择
+              做正确而少数的事
             </p>
           </div>
           

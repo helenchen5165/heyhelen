@@ -10,6 +10,12 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
+  async rewrites() {
+    return [
+      { source: '/helen-resume', destination: '/helen-resume/index.html' },
+      { source: '/ppp', destination: '/ppp/index.html' },
+    ];
+  },
 };
 
-export default nextConfig; 
+export default nextConfig;

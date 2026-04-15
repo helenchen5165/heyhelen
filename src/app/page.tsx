@@ -34,10 +34,21 @@ const TimeCircle = ({ progress = 75, size = 120 }: { progress?: number, size?: n
 
 // 一小时价值创造计数器组件
 const HourlyValueCounter = () => {
+  // 初始值用 0，避免服务端/客户端时间不一致导致 hydration 报错
   const [currentValue, setCurrentValue] = useState(0);
   const [minutes, setMinutes] = useState(0);
   const [seconds, setSeconds] = useState(0);
-  
+
+  useEffect(() => {
+    // 只在客户端：用当前时间初始化，让计数器看起来"一直在跑"
+    const now = new Date();
+    const initMin = now.getMinutes();
+    const initSec = now.getSeconds();
+    setMinutes(initMin);
+    setSeconds(initSec);
+    setCurrentValue(Math.floor(((initMin * 60 + initSec) / 3600) * 10000));
+  }, []);
+
   useEffect(() => {
     const interval = setInterval(() => {
       setSeconds(prev => {
@@ -46,7 +57,6 @@ const HourlyValueCounter = () => {
           setMinutes(prevMin => {
             const newMinutes = prevMin + 1;
             if (newMinutes >= 60) {
-              // 一小时完成，重置
               setCurrentValue(0);
               return 0;
             }
@@ -56,15 +66,14 @@ const HourlyValueCounter = () => {
         }
         return newSeconds;
       });
-      
-      // 每秒增加约166.67 ($10,000 / 3600 seconds)
+
       setCurrentValue(prev => {
         const totalSeconds = minutes * 60 + seconds + 1;
         const newValue = Math.floor((totalSeconds / 3600) * 10000);
         return Math.min(newValue, 10000);
       });
-    }, 1000); // 每秒更新一次
-    
+    }, 1000);
+
     return () => clearInterval(interval);
   }, [minutes, seconds]);
 
@@ -167,7 +176,7 @@ export default function HomePage() {
             海伦一小时值 $10,000
           </h1>
           <p className="zen-subtitle text-base sm:text-lg mb-3 sm:mb-4 max-w-xl mx-auto">
-            不是因为它真的值这么多——是因为这个数字让我不得不认真。
+            大胆为自己设一个很高的时薪，且坚持执行，只做少数的重要的决策，不断取舍。
           </p>
           <p className="zen-subtitle text-sm sm:text-base max-w-xl mx-auto">
             这个网站记录我怎么思考、怎么做事，以及结果如何。
@@ -197,11 +206,11 @@ export default function HomePage() {
                 <span className="text-6xl font-light leading-none" style={{ color: 'var(--foreground)' }}>○</span>
               </div>
               <h3 className="zen-title text-xl sm:text-2xl mt-6 mb-3 sm:mb-4">时间实验</h3>
-              <p className="zen-subtitle mb-6 sm:mb-8 text-sm sm:text-base min-h-[3rem] flex items-center px-2">
+              <p className="zen-subtitle mb-6 sm:mb-8 text-sm sm:text-base px-2" style={{ wordBreak: 'break-word', overflowWrap: 'anywhere' }}>
                 如柳比歇夫般记录时间，将抽象的时间转化为可见的力量
               </p>
             </div>
-            <Link href="/time" className="zen-button text-sm sm:text-base">进入实验</Link>
+            <Link href="https://github.com/helenchen5165/lifestream/tree/main" target="_blank" rel="noopener noreferrer" className="zen-button text-sm sm:text-base">进入实验</Link>
           </div>
 
           {/* 投资思考 */}
@@ -211,7 +220,7 @@ export default function HomePage() {
                 <span className="text-6xl font-light leading-none" style={{ color: 'var(--foreground)' }}>◐</span>
               </div>
               <h3 className="zen-title text-xl sm:text-2xl mt-6 mb-3 sm:mb-4">投资思考</h3>
-              <p className="zen-subtitle mb-6 sm:mb-8 text-sm sm:text-base min-h-[3rem] flex items-center px-2">
+              <p className="zen-subtitle mb-6 sm:mb-8 text-sm sm:text-base px-2" style={{ wordBreak: 'break-word', overflowWrap: 'anywhere' }}>
                 分享投资智慧，记录市场观察，探索价值发现的艺术
               </p>
             </div>
@@ -225,7 +234,7 @@ export default function HomePage() {
                 <span className="text-6xl font-light leading-none" style={{ color: 'var(--foreground)' }}>◑</span>
               </div>
               <h3 className="zen-title text-xl sm:text-2xl mt-6 mb-3 sm:mb-4">模板工具</h3>
-              <p className="zen-subtitle mb-6 sm:mb-8 text-sm sm:text-base min-h-[3rem] flex items-center px-2">
+              <p className="zen-subtitle mb-6 sm:mb-8 text-sm sm:text-base px-2" style={{ wordBreak: 'break-word', overflowWrap: 'anywhere' }}>
                 精心设计的Notion模板，让知识管理回归本质
               </p>
             </div>
