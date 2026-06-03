@@ -10,6 +10,7 @@ export default function ReaderPage() {
   const { status, session, errorMessage, load } = useReaderSession()
   const [activeHighlight, setActiveHighlight] = useState<Highlight | null>(null)
   const [drawerMode, setDrawerMode] = useState<DrawerMode>('closed')
+  const [chatPhase, setChatPhase] = useState<'explain' | 'translate'>('explain')
 
   function handleSource(source: SessionSource) {
     setActiveHighlight(null)
@@ -20,6 +21,13 @@ export default function ReaderPage() {
   function handleHighlightClick(h: Highlight) {
     setActiveHighlight(h)
     setDrawerMode('detail')
+  }
+
+  function handleSelectionAction(text: string, action: 'explain' | 'translate') {
+    const h: Highlight = { type: 'related-concept', text, offset: 0, len: text.length, preview: '' }
+    setActiveHighlight(h)
+    setChatPhase(action)
+    setDrawerMode('chat')
   }
 
   return (
@@ -65,6 +73,7 @@ export default function ReaderPage() {
               highlights={session.highlights}
               activeHighlight={activeHighlight}
               onHighlightClick={handleHighlightClick}
+              onSelectionAction={handleSelectionAction}
             />
           </>
         )}
@@ -74,7 +83,9 @@ export default function ReaderPage() {
         mode={drawerMode}
         highlight={activeHighlight}
         source={session?.url ?? ''}
-        onDeepen={() => setDrawerMode('chat')}
+        chatPhase={chatPhase}
+        articleTitle={session?.title}
+        onDeepen={() => { setChatPhase('explain'); setDrawerMode('chat') }}
         onClose={() => { setDrawerMode('closed'); setActiveHighlight(null) }}
       />
     </div>

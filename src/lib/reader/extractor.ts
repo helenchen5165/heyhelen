@@ -69,11 +69,30 @@ function defaultParseHtml(html: string, url: string): { title: string; text: str
   const dom = new JSDOM(html, { url })
   const reader = new Readability(dom.window.document)
   const article = reader.parse()
+  const content = article?.content ?? html
   return {
     title: article?.title ?? '',
-    text: article?.textContent ?? '',
-    content: article?.content ?? html,
+    text: htmlToText(content),
+    content,
   }
+}
+
+// Convert cleaned Readability HTML to plain text preserving paragraph breaks as \n\n
+export function htmlToText(html: string): string {
+  return html
+    .replace(/<\/(?:p|h[1-6]|li|blockquote|div|article|section)\s*>/gi, '\n\n')
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<[^>]+>/g, '')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&apos;/g, "'")
+    .replace(/&#039;/g, "'")
+    .replace(/&nbsp;/g, ' ')
+    .replace(/\n[ \t]+/g, '\n')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim()
 }
 
 async function defaultParsePdf(buffer: ArrayBuffer): Promise<{ title: string; text: string }> {

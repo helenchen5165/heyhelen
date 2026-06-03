@@ -7,6 +7,8 @@ interface Props {
   mode: DrawerMode
   highlight: Highlight | null
   source: string
+  chatPhase?: 'explain' | 'translate'
+  articleTitle?: string
   onDeepen: () => void
   onClose: () => void
 }
@@ -17,7 +19,7 @@ const HEIGHT: Record<DrawerMode, string> = {
   chat:   '60vh',
 }
 
-export function BottomDrawer({ mode, highlight, source, onDeepen, onClose }: Props) {
+export function BottomDrawer({ mode, highlight, source, chatPhase, articleTitle, onDeepen, onClose }: Props) {
   return (
     <div
       className="fixed bottom-0 left-0 right-0 bg-[#12122a] border-t border-white/10 overflow-hidden transition-all duration-300 z-50"
@@ -35,7 +37,7 @@ export function BottomDrawer({ mode, highlight, source, onDeepen, onClose }: Pro
           )}
 
           {mode === 'chat' && (
-            <ConceptChat highlight={highlight} />
+            <ConceptChat highlight={highlight} initialPhase={chatPhase} articleTitle={articleTitle} />
           )}
         </>
       )}
