@@ -1,6 +1,6 @@
 'use client'
 import { useState, useCallback } from 'react'
-import { segmentText } from '@/lib/reader/segment-text'
+import { segmentParagraphs } from '@/lib/reader/segment-paragraphs'
 import { HighlightMark } from './HighlightMark'
 import type { Highlight } from '@/lib/reader/types'
 
@@ -40,26 +40,16 @@ export function ArticleView({ rawText, highlights, activeHighlight, onHighlightC
     onSelectionAction(selectionText, action)
   }
 
-  // Split rawText on \n\n boundaries; compute per-paragraph highlights with adjusted offsets
-  const rawParas = rawText.split(/\n\n+/).filter(p => p.trim())
-  let cursor = 0
-  const paragraphs = rawParas.map(para => {
-    const start = rawText.indexOf(para, cursor)
-    cursor = start + para.length
-    const paraHighlights = highlights
-      .filter(h => h.offset >= start && h.offset < start + para.length)
-      .map(h => ({ ...h, offset: h.offset - start }))
-    return segmentText(para, paraHighlights)
-  })
+  const paragraphs = segmentParagraphs(rawText, highlights)
 
   return (
     <div
       className="max-w-[680px] mx-auto px-6 py-8 font-serif text-lg leading-8 text-white/90"
       onMouseUp={handleMouseUp}
     >
-      {paragraphs.map((segs, pi) => (
+      {paragraphs.map((para, pi) => (
         <p key={pi} className="mb-5">
-          {segs.map((seg, i) =>
+          {para.segments.map((seg, i) =>
             seg.highlight ? (
               <HighlightMark
                 key={i}
