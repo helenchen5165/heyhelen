@@ -18,6 +18,7 @@ export function ConceptChat({ highlight, initialPhase = 'explain', articleTitle,
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
   const [streaming, setStreaming] = useState(false)
+  const [showRaw, setShowRaw] = useState(false)
   const bottomRef = useRef<HTMLDivElement>(null)
 
   // Use a closure-scoped flag so React StrictMode's double-invoke doesn't
@@ -112,16 +113,28 @@ export function ConceptChat({ highlight, initialPhase = 'explain', articleTitle,
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [messages, streaming])
 
-  function renderAssistant(content: string) {
+  function renderAssistant(content: string, isTranslate: boolean) {
     if (!content) return <span className="px-4 py-2.5 opacity-40 animate-pulse">●●●</span>
 
-    const sepIndex = content.indexOf('\n---\n')
-    if (sepIndex < 0) {
+    if (showRaw) {
+      return (
+        <div className="px-4 py-3">
+          <p className="text-[10px] text-yellow-400 mb-1">RAW</p>
+          <pre className="text-xs text-white/60 whitespace-pre-wrap break-all">{JSON.stringify(content)}</pre>
+        </div>
+      )
+    }
+
+    if (!isTranslate) return <p className="px-4 py-2.5 whitespace-pre-wrap">{content}</p>
+
+    // Match --- on its own line with any surrounding whitespace
+    const sepMatch = content.search(/\n\s*---\s*\n/)
+    if (sepMatch < 0) {
       return <p className="px-4 py-2.5 whitespace-pre-wrap">{content}</p>
     }
 
-    const translation = content.slice(0, sepIndex).trim()
-    const context = content.slice(sepIndex + 5).trim()
+    const translation = content.slice(0, sepMatch).trim()
+    const context = content.slice(content.indexOf('\n', sepMatch + 1) + 1).trim()
 
     return (
       <div className="flex flex-col">
@@ -155,10 +168,18 @@ export function ConceptChat({ highlight, initialPhase = 'explain', articleTitle,
             }`}
           >
             {msg.role === 'assistant'
-              ? renderAssistant(msg.content)
+              ? renderAssistant(msg.content, i === 0 && initialPhase === 'translate')
               : msg.content}
           </div>
         ))}
+        {messages.some(m => m.role === 'assistant') && (
+          <button
+            onClick={() => setShowRaw(v => !v)}
+            className="self-start text-[10px] text-white/20 hover:text-white/40 px-1"
+          >
+            {showRaw ? 'hide raw' : 'raw'}
+          </button>
+        )}
         <div ref={bottomRef} />
       </div>
 
