@@ -2,22 +2,22 @@ import { createVocabularyStore } from './vocabulary-store'
 import type { WordEntry, VocabularyDb } from './vocabulary-store'
 
 function makeDb(): VocabularyDb {
-  const store: WordEntry[] = []
+  const records: WordEntry[] = []
 
   return {
     create: async (data) => {
       const entry: WordEntry = {
         ...data,
-        id: `id-${store.length + 1}`,
+        id: `id-${records.length + 1}`,
         reviewedAt: null,
         createdAt: new Date(),
       }
-      store.push(entry)
+      records.push(entry)
       return entry
     },
-    listByUser: async (userId) => store.filter((w) => w.userId === userId),
-    markReviewed: async (wordId, userId) => {
-      const entry = store.find((w) => w.id === wordId && w.userId === userId)
+    list: async () => [...records],
+    markReviewed: async (wordId) => {
+      const entry = records.find((w) => w.id === wordId)
       if (entry) entry.reviewedAt = new Date()
     },
   }
@@ -28,7 +28,6 @@ const PARAMS = {
   context: 'idiosyncratic risks cancel out in large portfolios',
   source: 'https://oaktreecapital.com/memo',
   preview: 'Peculiar to a specific individual or group.',
-  userId: 'user-1',
 }
 
 describe('VocabularyStore', () => {
@@ -43,17 +42,16 @@ describe('VocabularyStore', () => {
     expect(entry.reviewedAt).toBeNull()
   })
 
-  it('list() returns only words belonging to that user', async () => {
+  it('list() returns all saved words in reverse-creation order', async () => {
     const db = makeDb()
     const store = createVocabularyStore(db)
 
-    await store.add({ ...PARAMS, userId: 'user-1' })
-    await store.add({ ...PARAMS, word: 'convexity', userId: 'user-2' })
+    await store.add(PARAMS)
+    await store.add({ ...PARAMS, word: 'convexity' })
 
-    const user1Words = await store.list('user-1')
+    const words = await store.list()
 
-    expect(user1Words).toHaveLength(1)
-    expect(user1Words[0].word).toBe('idiosyncratic')
+    expect(words).toHaveLength(2)
   })
 
   it('markReviewed() sets reviewedAt on the correct word', async () => {
@@ -63,20 +61,23 @@ describe('VocabularyStore', () => {
     const entry = await store.add(PARAMS)
     expect(entry.reviewedAt).toBeNull()
 
-    await store.markReviewed(entry.id, 'user-1')
+    await store.markReviewed(entry.id)
 
-    const [updated] = await store.list('user-1')
+    const [updated] = await store.list()
     expect(updated.reviewedAt).toBeInstanceOf(Date)
   })
 
-  it('markReviewed() does nothing when userId does not match', async () => {
+  it('markReviewed() does not affect other words', async () => {
     const db = makeDb()
     const store = createVocabularyStore(db)
 
-    const entry = await store.add(PARAMS)
-    await store.markReviewed(entry.id, 'user-other')
+    const a = await store.add(PARAMS)
+    const b = await store.add({ ...PARAMS, word: 'convexity' })
 
-    const [unchanged] = await store.list('user-1')
-    expect(unchanged.reviewedAt).toBeNull()
+    await store.markReviewed(a.id)
+
+    const words = await store.list()
+    const bEntry = words.find(w => w.id === b.id)
+    expect(bEntry?.reviewedAt).toBeNull()
   })
 })

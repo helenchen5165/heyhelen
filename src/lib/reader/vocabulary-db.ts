@@ -6,16 +6,15 @@ export const prismaVocabularyDb: VocabularyDb = {
     return prisma.word.create({ data }) as Promise<WordEntry>
   },
 
-  async listByUser(userId) {
+  async list() {
     return prisma.word.findMany({
-      where: { userId },
       orderBy: { createdAt: 'desc' },
     }) as Promise<WordEntry[]>
   },
 
-  async markReviewed(wordId, userId) {
-    await prisma.word.updateMany({
-      where: { id: wordId, userId },
+  async markReviewed(wordId) {
+    await prisma.word.update({
+      where: { id: wordId },
       data: { reviewedAt: new Date() },
     })
   },

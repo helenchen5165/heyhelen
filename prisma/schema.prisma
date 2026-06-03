@@ -32,7 +32,6 @@ model User {
   timeRecords TimeRecord[]
   likes       Like[]
   comments    Comment[]
-  words       Word[]
 
   @@map("users")
 }
@@ -134,9 +133,6 @@ model Word {
   preview    String    // 一句话定义
   reviewedAt DateTime?
   createdAt  DateTime  @default(now())
-
-  userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("words")
 }
