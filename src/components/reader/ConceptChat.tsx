@@ -11,9 +11,10 @@ interface Props {
   highlight: Highlight
   initialPhase?: 'explain' | 'translate'
   articleTitle?: string
+  onDeepenReady?: (trigger: () => void) => void
 }
 
-export function ConceptChat({ highlight, initialPhase = 'explain', articleTitle }: Props) {
+export function ConceptChat({ highlight, initialPhase = 'explain', articleTitle, onDeepenReady }: Props) {
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
   const [streaming, setStreaming] = useState(false)
@@ -96,6 +97,20 @@ export function ConceptChat({ highlight, initialPhase = 'explain', articleTitle 
     setInput('')
     await stream(userMsg.content, 'socratic', next, () => false)
   }
+
+  function handleDeepen() {
+    if (streaming) return
+    const msg = '请用苏格拉底式追问帮我深入理解这个概念。'
+    const userMsg: Message = { role: 'user', content: msg }
+    const next = [...messages, userMsg]
+    setMessages(next)
+    stream(msg, 'socratic', next, () => false)
+  }
+
+  useEffect(() => {
+    onDeepenReady?.(handleDeepen)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [messages, streaming])
 
   function renderAssistant(content: string) {
     if (!content) return <span className="px-4 py-2.5 opacity-40 animate-pulse">●●●</span>
