@@ -1,0 +1,46 @@
+{
+  "date": "2026-04-15",
+  "window": "14d",
+  "metrics": {
+    "commits": 13,
+    "contributors": 1,
+    "prs_merged": 0,
+    "insertions": 257,
+    "deletions": 59,
+    "net_loc": 198,
+    "test_loc": 0,
+    "test_ratio": 0.0,
+    "active_days": 3,
+    "sessions": 3,
+    "deep_sessions": 0,
+    "avg_session_minutes": 4,
+    "loc_per_session_hour": 0,
+    "feat_pct": 0.08,
+    "fix_pct": 0.0,
+    "style_pct": 0.92,
+    "peak_hour": 10,
+    "ai_assisted_commits": 13
+  },
+  "authors": {
+    "h3l3n_ch3n": {
+      "commits": 13,
+      "insertions": 257,
+      "deletions": 59,
+      "test_ratio": 0.0,
+      "top_area": "src/styles/blog.css"
+    }
+  },
+  "version_range": [],
+  "streak_days": 0,
+  "tweetable": "Apr 1-15: 13 commits, 257 LOC, 0% tests | design polish + PPP dashboard | 100% AI-assisted | 0-day streak (last commit: Apr 7)",
+  "test_health": {
+    "total_test_files": 2,
+    "tests_added_this_period": 0,
+    "regression_test_commits": 0,
+    "test_files_changed": 0
+  },
+  "skill_usage": {
+    "browse": 7,
+    "retro": 2
+  }
+}

@@ -1,0 +1,53 @@
+import '@testing-library/jest-dom';
+
+// Polyfill Web Streams API for jsdom (Node exposes these but jsdom does not)
+if (typeof global.ReadableStream === 'undefined') {
+  const { ReadableStream, WritableStream, TransformStream } = require('stream/web');
+  global.ReadableStream = ReadableStream;
+  global.WritableStream = WritableStream;
+  global.TransformStream = TransformStream;
+}
+if (typeof global.TextEncoder === 'undefined') {
+  const { TextEncoder, TextDecoder } = require('util');
+  global.TextEncoder = TextEncoder;
+  global.TextDecoder = TextDecoder;
+}
+
+// Mock Next.js router
+jest.mock('next/router', () => require('next-router-mock'));
+
+// Mock Next.js navigation
+jest.mock('next/navigation', () => require('next-router-mock'));
+
+// Mock fetch
+global.fetch = jest.fn();
+
+// Mock Next.js Request and Response
+global.Request = class MockRequest {
+  constructor(url, init) {
+    this.url = url;
+    this.method = init?.method || 'GET';
+    this.headers = new Map(Object.entries(init?.headers || {}));
+    this.body = init?.body;
+  }
+  
+  async json() {
+    return JSON.parse(this.body);
+  }
+};
+
+global.Response = class MockResponse {
+  constructor(body, init) {
+    this.body = body;
+    this.status = init?.status || 200;
+    this.headers = new Map(Object.entries(init?.headers || {}));
+  }
+  
+  json() {
+    return JSON.parse(this.body);
+  }
+};
+
+// Mock environment variables
+process.env.JWT_SECRET = 'test-secret';
+process.env.NODE_ENV = 'test';
