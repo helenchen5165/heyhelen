@@ -100,30 +100,29 @@ export function ConceptChat({ highlight, initialPhase = 'explain', articleTitle 
   function renderAssistant(content: string) {
     if (!content) return <span className="px-4 py-2.5 opacity-40 animate-pulse">●●●</span>
 
-    const translationMatch = content.match(/<译文>([\s\S]*?)(?:<\/译文>|$)/)
-    const contextMatch = content.match(/<语境>([\s\S]*?)(?:<\/语境>|$)/)
-
-    if (!translationMatch && !contextMatch) {
+    const sepIndex = content.indexOf('\n---\n')
+    if (sepIndex < 0) {
       return <p className="px-4 py-2.5 whitespace-pre-wrap">{content}</p>
     }
 
-    const sections = [
-      translationMatch ? { label: '译文', body: translationMatch[1].trim(), accent: true } : null,
-      contextMatch    ? { label: '语境', body: contextMatch[1].trim(),    accent: false } : null,
-    ].filter(Boolean) as { label: string; body: string; accent: boolean }[]
+    const translation = content.slice(0, sepIndex).trim()
+    const context = content.slice(sepIndex + 5).trim()
 
     return (
-      <div className="flex flex-col divide-y divide-white/10">
-        {sections.map((s, i) => (
-          <div key={i} className="px-4 py-3">
-            <span className={`text-[10px] font-semibold tracking-widest mb-1.5 block ${
-              s.accent ? 'text-indigo-400' : 'text-white/40'
-            }`}>{s.label}</span>
-            <p className="whitespace-pre-wrap leading-relaxed">
-              {s.body || <span className="opacity-40 animate-pulse">●●●</span>}
-            </p>
-          </div>
-        ))}
+      <div className="flex flex-col">
+        <div className="px-4 pt-3 pb-4">
+          <span className="text-[10px] font-semibold tracking-widest mb-2 block text-indigo-400">译文</span>
+          <p className="whitespace-pre-wrap leading-relaxed">{translation || <span className="opacity-40 animate-pulse">●●●</span>}</p>
+        </div>
+        {context && (
+          <>
+            <div className="mx-4 border-t border-white/10" />
+            <div className="px-4 pt-4 pb-3 bg-white/[0.03] rounded-b-xl">
+              <span className="text-[10px] font-semibold tracking-widest mb-2 block text-white/40">语境</span>
+              <p className="whitespace-pre-wrap leading-relaxed text-white/70">{context}</p>
+            </div>
+          </>
+        )}
       </div>
     )
   }
