@@ -35,13 +35,7 @@ export function DrawerDetail({ highlight, source, onDeepen }: Props) {
         </div>
       </div>
 
-      <p className="text-sm text-white/80 leading-relaxed">
-        🇬🇧 {highlight.preview}
-      </p>
-
-      <p className="text-sm text-white/50 leading-relaxed">
-        🇨🇳 {highlight.preview}
-      </p>
+      <p className="text-sm text-white/70 leading-relaxed">{highlight.preview}</p>
     </div>
   )
 }

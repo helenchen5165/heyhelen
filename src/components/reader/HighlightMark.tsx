@@ -1,10 +1,12 @@
 import type { Highlight } from '@/lib/reader/types'
 
+// Conceptual group: key-argument + related-concept → amber
+// Language group:   vocabulary + complex-sentence  → blue
 const STYLES: Record<string, { underline: string; bg: string; borderStyle: string }> = {
-  'key-argument':     { underline: '#7ec668', bg: 'rgba(126,198,104,0.15)', borderStyle: 'solid' },
-  'vocabulary':       { underline: '#64a8e0', bg: 'rgba(100,168,224,0.15)', borderStyle: 'solid' },
-  'complex-sentence': { underline: '#e09664', bg: 'rgba(224,150,100,0.15)', borderStyle: 'dashed' },
-  'related-concept':  { underline: '#b482dc', bg: 'rgba(180,130,220,0.15)', borderStyle: 'dotted' },
+  'key-argument':     { underline: '#f59e0b', bg: 'rgba(245,158,11,0.12)',  borderStyle: 'solid' },
+  'related-concept':  { underline: '#f59e0b', bg: 'rgba(245,158,11,0.12)',  borderStyle: 'dotted' },
+  'vocabulary':       { underline: '#60a5fa', bg: 'rgba(96,165,250,0.12)',  borderStyle: 'solid' },
+  'complex-sentence': { underline: '#60a5fa', bg: 'rgba(96,165,250,0.12)',  borderStyle: 'dashed' },
 }
 
 interface Props {
