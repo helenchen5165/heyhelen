@@ -26,6 +26,11 @@ export function createExtractor(deps?: ExtractorDeps): Extractor {
 
   return {
     async extract(source: SessionSource) {
+      if ('text' in source) {
+        const text = source.text.trim()
+        return { title: source.title ?? '', text, html: `<pre>${text}</pre>` }
+      }
+
       if ('file' in source) {
         const buffer = await (source.file as Blob).arrayBuffer()
         const { title, text } = await parsePdfFn(buffer)

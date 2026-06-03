@@ -18,9 +18,11 @@ export function useReaderSession(fetchFn: FetchFn = fetch) {
     try {
       const body = 'url' in source
         ? JSON.stringify({ url: source.url })
-        : (() => { const f = new FormData(); f.append('file', source.file, source.filename); return f })()
+        : 'text' in source
+          ? JSON.stringify({ text: source.text, title: source.title })
+          : (() => { const f = new FormData(); f.append('file', source.file, source.filename); return f })()
 
-      const headers: HeadersInit = 'url' in source ? { 'Content-Type': 'application/json' } : {}
+      const headers: HeadersInit = ('url' in source || 'text' in source) ? { 'Content-Type': 'application/json' } : {}
       const resp = await fetchFn('/api/reader/session', { method: 'POST', headers, body })
 
       if (!resp.ok || !resp.body) throw new Error(`Server error ${resp.status}`)

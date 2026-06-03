@@ -1,5 +1,6 @@
 'use client'
 import { useState } from 'react'
+import Link from 'next/link'
 import { useReaderSession } from '@/lib/reader/use-reader-session'
 import { UrlInput } from '@/components/reader/UrlInput'
 import { ArticleView } from '@/components/reader/ArticleView'
@@ -32,10 +33,10 @@ export default function ReaderPage() {
 
   return (
     <div className="min-h-screen bg-[#0d0d0d] text-white flex flex-col">
-      <UrlInput
-        onSubmit={handleSource}
-        disabled={status === 'loading'}
-      />
+      <div className="flex items-center justify-between pr-4">
+        <UrlInput onSubmit={handleSource} disabled={status === 'loading'} />
+        <Link href="/reader/vocabulary" className="shrink-0 text-xs text-white/30 hover:text-white/60 ml-3">词库</Link>
+      </div>
 
       <main
         className="flex-1 overflow-y-auto"
