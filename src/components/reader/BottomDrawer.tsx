@@ -1,6 +1,7 @@
 'use client'
 import { DrawerDetail } from './DrawerDetail'
 import { ConceptChat } from './ConceptChat'
+import { VocabButton } from './VocabButton'
 import type { Highlight, DrawerMode } from '@/lib/reader/types'
 
 interface Props {
@@ -29,7 +30,10 @@ export function BottomDrawer({ mode, highlight, source, chatPhase, articleTitle,
         <>
           <div className="relative flex items-center justify-center px-5 pt-3 pb-1">
             <div className="w-10 h-1 rounded-full bg-white/20" />
-            <button onClick={onClose} className="text-white/40 hover:text-white text-lg leading-none absolute right-4 top-3">✕</button>
+            <div className="absolute right-4 top-2 flex items-center gap-2">
+              {mode === 'chat' && <VocabButton highlight={highlight} source={source} />}
+              <button onClick={onClose} className="text-white/40 hover:text-white text-lg leading-none">✕</button>
+            </div>
           </div>
 
           {mode === 'detail' && (
