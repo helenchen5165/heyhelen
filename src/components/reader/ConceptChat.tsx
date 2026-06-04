@@ -5,6 +5,7 @@ import type { Highlight } from '@/lib/reader/types'
 interface Message {
   role: 'user' | 'assistant'
   content: string
+  type?: 'translation' | 'context'
 }
 
 interface Props {
@@ -18,7 +19,6 @@ export function ConceptChat({ highlight, initialPhase = 'explain', articleTitle,
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
   const [streaming, setStreaming] = useState(false)
-  const [showRaw, setShowRaw] = useState(false)
   const bottomRef = useRef<HTMLDivElement>(null)
 
   // Use a closure-scoped flag so React StrictMode's double-invoke doesn't
@@ -29,11 +29,18 @@ export function ConceptChat({ highlight, initialPhase = 'explain', articleTitle,
     setMessages([])
     setInput('')
 
-    const userText = initialPhase === 'translate'
-      ? `请翻译并解释这段英文：\n\n"${highlight.text}"`
-      : `${articleTitle ? `（文章：《${articleTitle}》）\n` : ''}这段话我不太理解：\n\n"${highlight.text}"\n\n请先解释它的含义，再提问帮我加深理解。`
-
-    stream(userText, initialPhase === 'translate' ? 'translate' : 'explain', [], () => cancelled)
+    if (initialPhase === 'translate') {
+      const text = highlight.text
+      ;(async () => {
+        await stream(text, 'translate', [], () => cancelled, 'translation')
+        if (!cancelled) {
+          await stream(text, 'context', [], () => cancelled, 'context')
+        }
+      })()
+    } else {
+      const userText = `${articleTitle ? `（文章：《${articleTitle}》）\n` : ''}这段话我不太理解：\n\n"${highlight.text}"\n\n请先解释它的含义，再提问帮我加深理解。`
+      stream(userText, 'explain', [], () => cancelled)
+    }
 
     return () => { cancelled = true }
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -48,10 +55,11 @@ export function ConceptChat({ highlight, initialPhase = 'explain', articleTitle,
     phase: string,
     history: Message[],
     isCancelled: () => boolean,
+    type?: Message['type'],
   ) {
     if (isCancelled()) return
     setStreaming(true)
-    setMessages(prev => [...prev, { role: 'assistant', content: '' }])
+    setMessages(prev => [...prev, { role: 'assistant', content: '', type }])
 
     try {
       const resp = await fetch('/api/concept', {
@@ -79,7 +87,7 @@ export function ConceptChat({ highlight, initialPhase = 'explain', articleTitle,
           if (!isCancelled()) {
             setMessages(prev => {
               const next = [...prev]
-              next[next.length - 1] = { role: 'assistant', content: next[next.length - 1].content + text }
+              next[next.length - 1] = { ...next[next.length - 1], content: next[next.length - 1].content + text }
               return next
             })
           }
@@ -113,46 +121,29 @@ export function ConceptChat({ highlight, initialPhase = 'explain', articleTitle,
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [messages, streaming])
 
-  function renderAssistant(content: string, isTranslate: boolean) {
+  function renderAssistant(msg: Message) {
+    const { content, type } = msg
     if (!content) return <span className="px-4 py-2.5 opacity-40 animate-pulse">●●●</span>
 
-    if (showRaw) {
+    if (type === 'translation') {
       return (
-        <div className="px-4 py-3">
-          <p className="text-[10px] text-yellow-400 mb-1">RAW</p>
-          <pre className="text-xs text-white/60 whitespace-pre-wrap break-all">{JSON.stringify(content)}</pre>
+        <div className="px-4 pt-3 pb-4">
+          <span className="text-[10px] font-semibold tracking-widest mb-2 block text-indigo-400">译文</span>
+          <p className="whitespace-pre-wrap leading-relaxed">{content}</p>
         </div>
       )
     }
 
-    if (!isTranslate) return <p className="px-4 py-2.5 whitespace-pre-wrap">{content}</p>
-
-    // Match --- on its own line with any surrounding whitespace
-    const sepMatch = content.search(/\n\s*---\s*\n/)
-    if (sepMatch < 0) {
-      return <p className="px-4 py-2.5 whitespace-pre-wrap">{content}</p>
+    if (type === 'context') {
+      return (
+        <div className="px-4 pt-4 pb-3 bg-white/[0.03] rounded-b-xl">
+          <span className="text-[10px] font-semibold tracking-widest mb-2 block text-white/40">语境</span>
+          <p className="whitespace-pre-wrap leading-relaxed text-white/70">{content}</p>
+        </div>
+      )
     }
 
-    const translation = content.slice(0, sepMatch).trim()
-    const context = content.slice(content.indexOf('\n', sepMatch + 1) + 1).trim()
-
-    return (
-      <div className="flex flex-col">
-        <div className="px-4 pt-3 pb-4">
-          <span className="text-[10px] font-semibold tracking-widest mb-2 block text-indigo-400">译文</span>
-          <p className="whitespace-pre-wrap leading-relaxed">{translation || <span className="opacity-40 animate-pulse">●●●</span>}</p>
-        </div>
-        {context && (
-          <>
-            <div className="mx-4 border-t border-white/10" />
-            <div className="px-4 pt-4 pb-3 bg-white/[0.03] rounded-b-xl">
-              <span className="text-[10px] font-semibold tracking-widest mb-2 block text-white/40">语境</span>
-              <p className="whitespace-pre-wrap leading-relaxed text-white/70">{context}</p>
-            </div>
-          </>
-        )}
-      </div>
-    )
+    return <p className="px-4 py-2.5 whitespace-pre-wrap">{content}</p>
   }
 
   return (
@@ -167,19 +158,9 @@ export function ConceptChat({ highlight, initialPhase = 'explain', articleTitle,
                 : 'bg-white/10 text-white self-end rounded-tr-sm px-4 py-2.5 whitespace-pre-wrap'
             }`}
           >
-            {msg.role === 'assistant'
-              ? renderAssistant(msg.content, i === 0 && initialPhase === 'translate')
-              : msg.content}
+            {msg.role === 'assistant' ? renderAssistant(msg) : msg.content}
           </div>
         ))}
-        {messages.some(m => m.role === 'assistant') && (
-          <button
-            onClick={() => setShowRaw(v => !v)}
-            className="self-start text-[10px] text-white/20 hover:text-white/40 px-1"
-          >
-            {showRaw ? 'hide raw' : 'raw'}
-          </button>
-        )}
         <div ref={bottomRef} />
       </div>
 
