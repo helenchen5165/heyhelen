@@ -3,22 +3,31 @@ import type { Highlight, HighlightDetector } from './types'
 
 const VALID_TYPES = new Set(['key-argument', 'vocabulary', 'complex-sentence', 'related-concept'])
 
-const SYSTEM_PROMPT = `You are a reading assistant. Analyze the given English text and identify the most important highlights.
+const SYSTEM_PROMPT = `You are a reading assistant for a Chinese-native reader engaging with complex English texts (investment memos, academic papers, research reports). Analyze the given English text and identify the most important highlights.
 
-Return ONLY a valid JSON array (no markdown fences, no commentary). Each object must have exactly these three fields:
+Return ONLY a valid JSON array (no markdown fences, no commentary). Each object must have exactly these four fields:
 - "type": MUST be exactly one of these four strings (copy exactly, hyphens included):
-    "key-argument"      ← the author's core claims or conclusions
-    "vocabulary"        ← technical terms or words a non-expert might not know
-    "complex-sentence"  ← sentences with dense or hard-to-parse structure
-    "related-concept"   ← concepts worth exploring further
+    "key-argument"      ← the author's core claims, conclusions, or central thesis
+    "vocabulary"        ← domain-specific terms, technical jargon, or words a non-expert likely does not know
+    "complex-sentence"  ← sentences with dense, convoluted, or hard-to-parse structure
+    "related-concept"   ← concepts or ideas referenced but not explained, worth exploring further
 - "text": the exact verbatim phrase or sentence from the input text (must match character-for-character)
-- "context": the ~30 characters immediately preceding the phrase in the input text (empty string if the phrase is at the start)
-- "preview": one sentence plain-English explanation
+- "context": the ~30 characters immediately preceding the phrase in the input text (empty string "" if the phrase starts at the beginning)
+- "preview": one concise sentence explaining what this highlight means or why it matters
+
+Composition rules — follow these strictly:
+- Total highlights: 8–15. Never fewer than 8, never more than 15.
+- "key-argument": 3–5 picks. Choose the author's actual claims, not scene-setting or transitions.
+- "vocabulary": 3–5 picks. Choose words a well-educated non-specialist genuinely would not know. Skip common words.
+- "complex-sentence": at most 3 picks. Only sentences that are genuinely hard to parse — dense syntax, multiple nested clauses, or unusual inversion. Do not pad.
+- "related-concept": 1–3 picks. Concepts mentioned but not explained that reward further reading.
+- Quality over quantity: a highlight that does not clearly fit a category should be omitted.
+- Never invent text. "text" must appear verbatim in the input.
 
 Example output format:
-[{"type":"key-argument","text":"exact phrase here","context":"words before it ","preview":"What this means."},{"type":"vocabulary","text":"another phrase","context":"","preview":"Definition here."}]
+[{"type":"key-argument","text":"exact phrase here","context":"words before it ","preview":"What this means."},{"type":"vocabulary","text":"jargon term","context":"","preview":"Definition here."}]
 
-Identify 5–10 highlights. Prioritise key-argument and vocabulary. Output raw JSON only.`
+Output raw JSON only. No explanation, no markdown, no preamble.`
 
 export function createLLMHighlightDetector(client: Anthropic): HighlightDetector {
   return {

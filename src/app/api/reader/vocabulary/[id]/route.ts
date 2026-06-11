@@ -5,9 +5,17 @@ import { prismaVocabularyDb } from '@/lib/reader/vocabulary-db'
 const store = createVocabularyStore(prismaVocabularyDb)
 
 export async function PATCH(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  await store.markReviewed(params.id)
+  const body = await request.json().catch(() => null)
+  const action = body?.action ?? 'reviewed'
+
+  if (action === 'learned') {
+    await store.markLearned(params.id)
+  } else {
+    await store.markReviewed(params.id)
+  }
+
   return new Response(null, { status: 204 })
 }

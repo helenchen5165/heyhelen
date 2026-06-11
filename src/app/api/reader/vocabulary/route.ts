@@ -4,7 +4,12 @@ import { prismaVocabularyDb } from '@/lib/reader/vocabulary-db'
 
 const store = createVocabularyStore(prismaVocabularyDb)
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const { searchParams } = new URL(request.url)
+  if (searchParams.get('review') === '1') {
+    const words = await store.listForReview()
+    return NextResponse.json(words)
+  }
   const words = await store.list()
   return NextResponse.json(words)
 }

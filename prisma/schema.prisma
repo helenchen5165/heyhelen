@@ -126,13 +126,15 @@ model Like {
 
 // 词汇本
 model Word {
-  id         String    @id @default(cuid())
-  word       String
-  context    String    // 原文中的上下文句子
-  source     String    // URL 或文件名
-  preview    String    // 一句话定义
-  reviewedAt DateTime?
-  createdAt  DateTime  @default(now())
+  id             String    @id @default(cuid())
+  word           String
+  context        String    // 原文中的上下文句子
+  source         String    // URL 或文件名
+  preview        String    // 一句话定义
+  reviewState    String    @default("unseen") // unseen | reviewing | learned
+  reviewedAt     DateTime?
+  lastReviewedAt DateTime?
+  createdAt      DateTime  @default(now())
 
   @@map("words")
 }
