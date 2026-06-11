@@ -40,6 +40,9 @@
     "sqlite3": "^5.1.7",
     "zod": "^4.0.5"
   },
+  "overrides": {
+    "html-encoding-sniffer": "3.0.0"
+  },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@netlify/next": "^1.4.9",
