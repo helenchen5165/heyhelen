@@ -1,12 +1,13 @@
 import { NextResponse } from 'next/server'
 import { createExtractor } from '@/lib/reader/extractor'
+import { createBrowseFn } from '@/lib/reader/browser-extractor'
 import { createLLMHighlightDetector } from '@/lib/reader/highlight-detector'
 import { createSessionEvents } from '@/lib/reader/session-events'
 import type { SessionSource } from '@/lib/reader/types'
 import Anthropic from '@anthropic-ai/sdk'
 
 const anthropic = new Anthropic()
-const extractor = createExtractor()
+const extractor = createExtractor({ browse: createBrowseFn() })
 const detector = createLLMHighlightDetector(anthropic)
 
 export async function POST(request: Request) {

@@ -6,6 +6,7 @@ import type { Highlight } from '@/lib/reader/types'
 
 interface Props {
   rawText: string
+  html?: string
   highlights: Highlight[]
   activeHighlight: Highlight | null
   onHighlightClick: (h: Highlight) => void
@@ -17,7 +18,7 @@ interface PopupPos {
   y: number
 }
 
-export function ArticleView({ rawText, highlights, activeHighlight, onHighlightClick, onSelectionAction }: Props) {
+export function ArticleView({ rawText, html, highlights, activeHighlight, onHighlightClick, onSelectionAction }: Props) {
   const [selectionText, setSelectionText] = useState('')
   const [popupPos, setPopupPos] = useState<PopupPos | null>(null)
 
@@ -40,7 +41,56 @@ export function ArticleView({ rawText, highlights, activeHighlight, onHighlightC
     onSelectionAction(selectionText, action)
   }
 
+  const hasImages = html ? /pbs\.twimg\.com|twimg\.com/.test(html) : false
   const paragraphs = segmentParagraphs(rawText, highlights)
+
+  // HTML 渲染模式：保留图片和原始格式（x.com 文章等）
+  if (hasImages && html) {
+    return (
+      <div
+        className="max-w-[680px] mx-auto px-6 py-8 text-white/90 article-html-view"
+        onMouseUp={handleMouseUp}
+      >
+        <div
+          dangerouslySetInnerHTML={{ __html: html }}
+          className="prose prose-invert prose-lg max-w-none font-serif leading-8
+            [&_img]:max-w-full [&_img]:rounded-lg [&_img]:my-6 [&_img]:block
+            [&_p]:mb-5 [&_p]:leading-8 [&_p:empty]:hidden
+            [&_br+br]:hidden
+            [&_h1]:text-2xl [&_h1]:font-bold [&_h1]:mb-4 [&_h1]:mt-8
+            [&_h2]:text-xl [&_h2]:font-semibold [&_h2]:mb-3 [&_h2]:mt-6
+            [&_h3]:text-lg [&_h3]:font-semibold [&_h3]:mb-2 [&_h3]:mt-4
+            [&_ul]:mb-4 [&_ol]:mb-4 [&_li]:mb-1
+            [&_a]:text-blue-400 [&_a]:underline [&_a]:no-underline
+            [&_blockquote]:border-l-2 [&_blockquote]:border-white/20 [&_blockquote]:pl-4 [&_blockquote]:italic
+            [&_div:empty]:hidden [&_span:empty]:hidden"
+        />
+        {popupPos && (
+          <div
+            className="fixed z-50 flex gap-1 bg-[#1e1e3a] border border-white/20 rounded-lg shadow-xl px-2 py-1.5"
+            style={{
+              left: popupPos.x,
+              top: popupPos.y - 8,
+              transform: 'translateX(-50%) translateY(-100%)',
+            }}
+          >
+            <button
+              onMouseDown={e => { e.preventDefault(); handleAction('explain') }}
+              className="px-3 py-1 text-xs text-white/80 hover:text-white hover:bg-white/10 rounded-md transition-colors"
+            >
+              解释
+            </button>
+            <button
+              onMouseDown={e => { e.preventDefault(); handleAction('translate') }}
+              className="px-3 py-1 text-xs text-white/80 hover:text-white hover:bg-white/10 rounded-md transition-colors"
+            >
+              翻译
+            </button>
+          </div>
+        )}
+      </div>
+    )
+  }
 
   return (
     <div

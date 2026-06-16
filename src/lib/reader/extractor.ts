@@ -3,11 +3,13 @@ import type { Extractor, SessionSource } from './types'
 type FetchFn = (url: string) => Promise<Pick<Response, 'ok' | 'status' | 'text' | 'arrayBuffer'>>
 type ParsePdfFn = (buffer: ArrayBuffer) => Promise<{ title: string; text: string }>
 type ParseHtmlFn = (html: string, url: string) => { title: string; text: string; content: string }
+export type BrowseFn = (url: string) => Promise<{ title: string; html: string; text: string }>
 
 interface ExtractorDeps {
   fetch?: FetchFn
   parsePdf?: ParsePdfFn
   parseHtml?: ParseHtmlFn
+  browse?: BrowseFn
 }
 
 const SPA_DOMAINS = new Set([
@@ -19,10 +21,30 @@ const SPA_DOMAINS = new Set([
   'threads.net',
 ])
 
+// Rewrites x.com/twitter.com thread URLs to threadreaderapp.com for extraction.
+// Returns null if the URL is not a rewritable thread (e.g. a profile or home page).
+export function rewriteTwitterUrl(url: string): string | null {
+  const { hostname, pathname } = new URL(url)
+  const host = hostname.replace(/^www\./, '')
+  if (host !== 'x.com' && host !== 'twitter.com') return null
+  const match = pathname.match(/\/status\/(\d+)/)
+  if (!match) return null
+  return `https://threadreaderapp.com/thread/${match[1]}.html`
+}
+
+// Detects x.com/twitter.com article URLs: /{user}/article/{id}
+export function isXArticleUrl(url: string): boolean {
+  const { hostname, pathname } = new URL(url)
+  const host = hostname.replace(/^www\./, '')
+  if (host !== 'x.com' && host !== 'twitter.com') return false
+  return /^\/[^/]+\/article\/\d+/.test(pathname)
+}
+
 export function createExtractor(deps?: ExtractorDeps): Extractor {
-  const fetchFn = deps?.fetch ?? ((url) => fetch(url))
-  const parsePdfFn = deps?.parsePdf ?? defaultParsePdf
+  const fetchFn    = deps?.fetch     ?? ((url) => fetch(url))
+  const parsePdfFn = deps?.parsePdf  ?? defaultParsePdf
   const parseHtmlFn = deps?.parseHtml ?? defaultParseHtml
+  const browseFn   = deps?.browse
 
   return {
     async extract(source: SessionSource) {
@@ -38,19 +60,28 @@ export function createExtractor(deps?: ExtractorDeps): Extractor {
       }
 
       const { url } = source
-      const hostname = new URL(url).hostname.replace(/^www\./, '')
+
+      // x.com article URLs need browser rendering
+      if (isXArticleUrl(url)) {
+        if (browseFn) return browseFn(url)
+        throw new Error(`Browser rendering required for x.com — not yet supported`)
+      }
+
+      // Rewrite x.com/twitter.com thread URLs to ThreadReaderApp before SPA check
+      const effectiveUrl = rewriteTwitterUrl(url) ?? url
+      const hostname = new URL(effectiveUrl).hostname.replace(/^www\./, '')
 
       if (SPA_DOMAINS.has(hostname)) {
         throw new Error(`Browser rendering required for ${hostname} — not yet supported`)
       }
 
-      const resp = await fetchFn(url)
+      const resp = await fetchFn(effectiveUrl)
       if (!resp.ok) {
         throw new Error(`Failed to extract content: server returned ${resp.status}`)
       }
 
       const html = await resp.text()
-      const parsed = parseHtmlFn(html, url)
+      const parsed = parseHtmlFn(html, effectiveUrl)
 
       if (!parsed.text || parsed.text.trim().length < 150) {
         throw new Error('Failed to extract content: page text too short or unreadable')
