@@ -140,13 +140,13 @@ async function _extractViaBrowserless(
     'twitter.com': "article, [data-testid='article']",
   }[domain]
 
+  // Browserless /content API only accepts: url, gotoOptions, waitForTimeout,
+  // waitForSelector, waitForFunction, cookies, emulateMediaType.
+  // stealth/userAgent are not valid here and cause HTTP 400.
   const payload: Record<string, unknown> = {
     url,
-    waitFor: 3000,
-    stealth: true,
-    userAgent:
-      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) ' +
-      'AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+    gotoOptions: { waitUntil: 'networkidle' },
+    waitForTimeout: 3000,
   }
   if (waitSelector) {
     payload['waitForSelector'] = { selector: waitSelector, timeout: 10000 }
