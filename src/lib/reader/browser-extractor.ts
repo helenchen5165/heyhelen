@@ -14,7 +14,11 @@ import path from 'path'
 import os from 'os'
 import type { BrowseFn } from './extractor'
 
-const PROFILE_BASE = path.join(os.homedir(), '.config', 'heyhelen', 'browser-profile')
+// In Lambda (Vercel/AWS) the home dir is read-only; /tmp is the only writable path.
+const IS_LAMBDA = Boolean(process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME)
+const PROFILE_BASE = IS_LAMBDA
+  ? path.join('/tmp', 'heyhelen', 'browser-profile')
+  : path.join(os.homedir(), '.config', 'heyhelen', 'browser-profile')
 
 const STEALTH_SCRIPT = `
 Object.defineProperty(navigator, 'webdriver', { get: () => undefined });
@@ -126,6 +130,51 @@ function extractContent(html: string, browserTitle: string): { title: string; ht
  * Saves cookies to the persistent profile so future headless requests work.
  * Resolves when the user reaches the site's home feed, or rejects on timeout.
  */
+async function _extractViaBrowserless(
+  url: string,
+  token: string,
+): Promise<{ title: string; html: string; text: string }> {
+  const domain = domainFromUrl(url)
+  const waitSelector = {
+    'x.com': "article, [data-testid='article']",
+    'twitter.com': "article, [data-testid='article']",
+  }[domain]
+
+  const payload: Record<string, unknown> = {
+    url,
+    waitFor: 3000,
+    stealth: true,
+    userAgent:
+      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) ' +
+      'AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+  }
+  if (waitSelector) {
+    payload['waitForSelector'] = { selector: waitSelector, timeout: 10000 }
+  }
+
+  const resp = await fetch(`https://chrome.browserless.io/content?token=${token}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  })
+
+  if (!resp.ok) {
+    throw new Error(`Browserless error: ${resp.status} ${resp.statusText}`)
+  }
+
+  const rawHtml = await resp.text()
+
+  if (isLoginWall(rawHtml)) {
+    throw new Error(`BROWSER_SETUP_REQUIRED:${domain}`)
+  }
+
+  const result = extractContent(rawHtml, url)
+  if (result.text.trim().length < 80) {
+    throw new Error('Could not extract article content — page may be empty or protected.')
+  }
+  return result
+}
+
 export async function setupBrowserLogin(domain: string, timeoutMs = 180_000): Promise<void> {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   const { chromium } = require('playwright') as typeof import('playwright')
@@ -191,7 +240,12 @@ async function loadSavedCookies(domain: string): Promise<Record<string, string>[
 
 export function createBrowseFn(): BrowseFn {
   return async (url: string) => {
-    // Dynamic import: keeps playwright out of the bundle until actually called
+    const browserlessToken = process.env.BROWSERLESS_TOKEN
+    if (browserlessToken) {
+      return _extractViaBrowserless(url, browserlessToken)
+    }
+
+    // Local dev: use Playwright with persistent Chromium profile
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     const { chromium } = require('playwright') as typeof import('playwright')
 

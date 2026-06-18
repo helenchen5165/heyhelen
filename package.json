@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "postinstall": "node scripts/patch-pdf-parse.js",
+    "postinstall": "node scripts/patch-pdf-parse.js && node scripts/patch-whatwg-url.js",
     "dev": "next dev",
     "build": "prisma generate && next build",
     "start": "next start",
@@ -42,7 +42,8 @@
     "zod": "^4.0.5"
   },
   "overrides": {
-    "html-encoding-sniffer": "3.0.0"
+    "html-encoding-sniffer": "3.0.0",
+    "whatwg-url": "14.2.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
