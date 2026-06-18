@@ -54,9 +54,13 @@ export function createExtractor(deps?: ExtractorDeps): Extractor {
       }
 
       if ('pastedHtml' in source) {
-        const html = source.pastedHtml
-        const parsed = parseHtmlFn(html, '')
-        return { title: source.title ?? parsed.title, text: parsed.text, html: parsed.content }
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        const { extractContent } = require('./browser-extractor') as typeof import('./browser-extractor')
+        const { title, text, html } = extractContent(source.pastedHtml, source.title ?? '')
+        if (text.trim().length < 80) {
+          throw new Error('未能提取到文章内容，请确保选中了完整文章')
+        }
+        return { title, text, html }
       }
 
       if ('file' in source) {

@@ -161,3 +161,33 @@ describe('createExtractor', () => {
     expect(result.text).toContain('Risk is not knowing')
   })
 })
+
+describe('createExtractor - pastedHtml source', () => {
+  it('extracts text and html from pasted HTML', async () => {
+    const extractor = createExtractor({ parseHtml: fakeParseHtml })
+    const result = await extractor.extract({
+      pastedHtml: `<html><body><article><p>Understanding risk is the most important thing in investing. Risk means more things can happen than will happen. Superior investors know risk control is paramount.</p></article></body></html>`,
+      title: 'On Risk',
+    })
+    expect(result.title).toBe('On Risk')
+    expect(result.text).toContain('Understanding risk')
+    expect(result.html).toBeTruthy()
+  })
+
+  it('falls back to Readability title when title is empty', async () => {
+    const extractor = createExtractor({ parseHtml: fakeParseHtml })
+    const result = await extractor.extract({
+      pastedHtml: `<html><head><title>Marks On Risk</title></head><body><p>Understanding risk is the most important thing in investing. Risk means more things can happen than will happen. Superior investors know risk control is paramount.</p></body></html>`,
+      title: '',
+    })
+    expect(result.text).toContain('Understanding risk')
+    expect(result.html).toBeTruthy()
+  })
+
+  it('throws when pasted HTML has less than 80 chars of text', async () => {
+    const extractor = createExtractor({ parseHtml: fakeParseHtml })
+    await expect(
+      extractor.extract({ pastedHtml: '<article><p>Too short</p></article>', title: '' })
+    ).rejects.toThrow('未能提取到文章内容')
+  })
+})
