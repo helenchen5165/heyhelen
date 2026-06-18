@@ -60,7 +60,12 @@ function isLoginWall(html: string, pageTitle?: string): boolean {
   return false
 }
 
-function extractContent(html: string, browserTitle: string): { title: string; html: string; text: string } {
+// X.com serves this static HTML to bots/automation detected by their Cloudflare integration
+function isBotBlocked(html: string): boolean {
+  return html.includes('JavaScript is not available') && html.includes('errorContainer')
+}
+
+export function extractContent(html: string, browserTitle: string): { title: string; html: string; text: string } {
   // linkedom is CJS-compatible (no ESM deps) — safe for Vercel Lambda.
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   const { parseHTML } = require('linkedom') as typeof import('linkedom')
@@ -118,8 +123,10 @@ function extractContent(html: string, browserTitle: string): { title: string; ht
   }
 
   // Strip tags for plain text
+  // Note: linkedom's parseHTML('<body>...</body>') sets documentElement = BODY,
+  // so textDoc.body is null — use documentElement instead.
   const { document: textDoc } = parseHTML(`<body>${contentHtml}</body>`)
-  const text = textDoc.body?.textContent?.trim() ?? ''
+  const text = textDoc.documentElement?.textContent?.trim() ?? ''
 
   return { title, html: contentHtml, text }
 }
@@ -194,13 +201,18 @@ async function _extractWithCookies(
       const rawHtml     = await page.content()
       const browserTitle = await page.title()
 
+      if (isBotBlocked(rawHtml)) {
+        throw new Error(
+          'x.com 的反爬虫系统拦截了服务器端请求。请使用粘贴文本模式，或在本地运行读书器。',
+        )
+      }
+
       if (isLoginWall(rawHtml, browserTitle)) {
         throw new Error(`BROWSER_SETUP_REQUIRED:${domain}`)
       }
 
       const result = extractContent(rawHtml, browserTitle)
       if (result.text.trim().length < 80) {
-        // Surface the page title so we can tell if we at least landed on the right page
         throw new Error(
           `Could not extract article content — page may still be loading or protected. Title: "${browserTitle}"`,
         )
@@ -241,6 +253,12 @@ async function _extractViaBrowserless(
   }
 
   const rawHtml = await resp.text()
+
+  if (isBotBlocked(rawHtml)) {
+    throw new Error(
+      'x.com 的反爬虫系统拦截了服务器端请求。请使用粘贴文本模式，或在本地运行读书器。',
+    )
+  }
 
   if (isLoginWall(rawHtml)) {
     throw new Error(`BROWSER_SETUP_REQUIRED:${domain}`)
