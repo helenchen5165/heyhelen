@@ -139,16 +139,13 @@ async function _extractViaBrowserless(
     'twitter.com': "article, [data-testid='article']",
   }[domain]
 
-  // Browserless /content API only accepts: url, gotoOptions, waitForTimeout,
-  // waitForSelector, waitForFunction, cookies, emulateMediaType.
-  // stealth/userAgent are not valid here and cause HTTP 400.
+  // chrome.browserless.io is Puppeteer-based (not Playwright).
+  // waitFor accepts ms (number) or a CSS selector string.
+  // gotoOptions.waitUntil must be a Puppeteer value: networkidle2 (not "networkidle").
   const payload: Record<string, unknown> = {
     url,
-    gotoOptions: { waitUntil: 'networkidle' },
-    waitForTimeout: 3000,
-  }
-  if (waitSelector) {
-    payload['waitForSelector'] = { selector: waitSelector, timeout: 10000 }
+    gotoOptions: { waitUntil: 'networkidle2', timeout: 35000 },
+    waitFor: waitSelector ?? 3000,
   }
 
   const resp = await fetch(`https://chrome.browserless.io/content?token=${token}`, {
