@@ -97,13 +97,14 @@ export function createExtractor(deps?: ExtractorDeps): Extractor {
 }
 
 function defaultParseHtml(html: string, url: string): { title: string; text: string; content: string } {
-  // Dynamic import keeps jsdom out of the module graph until runtime
+  // linkedom is CJS-compatible (no ESM deps) — safe for Vercel Lambda.
+  // jsdom@29 has multiple ESM-only transitive deps that crash on Lambda.
   // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const { JSDOM } = require('jsdom') as typeof import('jsdom')
+  const { parseHTML } = require('linkedom') as typeof import('linkedom')
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   const { Readability } = require('@mozilla/readability') as typeof import('@mozilla/readability')
-  const dom = new JSDOM(html, { url })
-  const reader = new Readability(dom.window.document)
+  const { document } = parseHTML(html)
+  const reader = new Readability(document as unknown as Document)
   const article = reader.parse()
   const content = article?.content ?? html
   return {

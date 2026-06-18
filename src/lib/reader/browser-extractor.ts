@@ -61,14 +61,13 @@ function isLoginWall(html: string, pageTitle?: string): boolean {
 }
 
 function extractContent(html: string, browserTitle: string): { title: string; html: string; text: string } {
-  // Dynamic import keeps heavy deps out of the module graph until runtime
+  // linkedom is CJS-compatible (no ESM deps) — safe for Vercel Lambda.
   // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const { JSDOM } = require('jsdom') as typeof import('jsdom')
+  const { parseHTML } = require('linkedom') as typeof import('linkedom')
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   const { Readability } = require('@mozilla/readability') as typeof import('@mozilla/readability')
 
-  const dom = new JSDOM(html, { url: 'https://x.com/' })
-  const doc = dom.window.document
+  const { document: doc } = parseHTML(html)
 
   // Prefer <article> or <main> directly over Readability for SPA-rendered pages
   const articleEl = doc.querySelector('article') ?? doc.querySelector('main')
@@ -119,8 +118,8 @@ function extractContent(html: string, browserTitle: string): { title: string; ht
   }
 
   // Strip tags for plain text
-  const textDom = new JSDOM(`<body>${contentHtml}</body>`)
-  const text = textDom.window.document.body.textContent?.trim() ?? ''
+  const { document: textDoc } = parseHTML(`<body>${contentHtml}</body>`)
+  const text = textDoc.body?.textContent?.trim() ?? ''
 
   return { title, html: contentHtml, text }
 }
