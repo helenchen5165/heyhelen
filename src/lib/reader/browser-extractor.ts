@@ -139,13 +139,11 @@ async function _extractViaBrowserless(
     'twitter.com': "article, [data-testid='article']",
   }[domain]
 
-  // chrome.browserless.io is Puppeteer-based (not Playwright).
-  // waitFor accepts ms (number) or a CSS selector string.
-  // gotoOptions.waitUntil must be a Puppeteer value: networkidle2 (not "networkidle").
+  // Minimal Browserless /content payload — url + waitFor (ms) only.
+  // Avoiding gotoOptions entirely; extra fields caused 400 in earlier attempts.
   const payload: Record<string, unknown> = {
     url,
-    gotoOptions: { waitUntil: 'networkidle2', timeout: 35000 },
-    waitFor: waitSelector ?? 3000,
+    waitFor: 4000,
   }
 
   const resp = await fetch(`https://chrome.browserless.io/content?token=${token}`, {
