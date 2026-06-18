@@ -182,6 +182,7 @@ describe('createExtractor - pastedHtml source', () => {
     })
     expect(result.text).toContain('Understanding risk')
     expect(result.html).toBeTruthy()
+    expect(result.title).toBeTruthy()
   })
 
   it('throws when pasted HTML has less than 80 chars of text', async () => {
