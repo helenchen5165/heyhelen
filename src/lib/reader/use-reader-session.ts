@@ -20,9 +20,11 @@ export function useReaderSession(fetchFn: FetchFn = fetch) {
         ? JSON.stringify({ url: source.url })
         : 'text' in source
           ? JSON.stringify({ text: source.text, title: source.title })
-          : (() => { const f = new FormData(); f.append('file', source.file, source.filename); return f })()
+          : 'pastedHtml' in source
+            ? JSON.stringify({ pastedHtml: source.pastedHtml, title: source.title })
+            : (() => { const f = new FormData(); f.append('file', source.file, source.filename); return f })()
 
-      const headers: HeadersInit = ('url' in source || 'text' in source) ? { 'Content-Type': 'application/json' } : {}
+      const headers: HeadersInit = ('url' in source || 'text' in source || 'pastedHtml' in source) ? { 'Content-Type': 'application/json' } : {}
       const resp = await fetchFn('/api/reader/session', { method: 'POST', headers, body })
 
       if (!resp.ok || !resp.body) throw new Error(`Server error ${resp.status}`)

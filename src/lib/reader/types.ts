@@ -21,7 +21,11 @@ export interface Session {
   highlights: Highlight[]
 }
 
-export type SessionSource = { url: string } | { file: Blob; filename: string } | { text: string; title?: string }
+export type SessionSource =
+  | { url: string }
+  | { file: Blob; filename: string }
+  | { text: string; title?: string }
+  | { pastedHtml: string; title?: string }
 
 export interface Extractor {
   extract(source: SessionSource): Promise<{ title: string; text: string; html: string }>

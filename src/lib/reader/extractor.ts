@@ -53,6 +53,12 @@ export function createExtractor(deps?: ExtractorDeps): Extractor {
         return { title: source.title ?? '', text, html: `<pre>${text}</pre>` }
       }
 
+      if ('pastedHtml' in source) {
+        const html = source.pastedHtml
+        const parsed = parseHtmlFn(html, '')
+        return { title: source.title ?? parsed.title, text: parsed.text, html: parsed.content }
+      }
+
       if ('file' in source) {
         const buffer = await (source.file as Blob).arrayBuffer()
         const { title, text } = await parsePdfFn(buffer)
