@@ -400,6 +400,12 @@ export function createBrowseFn(): BrowseFn {
       const rawHtml     = await page.content()
       const browserTitle = await page.title()
 
+      if (isBotBlocked(rawHtml)) {
+        throw new Error(
+          'x.com 的反爬虫系统拦截了服务器端请求。请使用粘贴文本模式，或在本地运行读书器。',
+        )
+      }
+
       if (isLoginWall(rawHtml, browserTitle)) {
         throw new Error(`BROWSER_SETUP_REQUIRED:${domain}`)
       }
