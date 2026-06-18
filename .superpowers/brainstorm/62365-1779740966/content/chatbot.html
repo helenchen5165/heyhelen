@@ -1,0 +1,73 @@
+<h2>「深入学习」Chatbot 界面</h2>
+<p class="subtitle">点击「深入学习」后，费曼 + 苏格拉底对话在哪里发生？</p>
+
+<div class="cards">
+
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div style="background:#141414;border-radius:6px;overflow:hidden;font-size:10px;height:190px;display:flex;flex-direction:column;">
+        <!-- Article shrinks to top strip -->
+        <div style="padding:6px 12px;color:#666;font-size:9px;border-bottom:1px solid #222;white-space:nowrap;overflow:hidden;">
+          ...idiosyncratic risks are unique to each asset... <span style="background:rgba(100,168,224,0.15);border-bottom:2px solid #64a8e0;padding:0 2px;">idiosyncratic</span> ...
+        </div>
+        <!-- Chat takes over bottom -->
+        <div style="flex:1;background:#111;display:flex;flex-direction:column;padding:8px 12px;gap:6px;overflow:hidden;">
+          <div style="color:#555;font-size:8px;text-align:center;">📚 费曼模式 · idiosyncratic</div>
+          <div style="background:#1a2a1a;border-radius:8px;border-top-left-radius:2px;padding:6px 8px;color:#aaa;font-size:9px;max-width:85%;line-height:1.5;">
+            试着用自己的话解释一下「idiosyncratic risk」是什么意思，就像讲给朋友听一样。
+          </div>
+          <div style="background:#1a1a2a;border-radius:8px;border-top-right-radius:2px;padding:6px 8px;color:#ccc;font-size:9px;max-width:80%;align-self:flex-end;line-height:1.5;">
+            就是那种只属于一家公司的风险？
+          </div>
+          <div style="background:#1a2a1a;border-radius:8px;border-top-left-radius:2px;padding:6px 8px;color:#aaa;font-size:9px;max-width:85%;line-height:1.5;">
+            对！那你觉得为什么持有很多股票可以降低这种风险？
+          </div>
+        </div>
+        <!-- Input bar -->
+        <div style="background:#1a1a1a;padding:6px 10px;border-top:1px solid #222;display:flex;gap:6px;">
+          <div style="flex:1;background:#222;border-radius:12px;padding:4px 8px;color:#555;font-size:9px;">继续回答...</div>
+          <div style="background:#2d4a8a;color:#fff;font-size:9px;padding:4px 8px;border-radius:10px;">↑</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A — 抽屉扩展为全屏 Chat</h3>
+      <p>点击「深入学习」后，抽屉向上展开占满下半屏，文章缩为顶部一条。Chat 结束后可收回。上下文始终可见。</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div style="background:#141414;border-radius:6px;overflow:hidden;font-size:10px;height:190px;display:flex;">
+        <!-- Article still readable -->
+        <div style="flex:1;padding:10px;color:#ccc;font-size:9px;line-height:1.6;border-right:1px solid #222;">
+          <div style="color:#555;font-size:8px;margin-bottom:4px;">正在阅读</div>
+          Markets are efficient because
+          <span style="background:rgba(100,168,224,0.2);border-bottom:2px solid #64a8e0;padding:0 1px;">idiosyncratic</span>
+          risks cancel out...systematic risks affect all assets...
+        </div>
+        <!-- Chat panel -->
+        <div style="flex:1;display:flex;flex-direction:column;background:#111;">
+          <div style="color:#555;font-size:8px;text-align:center;padding:5px;border-bottom:1px solid #1a1a1a;">💬 苏格拉底模式</div>
+          <div style="flex:1;padding:6px 8px;display:flex;flex-direction:column;gap:5px;overflow:hidden;">
+            <div style="background:#1a2a1a;border-radius:6px;padding:5px 7px;color:#aaa;font-size:8px;line-height:1.5;">
+              你认为 idiosyncratic risk 和 systematic risk 最大的区别是什么？
+            </div>
+            <div style="background:#1a1a2a;border-radius:6px;padding:5px 7px;color:#ccc;font-size:8px;max-width:85%;align-self:flex-end;line-height:1.5;">
+              一个可以分散，另一个不行？
+            </div>
+          </div>
+          <div style="background:#1a1a1a;padding:5px 7px;border-top:1px solid #222;display:flex;gap:4px;">
+            <div style="flex:1;background:#222;border-radius:10px;padding:3px 7px;color:#555;font-size:8px;">回答...</div>
+            <div style="background:#2d4a8a;color:#fff;font-size:8px;padding:3px 6px;border-radius:8px;">↑</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B — 左文右 Chat 分栏</h3>
+      <p>文章与 chatbot 并排显示。可以边看原文边对话，适合深度分析。屏幕空间需求大，移动端体验差。</p>
+    </div>
+  </div>
+
+</div>

@@ -1,0 +1,76 @@
+<h2>底部抽屉的内容结构</h2>
+<p class="subtitle">点击高亮后，抽屉里展示什么？</p>
+
+<div class="cards">
+
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div style="background:#141414;border-radius:6px;overflow:hidden;font-size:11px;">
+        <!-- Article preview -->
+        <div style="padding:10px 14px;color:#ccc;font-size:10px;line-height:1.6;border-bottom:1px solid #222;">
+          ...risks cancel out in large portfolios.
+          <span style="background:rgba(100,168,224,0.2);border-bottom:2px solid #64a8e0;padding:1px 2px;">Idiosyncratic</span>
+          risks are unique...
+        </div>
+        <!-- Drawer -->
+        <div style="background:#1a1a2e;padding:12px 14px;">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
+            <div>
+              <span style="color:#64a8e0;font-weight:bold;font-size:12px;">idiosyncratic</span>
+              <span style="color:#555;font-size:9px;margin-left:6px;">生词</span>
+            </div>
+            <div style="display:flex;gap:6px;">
+              <div style="background:#23234a;color:#9a9aff;font-size:9px;padding:3px 8px;border-radius:4px;cursor:pointer;">💬 深入学习</div>
+              <div style="background:#1e3a1e;color:#7aaa7a;font-size:9px;padding:3px 8px;border-radius:4px;cursor:pointer;">＋ 加入词库</div>
+            </div>
+          </div>
+          <div style="color:#bbb;font-size:10px;line-height:1.5;margin-bottom:6px;">
+            🇬🇧 Peculiar to a specific individual or situation; not shared with others.
+          </div>
+          <div style="color:#888;font-size:10px;line-height:1.5;">
+            🇨🇳 个体特有的——与市场整体无关的风险，比如某家公司突然的丑闻。
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A — 英文解释 + 中文解释 + 两个按钮</h3>
+      <p>词条名、类型标签、英中双语解释。右上角「深入学习」进 chatbot，「加入词库」保存生词。简洁直接。</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div style="background:#141414;border-radius:6px;overflow:hidden;font-size:11px;">
+        <div style="padding:10px 14px;color:#ccc;font-size:10px;line-height:1.6;border-bottom:1px solid #222;">
+          ...
+          <span style="background:rgba(224,150,100,0.2);border-bottom:2px dashed #e09664;padding:1px 2px;">systematic risks, which affect all assets simultaneously and cannot be eliminated through diversification</span>
+          ...
+        </div>
+        <div style="background:#1a1a2e;padding:12px 14px;">
+          <div style="display:flex;gap:6px;margin-bottom:8px;">
+            <span style="color:#e09664;font-weight:bold;font-size:11px;">复杂句解析</span>
+          </div>
+          <!-- Structure breakdown -->
+          <div style="font-size:9px;line-height:1.7;color:#aaa;">
+            <div style="color:#888;margin-bottom:4px;">句子结构：</div>
+            <div><span style="color:#e09664;">主句：</span>systematic risks affect all assets simultaneously</div>
+            <div><span style="color:#e09664;">关系从句：</span>which ... (修饰 systematic risks)</div>
+            <div><span style="color:#e09664;">补充说明：</span>cannot be eliminated through diversification</div>
+          </div>
+          <div style="margin-top:8px;color:#888;font-size:9px;line-height:1.5;">
+            🇨🇳 系统性风险同时影响所有资产，且无法通过分散投资消除。
+          </div>
+          <div style="margin-top:8px;display:flex;gap:6px;">
+            <div style="background:#23234a;color:#9a9aff;font-size:9px;padding:3px 8px;border-radius:4px;">💬 深入学习</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B — 按类型定制内容</h3>
+      <p>生词显示英中定义，复杂句显示结构分解，关键论点显示核心主张。每种类型呈现不同的信息结构。</p>
+    </div>
+  </div>
+
+</div>

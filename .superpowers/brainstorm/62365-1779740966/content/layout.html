@@ -1,0 +1,103 @@
+<h2>Reader 页面整体布局</h2>
+<p class="subtitle">点击高亮词时，解析面板从哪里出现？</p>
+
+<div class="cards">
+
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div style="display:flex;height:180px;gap:4px;background:#0d0d0d;padding:10px;border-radius:6px;font-size:11px;">
+        <!-- Left: article -->
+        <div style="flex:1.6;background:#141414;border-radius:4px;padding:10px;overflow:hidden;">
+          <div style="color:#888;font-size:9px;margin-bottom:6px;">URL 输入栏</div>
+          <div style="height:3px;background:#222;border-radius:2px;margin-bottom:8px;"></div>
+          <div style="color:#ccc;line-height:1.6;font-size:9px;">
+            <span style="background:#2d4a1e;color:#7ec668;padding:1px 3px;border-radius:2px;">Markets are efficient</span>
+            because risks cancel out.
+            <span style="background:#1e3a5f;color:#64a8e0;padding:1px 3px;border-radius:2px;">idiosyncratic</span>
+            risks are unique to each asset.
+            <span style="background:#4a2d1e;color:#e09664;padding:1px 3px;border-radius:2px;">The probability-weighted outcome...</span>
+          </div>
+        </div>
+        <!-- Right: panel always open -->
+        <div style="flex:1;background:#1a1a2e;border-radius:4px;padding:10px;">
+          <div style="color:#64a8e0;font-size:9px;font-weight:bold;margin-bottom:4px;">idiosyncratic</div>
+          <div style="color:#aaa;font-size:8px;line-height:1.5;margin-bottom:6px;">Unique or peculiar to a specific individual, group, or situation.</div>
+          <div style="color:#888;font-size:8px;line-height:1.5;">【中文】个体特有的风险，与市场整体无关。</div>
+          <div style="margin-top:8px;display:flex;gap:4px;">
+            <div style="background:#2d2d4a;color:#9a9aff;font-size:7px;padding:2px 5px;border-radius:3px;">费曼解释</div>
+            <div style="background:#2d4a2d;color:#9aff9a;font-size:7px;padding:2px 5px;border-radius:3px;">苏格拉底</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A — 左文右面板（常驻）</h3>
+      <p>文章占左 60%，解析面板固定在右 40%。点击高亮后面板内容切换，始终可见。桌面端体验最流畅，移动端需折叠。</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div style="display:flex;height:180px;gap:4px;background:#0d0d0d;padding:10px;border-radius:6px;font-size:11px;position:relative;">
+        <!-- Full width article -->
+        <div style="flex:1;background:#141414;border-radius:4px;padding:10px;overflow:hidden;">
+          <div style="color:#888;font-size:9px;margin-bottom:6px;">URL 输入栏</div>
+          <div style="height:3px;background:#222;border-radius:2px;margin-bottom:8px;"></div>
+          <div style="color:#ccc;line-height:1.6;font-size:9px;">
+            Markets are efficient because
+            <span style="background:#2d4a1e;color:#7ec668;padding:1px 3px;border-radius:2px;">risks cancel out</span>
+            in a large portfolio.
+            <span style="background:#1e3a5f;color:#64a8e0;padding:1px 3px;border-radius:2px;">idiosyncratic</span>
+            risks are unique to each asset.
+          </div>
+        </div>
+        <!-- Floating overlay from right -->
+        <div style="position:absolute;right:10px;top:30px;width:42%;background:#1a1a2e;border-radius:4px;padding:10px;box-shadow:0 4px 20px rgba(0,0,0,0.5);border:1px solid #2d2d5a;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+            <div style="color:#64a8e0;font-size:9px;font-weight:bold;">idiosyncratic</div>
+            <div style="color:#555;font-size:9px;">✕</div>
+          </div>
+          <div style="color:#aaa;font-size:8px;line-height:1.5;margin-bottom:4px;">Unique or peculiar to a specific individual.</div>
+          <div style="color:#888;font-size:8px;">【中文】个体特有的，与整体市场无关。</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B — 浮层面板（点击弹出）</h3>
+      <p>文章全宽显示，点击高亮后从右侧滑入半透明浮层。不打断阅读流，可随时关闭。移动端友好。</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div style="display:flex;flex-direction:column;height:180px;gap:4px;background:#0d0d0d;padding:10px;border-radius:6px;font-size:11px;">
+        <!-- Article top portion -->
+        <div style="flex:1;background:#141414;border-radius:4px;padding:10px;overflow:hidden;">
+          <div style="color:#888;font-size:9px;margin-bottom:4px;">URL 输入栏</div>
+          <div style="color:#ccc;line-height:1.5;font-size:9px;">
+            Markets are efficient because
+            <span style="background:#2d4a1e;color:#7ec668;padding:1px 3px;border-radius:2px;">risks cancel out</span>
+            in a large portfolio.
+            <span style="background:#1e3a5f;color:#64a8e0;padding:1px 3px;border-radius:2px;border-bottom:2px solid #64a8e0;">idiosyncratic ▼</span>
+          </div>
+        </div>
+        <!-- Bottom drawer -->
+        <div style="height:65px;background:#1a1a2e;border-radius:4px;padding:8px;display:flex;gap:10px;">
+          <div style="flex:1;">
+            <div style="color:#64a8e0;font-size:8px;font-weight:bold;margin-bottom:2px;">idiosyncratic</div>
+            <div style="color:#aaa;font-size:7px;line-height:1.4;">Unique to an individual · 【中文】个体特有的风险</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:3px;justify-content:center;">
+            <div style="background:#2d2d4a;color:#9a9aff;font-size:7px;padding:2px 5px;border-radius:3px;text-align:center;">费曼</div>
+            <div style="background:#2d4a2d;color:#9aff9a;font-size:7px;padding:2px 5px;border-radius:3px;text-align:center;">对话</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C — 底部抽屉</h3>
+      <p>文章全宽，点击高亮后底部滑出解析条。紧凑，适合快速查看，深入学习时切换到全屏 chatbot。</p>
+    </div>
+  </div>
+
+</div>

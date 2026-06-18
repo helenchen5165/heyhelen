@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Helen Chen · GTM Engineer</title>
+<style>
+  :root {
+    --bg: #0f0f0f;
+    --surface: #1a1a1a;
+    --border: #2a2a2a;
+    --green: #00ff88;
+    --green-dim: #00cc6a;
+    --text: #e0e0e0;
+    --muted: #888;
+    --dim: #555;
+    --font-mono: "JetBrains Mono", "Fira Code", "Cascadia Code", monospace;
+    --font-sans: "PingFang SC", "Hiragino Sans GB", system-ui, sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  /* ── Layout ── */
+  .container { max-width: 760px; margin: 0 auto; padding: 0 24px; }
+
+  /* ── Section ── */
+  section { padding: 80px 0; border-bottom: 1px solid var(--border); }
+  section:last-child { border-bottom: none; }
+
+  /* ── Section header ── */
+  .sec-label {
+    font-size: 11px; letter-spacing: 3px; text-transform: uppercase;
+    color: var(--green); margin-bottom: 40px;
+  }
+  .sec-label::before { content: "// "; color: var(--dim); }
+
+  /* ── Typography ── */
+  h1 { font-size: clamp(28px, 5vw, 42px); font-weight: 700; line-height: 1.2; color: var(--text); }
+  h2 { font-size: 18px; font-weight: 700; color: var(--text); }
+  h3 { font-size: 14px; font-weight: 700; color: var(--green); }
+  p { color: var(--muted); }
+  a { color: var(--green); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  /* ── Cursor blink ── */
+  .cursor {
+    display: inline-block; width: 2px; height: 1em;
+    background: var(--green); margin-left: 2px;
+    animation: blink 1s step-end infinite; vertical-align: text-bottom;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  /* ── Stats row ── */
+  .stats { display: flex; gap: 40px; margin-top: 32px; flex-wrap: wrap; }
+  .stat-value { font-size: 28px; font-weight: 700; color: var(--green); display: block; }
+  .stat-label { font-size: 11px; color: var(--dim); letter-spacing: 1px; }
+
+  /* ── Philosophy ── */
+  .principle { margin-bottom: 28px; }
+  .principle-num { color: var(--dim); font-size: 11px; margin-bottom: 4px; }
+  .principle-title { color: var(--green); font-weight: 700; margin-bottom: 6px; }
+  .principle p { color: var(--muted); font-size: 13px; line-height: 1.8; }
+
+  /* ── Systems ── */
+  .system-card {
+    border: 1px solid var(--border); border-radius: 6px;
+    padding: 20px 24px; margin-bottom: 16px;
+    background: var(--surface);
+  }
+  .system-card h3 { margin-bottom: 12px; }
+  .flow {
+    display: flex; align-items: center; gap: 0; flex-wrap: wrap;
+    font-size: 12px; margin-top: 10px;
+  }
+  .flow-node {
+    background: var(--bg); border: 1px solid var(--border);
+    padding: 5px 10px; border-radius: 3px; color: var(--text);
+    white-space: nowrap;
+  }
+  .flow-arrow { color: var(--green); padding: 0 6px; font-size: 14px; }
+  .system-status {
+    display: inline-block; font-size: 10px; letter-spacing: 1px;
+    padding: 2px 8px; border-radius: 10px; margin-left: 8px;
+    vertical-align: middle;
+  }
+  .status-live { background: rgba(0,255,136,0.1); color: var(--green); border: 1px solid rgba(0,255,136,0.3); }
+  .status-building { background: rgba(255,180,0,0.1); color: #ffb400; border: 1px solid rgba(255,180,0,0.3); }
+
+  /* ── Track Record ── */
+  .project-card {
+    border-left: 2px solid var(--green);
+    padding: 16px 0 16px 20px; margin-bottom: 24px;
+  }
+  .project-meta { font-size: 11px; color: var(--dim); margin-bottom: 8px; }
+  .project-card h2 { font-size: 15px; margin-bottom: 10px; color: var(--text); }
+  .metrics { display: flex; gap: 20px; flex-wrap: wrap; margin-top: 12px; }
+  .metric { font-size: 11px; }
+  .metric-value { color: var(--green); font-weight: 700; }
+  .metric-label { color: var(--dim); }
+  .bullets { margin-top: 10px; padding-left: 0; list-style: none; }
+  .bullets li { font-size: 12px; color: var(--muted); padding: 2px 0; }
+  .bullets li::before { content: "▸ "; color: var(--green); }
+
+  /* ── Contact ── */
+  .contact-line { margin-bottom: 12px; font-size: 13px; }
+  .contact-line .label { color: var(--dim); margin-right: 12px; }
+
+  /* ── Scrollbar ── */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<!-- 01 HERO -->
+<section id="hero">
+  <div class="container">
+    <p style="color:var(--dim); font-size:12px; margin-bottom:16px;">
+      <span style="color:var(--green)">helen@gtm</span>:<span style="color:#6699ff">~</span>$ ./introduce --mode=brief
+    </p>
+    <h1 id="headline"></h1><span class="cursor"></span>
+
+    <div class="stats">
+      <div>
+        <span class="stat-value">3000万</span>
+        <span class="stat-label">年流水峰值</span>
+      </div>
+      <div>
+        <span class="stat-value">6 年</span>
+        <span class="stat-label">GTM 全链路经验</span>
+      </div>
+      <div>
+        <span class="stat-value">3 个</span>
+        <span class="stat-label">在跑的 AI 系统</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 02 PHILOSOPHY -->
+<section id="philosophy">
+  <div class="container">
+    <div class="sec-label">Philosophy</div>
+
+    <div class="principle">
+      <div class="principle-num">01</div>
+      <div class="principle-title">MVP 优先</div>
+      <p>先做一个能跑的小东西，拿到真实反馈，再决定要不要继续。完美规划是最贵的浪费。</p>
+    </div>
+
+    <div class="principle">
+      <div class="principle-num">02</div>
+      <div class="principle-title">先删，再简，最后才自动化</div>
+      <p>每一个需求先质疑它存不存在的必要。能删的删，能简化的简化，跑通了再考虑自动化。大多数流程死于过度设计，不是执行不力。</p>
+    </div>
+
+    <div class="principle">
+      <div class="principle-num">03</div>
+      <div class="principle-title">留意让自己不爽的东西</div>
+      <p>自己觉得麻烦的地方，大概率别人也觉得麻烦。这是找需求最快的方式。</p>
+    </div>
+
+    <div class="principle">
+      <div class="principle-num">04</div>
+      <div class="principle-title">Learning by doing</div>
+      <p>看再多评测不如自己跑一遍。上手，犯错，修正。这是唯一有效的学习路径。</p>
+    </div>
+
+    <div class="principle">
+      <div class="principle-num">05</div>
+      <div class="principle-title">斯多葛</div>
+      <p>控制你能控制的，放下你控制不了的。专注执行，不焦虑结果。</p>
+    </div>
+  </div>
+</section>
+
+<!-- 03 SYSTEMS -->
+<section id="systems">
+  <div class="container">
+    <div class="sec-label">AI Systems I've Built</div>
+
+    <div class="system-card">
+      <h3>时间管理系统 <span class="system-status status-live">LIVE</span></h3>
+      <p style="font-size:12px; color:var(--dim); margin-bottom:10px;">Telegram + Claude + Notion</p>
+      <div class="flow">
+        <div class="flow-node">Telegram 语音/文字</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node">Bot 解析意图</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node">Claude 结构化</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node">Notion DB</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node">周复盘报告</div>
+      </div>
+      <p style="font-size:12px; color:var(--dim); margin-top:10px;">复盘参考芒格 / 富兰克林框架</p>
+    </div>
+
+    <div class="system-card">
+      <h3>知识学习系统 <span class="system-status status-live">LIVE</span></h3>
+      <p style="font-size:12px; color:var(--dim); margin-bottom:10px;">Obsidian + Claude Code</p>
+      <div class="flow">
+        <div class="flow-node">新知识输入</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node">Gap 分析</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node">苏格拉底引导</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node">内化输出</div>
+      </div>
+      <p style="font-size:12px; color:var(--dim); margin-top:10px;">已有知识库 = Obsidian Vault；Claude 扮演老师而非搜索引擎</p>
+    </div>
+
+    <div class="system-card">
+      <h3>投资决策系统 <span class="system-status status-building">BUILDING</span></h3>
+      <p style="font-size:12px; color:var(--dim); margin-bottom:10px;">Claude + Telegram</p>
+      <div class="flow">
+        <div class="flow-node">每日 ETF 指标</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node">AI 买卖建议</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node">决策清单核查</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node">Telegram 推送</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 04 TRACK RECORD -->
+<section id="track-record">
+  <div class="container">
+    <div class="sec-label">Track Record</div>
+
+    <div class="project-card">
+      <div class="project-meta">2023.09 — 2024.10 · 土耳其</div>
+      <h2>Hepsiburada — 搜索引擎迁移</h2>
+      <p style="font-size:12px; color:var(--dim);">土耳其第二大电商 · 月活 4000 万 · 首家纳斯达克上市企业</p>
+      <ul class="bullets">
+        <li>以「更低时延 + 降本 20%」切入，从谷歌云迁移至华为云</li>
+        <li>识别 BigQuery 迁移机会，通过 SQL 优化赢得性能比拼</li>
+      </ul>
+      <div class="metrics">
+        <div class="metric"><span class="metric-value">−20%</span> <span class="metric-label">成本</span></div>
+        <div class="metric"><span class="metric-value">−50%</span> <span class="metric-label">时延</span></div>
+        <div class="metric"><span class="metric-value">500万</span> <span class="metric-label">新增年流水</span></div>
+        <div class="metric"><span class="metric-value">7000万</span> <span class="metric-label">潜在增量/年</span></div>
+      </div>
+    </div>
+
+    <div class="project-card">
+      <div class="project-meta">2025.12 — 至今 · 土耳其</div>
+      <h2>Getir — AI 应用 POC</h2>
+      <p style="font-size:12px; color:var(--dim);">土耳其最大本地生活平台 · 估值 118 亿美元 · 日订单超百万</p>
+      <ul class="bullets">
+        <li>参与 AI 战略规划，识别评论分析、需求预测等场景</li>
+        <li>主导 POC 验证，部署并微调开源 LLM</li>
+        <li>识别智能客服、智能调度等后续场景</li>
+      </ul>
+      <div class="metrics">
+        <div class="metric"><span class="metric-value">+80%</span> <span class="metric-label">处理效率（POC）</span></div>
+        <div class="metric"><span class="metric-value">−60%</span> <span class="metric-label">推理时延（POC）</span></div>
+        <div class="metric"><span class="metric-value">$200万</span> <span class="metric-label">预计年增流水</span></div>
+      </div>
+    </div>
+
+    <p style="font-size:12px; color:var(--dim); margin-top:8px;">
+      此外：A101 电商上云 · DeFacto 应用现代化 · 名创优品大数据迁移（降本 20%）· 上海沃尔沃销售平台迁移
+    </p>
+  </div>
+</section>
+
+<!-- 05 CONTACT -->
+<section id="contact">
+  <div class="container">
+    <div class="sec-label">Contact</div>
+    <div class="contact-line">
+      <span class="label">email</span>
+      <a href="mailto:helenchen5165@gmail.com">helenchen5165@gmail.com</a>
+    </div>
+    <div class="contact-line">
+      <span class="label">phone</span>
+      <span style="color:var(--text)">13719220953</span>
+    </div>
+    <div class="contact-line">
+      <span class="label">location</span>
+      <span style="color:var(--text)">Istanbul · Open to SG / HK / GZ / SZ</span>
+    </div>
+    <p style="font-size:12px; color:var(--dim); margin-top:32px;">
+      <a href="helen-resume.html">← 查看完整简历 PDF 版</a>
+    </p>
+  </div>
+</section>
+
+<script>
+  // Typewriter effect for headline
+  const lines = [
+    "GTM Engineer.",
+    "AI Systems Builder.",
+    "我用 AI 重构自己的操作系统，\n然后用这套思维做 GTM。"
+  ];
+  const el = document.getElementById("headline");
+  let lineIdx = 0, charIdx = 0, deleting = false, pausing = false;
+
+  function type() {
+    const current = lines[lineIdx];
+    if (pausing) return;
+
+    if (!deleting) {
+      charIdx++;
+      el.innerHTML = current.substring(0, charIdx).replace('\n', '<br>');
+      if (charIdx === current.length) {
+        if (lineIdx === lines.length - 1) return; // stop at last line
+        pausing = true;
+        setTimeout(() => { pausing = false; deleting = true; type(); }, 1800);
+        return;
+      }
+    } else {
+      charIdx--;
+      el.innerHTML = current.substring(0, charIdx).replace('\n', '<br>');
+      if (charIdx === 0) {
+        deleting = false;
+        lineIdx = (lineIdx + 1) % lines.length;
+      }
+    }
+    setTimeout(type, deleting ? 30 : 60);
+  }
+  type();
+</script>
+
+</body>
+</html>
