@@ -1,16 +1,11 @@
 /**
  * POST /api/reader/browser-setup?domain=x.com
  *
- * Opens a visible Chromium window so the user can log in to the given domain.
- * Blocks until login is detected (URL reaches /home) or times out (3 min).
- * Cookies are saved to the persistent profile and reused in future headless requests.
- */
-/**
- * POST /api/reader/browser-setup?domain=x.com
+ * Imports cookies from the local Chrome installation into
+ * ~/.config/heyhelen/<domain>-cookies.json so Playwright can reuse them.
  *
- * Imports x.com cookies from the local Chrome installation into
- * ~/.config/heyhelen/x-cookies.json so Playwright can reuse them.
- * Requires Python + cryptography library (standard on macOS).
+ * Only works when running locally on macOS — reads Chrome's SQLite cookie DB
+ * and decrypts via macOS Keychain. Returns HTTP 400 on Vercel Lambda.
  */
 import { NextResponse } from 'next/server'
 import { execFile } from 'child_process'
@@ -18,73 +13,114 @@ import { promisify } from 'util'
 import path from 'path'
 import os from 'os'
 import fs from 'fs'
+import crypto from 'crypto'
 
 const execFileAsync = promisify(execFile)
 
-const IMPORT_SCRIPT = `
-import sqlite3, subprocess, hashlib, json, shutil, os, sys
-from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
-from cryptography.hazmat.backends import default_backend
+const IS_LAMBDA = Boolean(process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME)
 
-domain = sys.argv[1]
-
-raw_key = subprocess.check_output(
-    ['security', 'find-generic-password', '-a', 'Chrome', '-s', 'Chrome Safe Storage', '-w']
-).strip()
-key = hashlib.pbkdf2_hmac('sha1', raw_key, b'saltysalt', 1003, dklen=16)
-
-src = os.path.expanduser('~/Library/Application Support/Google/Chrome/Default/Cookies')
-dst = '/tmp/chrome-cookies-import.db'
-shutil.copy2(src, dst)
-
-conn = sqlite3.connect(dst)
-rows = conn.execute(
-    "SELECT name, host_key, path, encrypted_value, is_secure, is_httponly "
-    f"FROM cookies WHERE host_key LIKE '%.{domain}%' OR host_key LIKE '{domain}%'"
-).fetchall()
-conn.close()
-
-iv = b' ' * 16
-cookies = []
-for name, host, cpath, enc_val, secure, httponly in rows:
-    if isinstance(enc_val, bytes) and enc_val[:3] == b'v10':
-        cipher = Cipher(algorithms.AES(key), modes.CBC(iv), backend=default_backend())
-        dec = cipher.decryptor()
-        decrypted = dec.update(enc_val[3:]) + dec.finalize()
-        content = decrypted[32:]  # Chrome v127+ 在明文前有 32 字节前缀
-        pad = content[-1]
-        value = content[:-pad].decode('utf-8') if 1 <= pad <= 16 else content.decode('utf-8')
-    else:
-        value = enc_val.decode('utf-8') if enc_val else ''
-    cookies.append({
-        'name': name, 'value': value, 'domain': host,
-        'path': cpath, 'secure': bool(secure), 'httpOnly': bool(httponly),
-        'sameSite': 'Lax',
-    })
-
-out = os.path.expanduser('~/.config/heyhelen/x-cookies.json')
-os.makedirs(os.path.dirname(out), exist_ok=True)
-with open(out, 'w') as f:
-    json.dump(cookies, f)
-
-print(f"ok:{len(cookies)}")
-`
+interface ChromeCookieRow {
+  name: string
+  host_key: string
+  path: string
+  encrypted_value: Buffer
+  is_secure: number
+  is_httponly: number
+}
 
 export async function POST(request: Request) {
+  if (IS_LAMBDA) {
+    return NextResponse.json(
+      { error: 'Cookie import requires a local Chrome installation — run the dev server locally and try again.' },
+      { status: 400 },
+    )
+  }
+
   const { searchParams } = new URL(request.url)
   const domain = searchParams.get('domain') ?? 'x.com'
 
-  const scriptPath = path.join(os.tmpdir(), 'heyhelen-cookie-import.py')
-  fs.writeFileSync(scriptPath, IMPORT_SCRIPT)
-
   try {
-    const { stdout } = await execFileAsync('python3', [scriptPath, domain], { timeout: 15_000 })
-    const count = stdout.trim().split(':')[1] ?? '0'
-    return NextResponse.json({ ok: true, cookies: Number(count) })
+    const count = await importChromeCookies(domain)
+    return NextResponse.json({ ok: true, cookies: count })
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err)
     return NextResponse.json({ error: message }, { status: 500 })
-  } finally {
-    fs.unlinkSync(scriptPath)
   }
+}
+
+async function importChromeCookies(domain: string): Promise<number> {
+  // Retrieve Chrome's AES encryption key from macOS Keychain
+  const { stdout: rawKey } = await execFileAsync(
+    'security',
+    ['find-generic-password', '-a', 'Chrome', '-s', 'Chrome Safe Storage', '-w'],
+    { timeout: 5_000 },
+  )
+  const key = crypto.pbkdf2Sync(rawKey.trim(), 'saltysalt', 1003, 16, 'sha1')
+
+  // Copy cookie DB to /tmp because Chrome may hold a lock on the original
+  const src = path.join(
+    os.homedir(),
+    'Library',
+    'Application Support',
+    'Google',
+    'Chrome',
+    'Default',
+    'Cookies',
+  )
+  const dst = path.join(os.tmpdir(), 'heyhelen-chrome-cookies.db')
+  fs.copyFileSync(src, dst)
+
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const sqlite3 = require('sqlite3') as typeof import('sqlite3')
+  const db = new sqlite3.Database(dst, sqlite3.OPEN_READONLY)
+
+  const rows = await new Promise<ChromeCookieRow[]>((resolve, reject) => {
+    db.all(
+      `SELECT name, host_key, path, encrypted_value, is_secure, is_httponly
+       FROM cookies
+       WHERE host_key LIKE '%.${domain}%' OR host_key LIKE '${domain}%'`,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (err: Error | null, dbRows: any[]) => {
+        db.close()
+        try { fs.unlinkSync(dst) } catch { /* ignore */ }
+        if (err) reject(err)
+        else resolve((dbRows ?? []) as ChromeCookieRow[])
+      },
+    )
+  })
+
+  // Chrome uses 16 space characters as CBC IV
+  const iv = Buffer.alloc(16, 0x20)
+
+  const cookies = rows.map((row) => {
+    let value = ''
+    const enc: Buffer = row.encrypted_value
+    if (enc && enc.slice(0, 3).toString() === 'v10') {
+      const decipher = crypto.createDecipheriv('aes-128-cbc', key, iv)
+      decipher.setAutoPadding(false)
+      const decrypted = Buffer.concat([decipher.update(enc.slice(3)), decipher.final()])
+      // Chrome v127+: 32-byte prefix before the actual cookie value
+      const content = decrypted.slice(32)
+      const pad = content[content.length - 1]
+      value = (pad >= 1 && pad <= 16 ? content.slice(0, -pad) : content).toString('utf-8')
+    } else if (enc) {
+      value = enc.toString('utf-8')
+    }
+    return {
+      name: row.name,
+      value,
+      domain: row.host_key,
+      path: row.path,
+      secure: Boolean(row.is_secure),
+      httpOnly: Boolean(row.is_httponly),
+      sameSite: 'Lax',
+    }
+  })
+
+  const outDir = path.join(os.homedir(), '.config', 'heyhelen')
+  fs.mkdirSync(outDir, { recursive: true })
+  const outFile = path.join(outDir, `${domain.replace(/\./g, '-')}-cookies.json`)
+  fs.writeFileSync(outFile, JSON.stringify(cookies, null, 2))
+
+  return cookies.length
 }
