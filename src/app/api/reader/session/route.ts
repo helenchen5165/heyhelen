@@ -25,12 +25,14 @@ export async function POST(request: Request) {
     source = { file, filename }
   } else {
     const body = await request.json().catch(() => null)
-    if (body?.text && typeof body.text === 'string') {
+    if (body?.pastedHtml && typeof body.pastedHtml === 'string') {
+      source = { pastedHtml: body.pastedHtml, title: body.title ?? '' }
+    } else if (body?.text && typeof body.text === 'string') {
       source = { text: body.text, title: body.title ?? '' }
     } else if (body?.url && typeof body.url === 'string') {
       source = { url: body.url }
     } else {
-      return NextResponse.json({ error: 'Missing url or text' }, { status: 400 })
+      return NextResponse.json({ error: 'Missing url, text, or pastedHtml' }, { status: 400 })
     }
   }
 
