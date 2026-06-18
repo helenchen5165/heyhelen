@@ -129,18 +129,83 @@ function extractContent(html: string, browserTitle: string): { title: string; ht
  * Saves cookies to the persistent profile so future headless requests work.
  * Resolves when the user reaches the site's home feed, or rejects on timeout.
  */
+// Retrieve stored cookies for a domain from the database.
+async function getStoredCookies(domain: string): Promise<object[]> {
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const prisma = (require('@/lib/prisma') as { default: import('@prisma/client').PrismaClient }).default
+    const record = await prisma.browserCookies.findUnique({ where: { domain } })
+    return Array.isArray(record?.cookies) ? (record!.cookies as object[]) : []
+  } catch {
+    return []
+  }
+}
+
+// Use Playwright CDP (WebSocket) to inject stored cookies and extract authenticated content.
+async function _extractWithCookies(
+  url: string,
+  token: string,
+  cookies: object[],
+): Promise<{ title: string; html: string; text: string }> {
+  const domain = domainFromUrl(url)
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { chromium } = require('playwright') as typeof import('playwright')
+
+  // Browserless WebSocket endpoint — gives full Playwright control (cookie injection, waits, etc.)
+  const browser = await chromium.connectOverCDP(`wss://chrome.browserless.io?token=${token}`)
+
+  try {
+    const page = await browser.newPage()
+    try {
+      // Inject stored cookies before navigation so the site sees an authenticated session
+      await page.context().addCookies(cookies as Parameters<ReturnType<typeof page.context>['addCookies']>[0])
+
+      await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30_000 })
+
+      // Wait for article element, fall back to a fixed delay
+      try {
+        await page.waitForSelector("article, [data-testid='article']", {
+          timeout: 12_000,
+          state: 'attached',
+        })
+      } catch {
+        await new Promise(r => setTimeout(r, 3_000))
+      }
+
+      const rawHtml     = await page.content()
+      const browserTitle = await page.title()
+
+      if (isLoginWall(rawHtml, browserTitle)) {
+        throw new Error(`BROWSER_SETUP_REQUIRED:${domain}`)
+      }
+
+      const result = extractContent(rawHtml, browserTitle)
+      if (result.text.trim().length < 80) {
+        throw new Error('Could not extract article content — page may be empty or protected.')
+      }
+      return result
+    } finally {
+      await page.close().catch(() => {})
+    }
+  } finally {
+    await browser.close().catch(() => {})
+  }
+}
+
 async function _extractViaBrowserless(
   url: string,
   token: string,
 ): Promise<{ title: string; html: string; text: string }> {
   const domain = domainFromUrl(url)
-  const waitSelector = {
-    'x.com': "article, [data-testid='article']",
-    'twitter.com': "article, [data-testid='article']",
-  }[domain]
 
+  // If we have stored cookies for this domain, use CDP for authenticated extraction
+  const storedCookies = await getStoredCookies(domain)
+  if (storedCookies.length > 0) {
+    return _extractWithCookies(url, token, storedCookies)
+  }
+
+  // No stored cookies — use simple REST API (unauthenticated)
   // This Browserless instance enforces strict schema: only "url" is accepted.
-  // Any extra field (waitFor, gotoOptions, etc.) causes HTTP 400.
   const payload = { url }
 
   const resp = await fetch(`https://chrome.browserless.io/content?token=${token}`, {

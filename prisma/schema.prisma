@@ -156,3 +156,15 @@ model Comment {
 
   @@map("comments")
 }
+
+// Stores browser auth cookies for domains that require login (e.g. x.com).
+// One row per domain; cookies are replaced atomically on each save.
+model BrowserCookies {
+  id        Int      @id @default(autoincrement())
+  domain    String   @unique
+  cookies   Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("browser_cookies")
+}

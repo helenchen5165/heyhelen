@@ -6,6 +6,7 @@ import { UrlInput } from '@/components/reader/UrlInput'
 import { ArticleView } from '@/components/reader/ArticleView'
 import { BottomDrawer } from '@/components/reader/BottomDrawer'
 import { BrowserSetupButton } from '@/components/reader/BrowserSetupButton'
+import { CookieSetupButton } from '@/components/reader/CookieSetupButton'
 import type { Highlight, SessionSource, DrawerMode } from '@/lib/reader/types'
 
 export default function ReaderPage() {
@@ -40,6 +41,7 @@ export default function ReaderPage() {
     <div className="min-h-screen bg-[#0d0d0d] text-white flex flex-col">
       <div className="flex items-center justify-between pr-4">
         <UrlInput onSubmit={handleSource} disabled={status === 'loading'} />
+        <CookieSetupButton domain="x.com" />
         <Link href="/reader/vocabulary" className="shrink-0 text-xs text-white/30 hover:text-white/60 ml-3">词库</Link>
       </div>
 
