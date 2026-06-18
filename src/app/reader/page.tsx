@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useReaderSession } from '@/lib/reader/use-reader-session'
 import { UrlInput } from '@/components/reader/UrlInput'
@@ -32,6 +32,22 @@ export default function ReaderPage() {
     setChatPhase(action)
     setDrawerMode('chat')
   }
+
+  useEffect(() => {
+    function onPaste(e: ClipboardEvent) {
+      // Don't intercept paste in input/textarea elements (e.g. URL input)
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return
+      if (status === 'loading') return
+      const types = Array.from(e.clipboardData?.types ?? [])
+      if (!types.includes('text/html')) return
+      const html = e.clipboardData!.getData('text/html')
+      if (!html.trim()) return
+      e.preventDefault()
+      load({ pastedHtml: html })
+    }
+    window.addEventListener('paste', onPaste)
+    return () => window.removeEventListener('paste', onPaste)
+  }, [status, load])
 
   const setupMatch = status === 'error' && errorMessage
     ? errorMessage.match(/^BROWSER_SETUP_REQUIRED:(.+)$/)
