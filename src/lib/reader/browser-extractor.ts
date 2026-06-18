@@ -160,17 +160,36 @@ async function _extractWithCookies(
       // Inject stored cookies before navigation so the site sees an authenticated session
       await page.context().addCookies(cookies as Parameters<ReturnType<typeof page.context>['addCookies']>[0])
 
-      await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30_000 })
+      // Use 'load' so the initial JS bundle executes; then wait for networkidle
+      // so React finishes rendering the article body before we capture the DOM.
+      await page.goto(url, { waitUntil: 'load', timeout: 30_000 })
 
-      // Wait for article element, fall back to a fixed delay
+      // Let React finish rendering — networkidle means no pending XHRs for 500ms
       try {
-        await page.waitForSelector("article, [data-testid='article']", {
-          timeout: 12_000,
-          state: 'attached',
-        })
+        await page.waitForLoadState('networkidle', { timeout: 10_000 })
       } catch {
-        await new Promise(r => setTimeout(r, 3_000))
+        // proceed even if still loading
       }
+
+      // Wait for the article body to actually contain text
+      const contentSelectors = [
+        "[data-testid='article'] p",
+        "[data-testid='article']",
+        "article p",
+        "article",
+        "main p",
+      ]
+      for (const sel of contentSelectors) {
+        try {
+          await page.waitForSelector(sel, { timeout: 5_000, state: 'visible' })
+          break
+        } catch {
+          continue
+        }
+      }
+
+      // Extra settle for lazy-loaded images / dynamic sections
+      await new Promise(r => setTimeout(r, 2_000))
 
       const rawHtml     = await page.content()
       const browserTitle = await page.title()
@@ -181,7 +200,10 @@ async function _extractWithCookies(
 
       const result = extractContent(rawHtml, browserTitle)
       if (result.text.trim().length < 80) {
-        throw new Error('Could not extract article content — page may be empty or protected.')
+        // Surface the page title so we can tell if we at least landed on the right page
+        throw new Error(
+          `Could not extract article content — page may still be loading or protected. Title: "${browserTitle}"`,
+        )
       }
       return result
     } finally {
