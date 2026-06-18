@@ -139,12 +139,9 @@ async function _extractViaBrowserless(
     'twitter.com': "article, [data-testid='article']",
   }[domain]
 
-  // Minimal Browserless /content payload — url + waitFor (ms) only.
-  // Avoiding gotoOptions entirely; extra fields caused 400 in earlier attempts.
-  const payload: Record<string, unknown> = {
-    url,
-    waitFor: 4000,
-  }
+  // This Browserless instance enforces strict schema: only "url" is accepted.
+  // Any extra field (waitFor, gotoOptions, etc.) causes HTTP 400.
+  const payload = { url }
 
   const resp = await fetch(`https://chrome.browserless.io/content?token=${token}`, {
     method: 'POST',
