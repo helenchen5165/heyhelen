@@ -123,12 +123,24 @@ export function extractContent(html: string, browserTitle: string): { title: str
       img.removeAttribute('style')
 
       // Hoist image out of the x.com aspect-ratio wrapper so it renders as a
-      // normal block element. Find the outermost wrapper div with padding-bottom
-      // (the aspect-ratio trick) and replace it with just the img.
-      const wrapper = img.closest('div[style*="padding-bottom"]') as Element | null
+      // normal block element. x.com uses padding-bottom OR padding-top for the trick.
+      const wrapper = (
+        img.closest('div[style*="padding-bottom"]') ??
+        img.closest('div[style*="padding-top"]')
+      ) as Element | null
       if (wrapper?.parentElement) {
         wrapper.parentElement.insertBefore(img, wrapper)
         wrapper.remove()
+      }
+    })
+
+    // Remove any leftover aspect-ratio wrapper divs whose img was removed above
+    // (covers both padding-bottom and padding-top variants, and position:absolute shells)
+    articleEl.querySelectorAll('div[style]').forEach(div => {
+      const s = div.getAttribute('style') ?? ''
+      const isAspectWrapper = s.includes('padding-bottom') || s.includes('padding-top') || s.includes('position:absolute') || s.includes('position: absolute')
+      if (isAspectWrapper && !div.querySelector('img') && !(div.textContent ?? '').trim()) {
+        div.remove()
       }
     })
 
