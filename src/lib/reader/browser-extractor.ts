@@ -93,27 +93,43 @@ export function extractContent(html: string, browserTitle: string): { title: str
       articleEl.querySelectorAll(sel).forEach(el => el.remove())
     })
 
-    // 2. Keep only pbs.twimg.com article images; fix lazy-loaded src from srcset
+    // 2. Keep only pbs.twimg.com article images; resolve lazy-loading src
+    // x.com uses: src=tiny GIF placeholder, real URL in data-src / srcset
     articleEl.querySelectorAll('img').forEach(img => {
-      const src = img.getAttribute('src') ?? ''
-      const srcset = img.getAttribute('srcset') ?? ''
-      const hasPbsSrc = src.includes('pbs.twimg.com')
-      const hasPbsSrcset = srcset.includes('pbs.twimg.com')
+      const src     = img.getAttribute('src') ?? ''
+      const srcset  = img.getAttribute('srcset') ?? ''
+      const dataSrc =
+        img.getAttribute('data-src') ||
+        img.getAttribute('data-lazy-src') ||
+        img.getAttribute('data-original') ||
+        ''
 
-      if (!hasPbsSrc && !hasPbsSrcset) {
+      const realUrl =
+        [src, dataSrc, srcset.split(',')[0]?.trim().split(/\s+/)[0] ?? '']
+          .find(u => u.includes('pbs.twimg.com')) ?? ''
+
+      if (!realUrl) {
         img.remove()
         return
       }
 
-      // If src is a blob/placeholder, extract the first pbs.twimg.com URL from srcset
-      if (!hasPbsSrc && hasPbsSrcset) {
-        const firstUrl = srcset.split(',')[0].trim().split(/\s+/)[0]
-        if (firstUrl) img.setAttribute('src', firstUrl)
-      }
-
-      // Remove position:absolute so images aren't invisible after container stripping
-      img.removeAttribute('style')
+      img.setAttribute('src', realUrl)
       img.setAttribute('loading', 'eager')
+      img.setAttribute('referrerpolicy', 'no-referrer')
+      img.removeAttribute('srcset')
+      img.removeAttribute('data-src')
+      img.removeAttribute('data-lazy-src')
+      img.removeAttribute('data-original')
+      img.removeAttribute('style')
+
+      // Hoist image out of the x.com aspect-ratio wrapper so it renders as a
+      // normal block element. Find the outermost wrapper div with padding-bottom
+      // (the aspect-ratio trick) and replace it with just the img.
+      const wrapper = img.closest('div[style*="padding-bottom"]') as Element | null
+      if (wrapper?.parentElement) {
+        wrapper.parentElement.insertBefore(img, wrapper)
+        wrapper.remove()
+      }
     })
 
     // 3. Collapse excessive whitespace & empty elements
