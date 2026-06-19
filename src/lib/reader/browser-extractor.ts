@@ -122,15 +122,26 @@ export function extractContent(html: string, browserTitle: string): { title: str
       img.removeAttribute('data-original')
       img.removeAttribute('style')
 
-      // Hoist image out of the x.com aspect-ratio wrapper so it renders as a
-      // normal block element. x.com uses padding-bottom OR padding-top for the trick.
-      const wrapper = (
-        img.closest('div[style*="padding-bottom"]') ??
-        img.closest('div[style*="padding-top"]')
-      ) as Element | null
-      if (wrapper?.parentElement) {
-        wrapper.parentElement.insertBefore(img, wrapper)
-        wrapper.remove()
+      // Hoist image out of its x.com container to normal document flow.
+      // x.com articles wrap images in position:absolute boxes (not padding-based).
+      // Walk UP from the img to find the outermost non-flow ancestor that is a
+      // direct descendant of the article, then replace that whole container with
+      // just the img.
+      let outerWrapper: Element | null = null
+      let cur: Element | null = img.parentElement
+      while (cur && cur !== articleEl) {
+        const s = cur.getAttribute('style') ?? ''
+        if (
+          s.includes('position: absolute') || s.includes('position:absolute') ||
+          s.includes('padding-bottom') || s.includes('padding-top')
+        ) {
+          outerWrapper = cur
+        }
+        cur = cur.parentElement
+      }
+      if (outerWrapper?.parentElement) {
+        outerWrapper.parentElement.insertBefore(img, outerWrapper)
+        outerWrapper.remove()
       }
     })
 
