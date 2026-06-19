@@ -7,13 +7,35 @@ import { ArticleView } from '@/components/reader/ArticleView'
 import { BottomDrawer } from '@/components/reader/BottomDrawer'
 import { BrowserSetupButton } from '@/components/reader/BrowserSetupButton'
 import { CookieSetupButton } from '@/components/reader/CookieSetupButton'
+import { ReadingSettings, DEFAULT_PREFS } from '@/components/reader/ReadingSettings'
+import { useRuler } from '@/lib/reader/use-ruler'
 import type { Highlight, SessionSource, DrawerMode } from '@/lib/reader/types'
+import type { ReaderPrefs } from '@/components/reader/ReadingSettings'
+
+const FONT_FAMILIES: Record<ReaderPrefs['fontFamily'], string> = {
+  serif: 'Georgia, "Times New Roman", serif',
+  sans:  'system-ui, -apple-system, sans-serif',
+  mono:  '"JetBrains Mono", "Fira Code", monospace',
+}
 
 export default function ReaderPage() {
   const { status, session, errorMessage, load } = useReaderSession()
   const [activeHighlight, setActiveHighlight] = useState<Highlight | null>(null)
   const [drawerMode, setDrawerMode] = useState<DrawerMode>('closed')
   const [chatPhase, setChatPhase] = useState<'explain' | 'translate'>('explain')
+  const [prefs, setPrefs] = useState<ReaderPrefs>(() => {
+    if (typeof window === 'undefined') return DEFAULT_PREFS
+    try {
+      const raw = localStorage.getItem('heyhelen_reader_prefs')
+      return raw ? { ...DEFAULT_PREFS, ...JSON.parse(raw) } : DEFAULT_PREFS
+    } catch { return DEFAULT_PREFS }
+  })
+
+  useRuler(prefs.ruler)
+
+  useEffect(() => {
+    localStorage.setItem('heyhelen_reader_prefs', JSON.stringify(prefs))
+  }, [prefs])
 
   function handleSource(source: SessionSource) {
     setActiveHighlight(null)
@@ -54,10 +76,18 @@ export default function ReaderPage() {
     : null
 
   return (
-    <div className="min-h-screen bg-[#0d0d0d] text-white flex flex-col">
+    <div
+      className="min-h-screen bg-[#0d0d0d] text-white flex flex-col"
+      style={{
+        fontFamily: FONT_FAMILIES[prefs.fontFamily],
+        fontSize: prefs.fontSize,
+        lineHeight: prefs.lineHeight,
+      }}
+    >
       <div className="flex items-center justify-between pr-4">
         <UrlInput onSubmit={handleSource} disabled={status === 'loading'} />
         <CookieSetupButton domain="x.com" />
+        <ReadingSettings prefs={prefs} onChange={setPrefs} />
         <Link href="/reader/vocabulary" className="shrink-0 text-xs text-white/30 hover:text-white/60 ml-3">词库</Link>
       </div>
 
@@ -108,6 +138,7 @@ export default function ReaderPage() {
               activeHighlight={activeHighlight}
               onHighlightClick={handleHighlightClick}
               onSelectionAction={handleSelectionAction}
+              bionicEnabled={prefs.bionic}
             />
           </>
         )}

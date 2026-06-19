@@ -349,3 +349,31 @@ body {
   }
 }
 
+/* ── Reading Ruler ── */
+.reader-ruler-top,
+.reader-ruler-line,
+.reader-ruler-bottom {
+  position: fixed;
+  left: 0;
+  width: 100%;
+  pointer-events: none;
+  display: none;
+}
+
+.reader-ruler-top,
+.reader-ruler-bottom {
+  z-index: 9998;
+  background: rgba(0, 0, 0, 0.35);
+}
+
+.reader-ruler-line {
+  z-index: 9997;
+  background: rgba(255, 245, 100, 0.15);
+}
+
+body.reader-ruler-active .reader-ruler-top,
+body.reader-ruler-active .reader-ruler-line,
+body.reader-ruler-active .reader-ruler-bottom {
+  display: block;
+}
+

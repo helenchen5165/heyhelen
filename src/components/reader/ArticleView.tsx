@@ -2,6 +2,7 @@
 import { useState, useCallback } from 'react'
 import { segmentParagraphs } from '@/lib/reader/segment-paragraphs'
 import { HighlightMark } from './HighlightMark'
+import { bionicHTML } from '@/lib/reader/use-bionic'
 import type { Highlight } from '@/lib/reader/types'
 
 interface Props {
@@ -11,6 +12,7 @@ interface Props {
   activeHighlight: Highlight | null
   onHighlightClick: (h: Highlight) => void
   onSelectionAction: (text: string, action: 'explain' | 'translate') => void
+  bionicEnabled?: boolean
 }
 
 interface PopupPos {
@@ -18,7 +20,7 @@ interface PopupPos {
   y: number
 }
 
-export function ArticleView({ rawText, html, highlights, activeHighlight, onHighlightClick, onSelectionAction }: Props) {
+export function ArticleView({ rawText, html, highlights, activeHighlight, onHighlightClick, onSelectionAction, bionicEnabled }: Props) {
   const [selectionText, setSelectionText] = useState('')
   const [popupPos, setPopupPos] = useState<PopupPos | null>(null)
 
@@ -107,6 +109,8 @@ export function ArticleView({ rawText, html, highlights, activeHighlight, onHigh
                 active={activeHighlight?.text === seg.highlight.text}
                 onClick={onHighlightClick}
               />
+            ) : bionicEnabled ? (
+              <span key={i} dangerouslySetInnerHTML={{ __html: bionicHTML(seg.text) }} />
             ) : (
               <span key={i}>{seg.text}</span>
             )
