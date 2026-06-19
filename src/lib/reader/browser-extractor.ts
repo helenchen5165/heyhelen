@@ -93,10 +93,27 @@ export function extractContent(html: string, browserTitle: string): { title: str
       articleEl.querySelectorAll(sel).forEach(el => el.remove())
     })
 
-    // 2. Remove icon <img> tags (keep only pbs.twimg.com article images)
+    // 2. Keep only pbs.twimg.com article images; fix lazy-loaded src from srcset
     articleEl.querySelectorAll('img').forEach(img => {
       const src = img.getAttribute('src') ?? ''
-      if (!src.includes('pbs.twimg.com')) img.remove()
+      const srcset = img.getAttribute('srcset') ?? ''
+      const hasPbsSrc = src.includes('pbs.twimg.com')
+      const hasPbsSrcset = srcset.includes('pbs.twimg.com')
+
+      if (!hasPbsSrc && !hasPbsSrcset) {
+        img.remove()
+        return
+      }
+
+      // If src is a blob/placeholder, extract the first pbs.twimg.com URL from srcset
+      if (!hasPbsSrc && hasPbsSrcset) {
+        const firstUrl = srcset.split(',')[0].trim().split(/\s+/)[0]
+        if (firstUrl) img.setAttribute('src', firstUrl)
+      }
+
+      // Remove position:absolute so images aren't invisible after container stripping
+      img.removeAttribute('style')
+      img.setAttribute('loading', 'eager')
     })
 
     // 3. Collapse excessive whitespace & empty elements

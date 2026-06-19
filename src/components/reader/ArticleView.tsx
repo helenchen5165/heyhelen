@@ -56,7 +56,7 @@ export function ArticleView({ rawText, html, highlights, activeHighlight, onHigh
         <div
           dangerouslySetInnerHTML={{ __html: html }}
           className="prose prose-invert prose-lg max-w-none font-serif leading-8
-            [&_img]:max-w-full [&_img]:rounded-lg [&_img]:my-6 [&_img]:block
+            [&_img]:max-w-full [&_img]:rounded-lg [&_img]:my-6 [&_img]:block [&_img]:relative [&_img]:static
             [&_p]:mb-5 [&_p]:leading-8 [&_p:empty]:hidden
             [&_br+br]:hidden
             [&_h1]:text-2xl [&_h1]:font-bold [&_h1]:mb-4 [&_h1]:mt-8
