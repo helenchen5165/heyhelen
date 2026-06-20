@@ -349,6 +349,12 @@ body {
   }
 }
 
+/* ── Reader selection: 选中文字后保留淡蓝高亮，便于定位 ── */
+::highlight(reader-selection) {
+  background-color: rgba(96, 165, 250, 0.35);
+  border-radius: 2px;
+}
+
 /* ── Reading Ruler ── */
 .reader-ruler-top,
 .reader-ruler-line,
