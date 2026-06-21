@@ -1,5 +1,42 @@
 # 开发日志
 
+## 2026年6月 - Reader 阅读器（当前主线）
+
+> 旧 Python 原型 `/Users/chenhelen/PycharmProjects/Helen_reader` 已废弃，全部迁移到本项目（Next.js）。部署为 **Vercel**（不是下方旧记录里的 Netlify）。
+
+### 🎯 功能定位
+英文阅读教练：粘贴 URL / 上传 PDF / 粘贴图文 → AI 标注关键词论点 → 点高亮看解释 → Feynman+Socratic 对话深入。主力场景是读 x.com 付费/登录墙文章。
+
+### ✅ 已完成（截至 2026-06-20）
+- URL / 文本 / 图文粘贴 / PDF 四种输入（统一 `/api/reader/session` SSE）
+- 仿生阅读、阅读标尺、设置面板（localStorage: `heyhelen_reader_prefs`）
+- 概念学习对话（explain / translate / socratic 三阶段）+ 词库
+- x.com 图文粘贴：清洗 DOM、修复图片
+- **翻译抽屉可拖动调整高度**（localStorage: `heyhelen_drawer_height`）
+- **选中文字保留淡蓝高亮**（CSS Custom Highlight API）
+
+### 🔬 复盘：两场硬仗（根因 + 教训）
+
+**1. x.com 图片粘贴后不显示（4 轮才找到根因）**
+- 弯路：先后猜 `data-src` 懒加载、`padding-bottom` 宽高比包装器，都不对。
+- 真根因：x.com 文章图片 inline style 是 `opacity:0; z-index:-1; position:absolute`，靠 x.com 自己的 JS 滚动时才改 opacity，粘贴到 reader 后这段 JS 不存在 → 永远透明。
+- 教训：**渲染 bug 先加 console.log 打印真实 DOM/style，再动手**。加一条日志立刻定位，抵四轮盲改。已写入 memory `feedback-debug-first`。
+
+**2. 翻译抽屉拖动 + 选区高亮（图文模式失效）**
+- 选区高亮在文本模式正常、图文模式不显示。根因：`<div dangerouslySetInnerHTML={{__html:html}}>` 的 `{{__html}}` 每次 render 是新对象，React 每次 re-render 重设 innerHTML、替换全部文本节点，导致注册的 live `Range` 塌缩（`collapsed:true`）。修复：`useMemo` 缓存该 div（html 不变即同一 element，React 跳过子树协调）。
+- 抽屉"拖不动"：监听器绑在把手节点 + `setPointerCapture`，拖动每次 `onResize` 触发 re-render 使监听/capture 失效，拖一下就断。修复：监听器改绑 `window`（全局对象 React 不碰，跨 re-render 存活）。
+- 抽屉"只有 1mm 能拖"：ConceptChat 根节点 `h-full` 占满整个抽屉高度，盖住了顶部拖动条。修复：抽屉改 `flex flex-col`，拖动条 `shrink-0`，内容区 `flex-1 min-h-0`。
+- 教训：**合成事件测试会漏掉真实交互 bug**（同步派发不触发 re-render）；用 browse 分步 + 延迟模拟真实拖动才复现。
+
+### 🚧 已知限制 / 下一步
+- Browserless 数据中心 IP 被 x.com Cloudflare 封锁，URL 直读 x.com 失败（`isBotBlocked()` 已检测报错）；BrowserCookies 表已建，等换 residential proxy。
+- 高亮用 CSS Custom Highlight API，需 Chrome 105+ / Safari 17.2+。
+
+### 📁 Reader 关键文件
+见 `CLAUDE.md` 的完整项目地图。核心：`src/app/reader/page.tsx`（状态）、`src/components/reader/`（UI）、`src/lib/reader/browser-extractor.ts`（x.com 清洗）。
+
+---
+
 ## 2025年7月30日 - 禅意博客系统重构
 
 ### 🎯 项目定位重新确认
