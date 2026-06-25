@@ -12,10 +12,23 @@ interface Props {
   highlight: Highlight
   initialPhase?: 'explain' | 'translate'
   articleTitle?: string
+  articleText?: string
   onDeepenReady?: (trigger: () => void) => void
 }
 
-export function ConceptChat({ highlight, initialPhase = 'explain', articleTitle, onDeepenReady }: Props) {
+// Pull a window of surrounding text from the article so the model can resolve
+// pronouns, proper nouns, and word-sense ambiguity in the selected snippet.
+// Manual selections carry a fake offset (0), so locate by content instead.
+function buildContext(articleText: string | undefined, snippet: string, window = 600): string {
+  if (!articleText) return ''
+  const idx = articleText.indexOf(snippet)
+  if (idx < 0) return ''
+  const start = Math.max(0, idx - window)
+  const end = Math.min(articleText.length, idx + snippet.length + window)
+  return articleText.slice(start, end).trim()
+}
+
+export function ConceptChat({ highlight, initialPhase = 'explain', articleTitle, articleText, onDeepenReady }: Props) {
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
   const [streaming, setStreaming] = useState(false)
@@ -31,10 +44,15 @@ export function ConceptChat({ highlight, initialPhase = 'explain', articleTitle,
 
     if (initialPhase === 'translate') {
       const text = highlight.text
+      const ctx = buildContext(articleText, text)
+      const withContext = (snippet: string) =>
+        ctx
+          ? `（以下是文章上下文，仅供你理解词义和指代，不要翻译或复述它）：\n"""${ctx}"""\n\n请处理下面这句话：\n"${snippet}"`
+          : snippet
       ;(async () => {
-        await stream(text, 'translate', [], () => cancelled, 'translation')
+        await stream(withContext(text), 'translate', [], () => cancelled, 'translation')
         if (!cancelled) {
-          await stream(text, 'context', [], () => cancelled, 'context')
+          await stream(withContext(text), 'context', [], () => cancelled, 'context')
         }
       })()
     } else {

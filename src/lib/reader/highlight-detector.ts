@@ -33,7 +33,7 @@ export function createLLMHighlightDetector(client: Anthropic): HighlightDetector
   return {
     async detect(text, onHighlight) {
       const msg = await client.messages.create({
-        model: 'claude-opus-4-7',
+        model: 'claude-opus-4-8',
         max_tokens: 4096,
         system: [
           {

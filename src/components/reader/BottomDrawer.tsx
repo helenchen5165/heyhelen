@@ -11,6 +11,7 @@ interface Props {
   source: string
   chatPhase?: 'explain' | 'translate'
   articleTitle?: string
+  articleText?: string
   chatHeight: number
   onResize: (height: number) => void
   onDeepen: () => void
@@ -19,7 +20,7 @@ interface Props {
 
 const DETAIL_HEIGHT = 220
 
-export function BottomDrawer({ mode, highlight, source, chatPhase, articleTitle, chatHeight, onResize, onDeepen, onClose }: Props) {
+export function BottomDrawer({ mode, highlight, source, chatPhase, articleTitle, articleText, chatHeight, onResize, onDeepen, onClose }: Props) {
   const deepenTriggerRef = useRef<(() => void) | null>(null)
   const [dragging, setDragging] = useState(false)
 
@@ -94,6 +95,7 @@ export function BottomDrawer({ mode, highlight, source, chatPhase, articleTitle,
                 highlight={highlight}
                 initialPhase={chatPhase}
                 articleTitle={articleTitle}
+                articleText={articleText}
                 onDeepenReady={(fn) => { deepenTriggerRef.current = fn }}
               />
             </div>

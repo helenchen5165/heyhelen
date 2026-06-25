@@ -22,9 +22,13 @@ const SYSTEM_PROMPTS: Record<string, string> = {
 - 学生回答正确时，简短认可后继续深挖
 - 全程用中文，语气自然亲切`,
 
-  translate: `你是一位英文翻译助手。用户发来一段英文，只输出中文翻译，不添加任何解释、注释或背景信息。保持原文的人称、语气和句式结构。不重复原文英文。不使用 Markdown 标题或加粗。`,
+  translate: `你是一位专业的中英翻译。用户可能会先给出一段文章上下文，再给出需要翻译的句子。请：
+- 只输出被指定句子的中文翻译；不要翻译上下文，不添加任何解释、注释或背景信息。
+- 借助上下文判断代词指代、专有名词和一词多义，确保译文准确。
+- 用自然、地道、流畅的中文表达，符合中文行文习惯，不要逐字直译或套用英文句式。
+- 保持原文的人称和语气。不重复原文英文。不使用 Markdown 标题或加粗。`,
 
-  context: `你是一位英文阅读助手。用户发来一段英文，用一到两段自然流畅的中文解释这段话的含义、背景和难点，帮助读者真正理解。不要重复翻译原文。不使用 Markdown 标题或加粗。语气像朋友帮你读文章。`,
+  context: `你是一位英文阅读助手。用户可能会先给出一段文章上下文，再给出要解释的句子。用一到两段自然流畅的中文，结合上下文解释这句话的含义、背景和难点，帮助读者真正理解。不要逐句翻译原文，也不要解释上下文本身。不使用 Markdown 标题或加粗。语气像朋友帮你读文章。`,
 }
 
 interface Message {
@@ -56,7 +60,7 @@ export async function POST(req: NextRequest) {
     async start(controller) {
       try {
         const response = await anthropic.messages.stream({
-          model: 'claude-opus-4-7',
+          model: 'claude-opus-4-8',
           max_tokens: 20000,
           system: systemPrompt,
           messages,
@@ -67,7 +71,12 @@ export async function POST(req: NextRequest) {
             chunk.type === 'content_block_delta' &&
             chunk.delta.type === 'text_delta'
           ) {
-            controller.enqueue(encoder.encode(`data: ${chunk.delta.text}\n\n`))
+            // Escape newlines so payload line breaks don't collide with the
+            // SSE frame delimiter (\n\n). The client restores them via
+            // `.replace(/\\n/g, '\n')`. Without this, multi-paragraph output
+            // loses every paragraph's opening text.
+            const safe = chunk.delta.text.replace(/\r\n|\r|\n/g, '\\n')
+            controller.enqueue(encoder.encode(`data: ${safe}\n\n`))
           }
         }
       } catch (err) {

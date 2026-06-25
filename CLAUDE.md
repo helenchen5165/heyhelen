@@ -13,7 +13,7 @@
 | 框架 | Next.js 14 App Router + TypeScript |
 | 样式 | Tailwind CSS v4 |
 | 数据库 | Prisma ORM + SQLite |
-| AI | Anthropic SDK（claude-sonnet-4-6 / opus） |
+| AI | Anthropic SDK（claude-opus-4-8） |
 | 部署 | Vercel |
 
 ---

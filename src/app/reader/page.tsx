@@ -159,6 +159,7 @@ export default function ReaderPage() {
         source={session?.url ?? ''}
         chatPhase={chatPhase}
         articleTitle={session?.title}
+        articleText={session?.rawText}
         chatHeight={chatHeight}
         onResize={setChatHeight}
         onDeepen={() => { setChatPhase('explain'); setDrawerMode('chat') }}
