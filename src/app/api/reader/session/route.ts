@@ -4,11 +4,11 @@ import { createBrowseFn } from '@/lib/reader/browser-extractor'
 import { createLLMHighlightDetector } from '@/lib/reader/highlight-detector'
 import { createSessionEvents } from '@/lib/reader/session-events'
 import type { SessionSource } from '@/lib/reader/types'
-import Anthropic from '@anthropic-ai/sdk'
+import { getAnthropic } from '@/lib/reader/llm'
+import { SSE_HEADERS, sseFrame } from '@/lib/reader/sse'
 
-const anthropic = new Anthropic()
 const extractor = createExtractor({ browse: createBrowseFn() })
-const detector = createLLMHighlightDetector(anthropic)
+const detector = createLLMHighlightDetector(getAnthropic())
 
 export async function POST(request: Request) {
   let source: SessionSource
@@ -41,17 +41,11 @@ export async function POST(request: Request) {
   const stream = new ReadableStream({
     async start(controller) {
       for await (const event of createSessionEvents(source, { extractor, detector })) {
-        controller.enqueue(encoder.encode(`data: ${JSON.stringify(event)}\n\n`))
+        controller.enqueue(encoder.encode(sseFrame(JSON.stringify(event))))
       }
       controller.close()
     },
   })
 
-  return new Response(stream, {
-    headers: {
-      'Content-Type': 'text/event-stream',
-      'Cache-Control': 'no-cache',
-      'X-Accel-Buffering': 'no',
-    },
-  })
+  return new Response(stream, { headers: SSE_HEADERS })
 }
