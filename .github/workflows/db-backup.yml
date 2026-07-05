@@ -1,0 +1,40 @@
+name: DB Backup
+
+on:
+  schedule:
+    - cron: '17 3 * * *' # daily 03:17 UTC = 11:17 北京时间
+  workflow_dispatch:
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Dump database
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          # Neon 的 -pooler (pgbouncer) 端点不支持 pg_dump，切换到直连端点
+          DIRECT_URL="${DATABASE_URL/-pooler/}"
+          docker run --rm postgres:17 pg_dump "$DIRECT_URL" \
+            --no-owner --no-privileges > dump.sql
+          # 拒绝可疑的空转储（连接失败但退出码为 0 之类的静默故障）
+          test "$(stat -c%s dump.sql)" -gt 10240
+          gzip dump.sql
+
+      - name: Encrypt
+        env:
+          BACKUP_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+        run: |
+          openssl enc -aes-256-cbc -pbkdf2 -iter 200000 \
+            -in dump.sql.gz \
+            -out "heyhelen-$(date -u +%Y%m%d-%H%M).sql.gz.enc" \
+            -pass env:BACKUP_PASSPHRASE
+          rm dump.sql.gz
+
+      - name: Upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: db-backup-${{ github.run_id }}
+          path: '*.sql.gz.enc'
+          retention-days: 90
+          if-no-files-found: error
