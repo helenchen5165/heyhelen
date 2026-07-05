@@ -1,5 +1,6 @@
 'use client'
 import { useState, useEffect, useRef } from 'react'
+import { readSSE } from '@/lib/reader/sse'
 import type { Highlight } from '@/lib/reader/types'
 
 interface Message {
@@ -86,30 +87,14 @@ export function ConceptChat({ highlight, initialPhase = 'explain', articleTitle,
         body: JSON.stringify({ text: userText, history, phase }),
       })
 
-      const reader = resp.body!.getReader()
-      const decoder = new TextDecoder()
-      let buf = ''
-
-      while (true) {
-        if (isCancelled()) break
-        const { done, value } = await reader.read()
-        if (done) break
-        buf += decoder.decode(value, { stream: true })
-        const lines = buf.split('\n\n')
-        buf = lines.pop() ?? ''
-        for (const line of lines) {
-          if (!line.startsWith('data: ')) continue
-          const chunk = line.slice(6)
-          if (chunk === '[DONE]') break
-          const text = chunk.replace(/\\n/g, '\n')
-          if (!isCancelled()) {
-            setMessages(prev => {
-              const next = [...prev]
-              next[next.length - 1] = { ...next[next.length - 1], content: next[next.length - 1].content + text }
-              return next
-            })
-          }
-        }
+      for await (const chunk of readSSE(resp.body!)) {
+        if (isCancelled() || chunk === '[DONE]') break
+        const text = chunk.replace(/\\n/g, '\n')
+        setMessages(prev => {
+          const next = [...prev]
+          next[next.length - 1] = { ...next[next.length - 1], content: next[next.length - 1].content + text }
+          return next
+        })
       }
     } finally {
       if (!isCancelled()) setStreaming(false)

@@ -36,6 +36,32 @@ interface PopupPos {
   y: number
 }
 
+function SelectionPopup({ pos, onAction }: { pos: PopupPos; onAction: (action: 'explain' | 'translate') => void }) {
+  return (
+    <div
+      className="fixed z-50 flex gap-1 bg-[#1e1e3a] border border-white/20 rounded-lg shadow-xl px-2 py-1.5"
+      style={{
+        left: pos.x,
+        top: pos.y - 8,
+        transform: 'translateX(-50%) translateY(-100%)',
+      }}
+    >
+      <button
+        onMouseDown={e => { e.preventDefault(); onAction('explain') }}
+        className="px-3 py-1 text-xs text-white/80 hover:text-white hover:bg-white/10 rounded-md transition-colors"
+      >
+        解释
+      </button>
+      <button
+        onMouseDown={e => { e.preventDefault(); onAction('translate') }}
+        className="px-3 py-1 text-xs text-white/80 hover:text-white hover:bg-white/10 rounded-md transition-colors"
+      >
+        翻译
+      </button>
+    </div>
+  )
+}
+
 export function ArticleView({ rawText, html, highlights, activeHighlight, onHighlightClick, onSelectionAction, bionicEnabled }: Props) {
   const [selectionText, setSelectionText] = useState('')
   const [popupPos, setPopupPos] = useState<PopupPos | null>(null)
@@ -104,29 +130,7 @@ export function ArticleView({ rawText, html, highlights, activeHighlight, onHigh
         onMouseUp={handleMouseUp}
       >
         {htmlBody}
-        {popupPos && (
-          <div
-            className="fixed z-50 flex gap-1 bg-[#1e1e3a] border border-white/20 rounded-lg shadow-xl px-2 py-1.5"
-            style={{
-              left: popupPos.x,
-              top: popupPos.y - 8,
-              transform: 'translateX(-50%) translateY(-100%)',
-            }}
-          >
-            <button
-              onMouseDown={e => { e.preventDefault(); handleAction('explain') }}
-              className="px-3 py-1 text-xs text-white/80 hover:text-white hover:bg-white/10 rounded-md transition-colors"
-            >
-              解释
-            </button>
-            <button
-              onMouseDown={e => { e.preventDefault(); handleAction('translate') }}
-              className="px-3 py-1 text-xs text-white/80 hover:text-white hover:bg-white/10 rounded-md transition-colors"
-            >
-              翻译
-            </button>
-          </div>
-        )}
+        {popupPos && <SelectionPopup pos={popupPos} onAction={handleAction} />}
       </div>
     )
   }
@@ -155,29 +159,7 @@ export function ArticleView({ rawText, html, highlights, activeHighlight, onHigh
         </p>
       ))}
 
-      {popupPos && (
-        <div
-          className="fixed z-50 flex gap-1 bg-[#1e1e3a] border border-white/20 rounded-lg shadow-xl px-2 py-1.5"
-          style={{
-            left: popupPos.x,
-            top: popupPos.y - 8,
-            transform: 'translateX(-50%) translateY(-100%)',
-          }}
-        >
-          <button
-            onMouseDown={e => { e.preventDefault(); handleAction('explain') }}
-            className="px-3 py-1 text-xs text-white/80 hover:text-white hover:bg-white/10 rounded-md transition-colors"
-          >
-            解释
-          </button>
-          <button
-            onMouseDown={e => { e.preventDefault(); handleAction('translate') }}
-            className="px-3 py-1 text-xs text-white/80 hover:text-white hover:bg-white/10 rounded-md transition-colors"
-          >
-            翻译
-          </button>
-        </div>
-      )}
+      {popupPos && <SelectionPopup pos={popupPos} onAction={handleAction} />}
     </div>
   )
 }

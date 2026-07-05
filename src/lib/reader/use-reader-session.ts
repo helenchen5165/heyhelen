@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react'
+import { readSSE } from './sse'
 import type { Session, SessionSource } from './types'
 
 type Status = 'idle' | 'loading' | 'ready' | 'error'
@@ -29,30 +30,18 @@ export function useReaderSession(fetchFn: FetchFn = fetch) {
 
       if (!resp.ok || !resp.body) throw new Error(`Server error ${resp.status}`)
 
-      const reader = resp.body.getReader()
-      const decoder = new TextDecoder()
-      let buf = ''
       let receivedSession = false
 
-      while (true) {
-        const { done, value } = await reader.read()
-        if (done) break
-        buf += decoder.decode(value, { stream: true })
-        const lines = buf.split('\n\n')
-        buf = lines.pop() ?? ''
+      for await (const payload of readSSE(resp.body)) {
+        const event = JSON.parse(payload)
 
-        for (const line of lines) {
-          if (!line.startsWith('data: ')) continue
-          const event = JSON.parse(line.slice(6))
-
-          if (event.type === 'session') {
-            setSession({ ...event, highlights: [] })
-            receivedSession = true
-          } else if (event.type === 'highlight') {
-            setSession(prev => prev ? { ...prev, highlights: [...prev.highlights, event.highlight] } : prev)
-          } else if (event.type === 'error') {
-            throw new Error(event.message)
-          }
+        if (event.type === 'session') {
+          setSession({ ...event, highlights: [] })
+          receivedSession = true
+        } else if (event.type === 'highlight') {
+          setSession(prev => prev ? { ...prev, highlights: [...prev.highlights, event.highlight] } : prev)
+        } else if (event.type === 'error') {
+          throw new Error(event.message)
         }
       }
 

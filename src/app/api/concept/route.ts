@@ -1,7 +1,7 @@
 import Anthropic from '@anthropic-ai/sdk'
 import { NextRequest, NextResponse } from 'next/server'
-
-const anthropic = new Anthropic()
+import { getAnthropic, READER_MODEL } from '@/lib/reader/llm'
+import { SSE_HEADERS, sseFrame } from '@/lib/reader/sse'
 
 const SYSTEM_PROMPTS: Record<string, string> = {
   explain: `你是一位温和、有洞察力的阅读导师，帮助学生读懂英文文章。
@@ -59,8 +59,8 @@ export async function POST(req: NextRequest) {
   const stream = new ReadableStream({
     async start(controller) {
       try {
-        const response = await anthropic.messages.stream({
-          model: 'claude-opus-4-8',
+        const response = await getAnthropic().messages.stream({
+          model: READER_MODEL,
           max_tokens: 20000,
           system: systemPrompt,
           messages,
@@ -76,24 +76,18 @@ export async function POST(req: NextRequest) {
             // `.replace(/\\n/g, '\n')`. Without this, multi-paragraph output
             // loses every paragraph's opening text.
             const safe = chunk.delta.text.replace(/\r\n|\r|\n/g, '\\n')
-            controller.enqueue(encoder.encode(`data: ${safe}\n\n`))
+            controller.enqueue(encoder.encode(sseFrame(safe)))
           }
         }
       } catch (err) {
         const msg = err instanceof Error ? err.message : 'Unknown error'
-        controller.enqueue(encoder.encode(`data: [ERROR] ${msg}\n\n`))
+        controller.enqueue(encoder.encode(sseFrame(`[ERROR] ${msg}`)))
       } finally {
-        controller.enqueue(encoder.encode('data: [DONE]\n\n'))
+        controller.enqueue(encoder.encode(sseFrame('[DONE]')))
         controller.close()
       }
     },
   })
 
-  return new Response(stream, {
-    headers: {
-      'Content-Type': 'text/event-stream',
-      'Cache-Control': 'no-cache',
-      'X-Accel-Buffering': 'no',
-    },
-  })
+  return new Response(stream, { headers: SSE_HEADERS })
 }

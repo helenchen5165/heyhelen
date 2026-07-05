@@ -65,6 +65,16 @@ function isBotBlocked(html: string): boolean {
   return html.includes('JavaScript is not available') && html.includes('errorContainer')
 }
 
+const BOT_BLOCKED_MESSAGE =
+  'x.com 的反爬虫系统拦截了服务器端请求。请使用粘贴文本模式，或在本地运行读书器。'
+
+// The BROWSER_SETUP_REQUIRED:<domain> error format is parsed by the reader
+// page to offer the cookie-setup flow.
+function assertPageAccessible(rawHtml: string, domain: string, pageTitle?: string): void {
+  if (isBotBlocked(rawHtml)) throw new Error(BOT_BLOCKED_MESSAGE)
+  if (isLoginWall(rawHtml, pageTitle)) throw new Error(`BROWSER_SETUP_REQUIRED:${domain}`)
+}
+
 export function extractContent(html: string, browserTitle: string): { title: string; html: string; text: string } {
   // linkedom is CJS-compatible (no ESM deps) — safe for Vercel Lambda.
   // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -257,15 +267,7 @@ async function _extractWithCookies(
       const rawHtml     = await page.content()
       const browserTitle = await page.title()
 
-      if (isBotBlocked(rawHtml)) {
-        throw new Error(
-          'x.com 的反爬虫系统拦截了服务器端请求。请使用粘贴文本模式，或在本地运行读书器。',
-        )
-      }
-
-      if (isLoginWall(rawHtml, browserTitle)) {
-        throw new Error(`BROWSER_SETUP_REQUIRED:${domain}`)
-      }
+      assertPageAccessible(rawHtml, domain, browserTitle)
 
       const result = extractContent(rawHtml, browserTitle)
       if (result.text.trim().length < 80) {
@@ -310,15 +312,7 @@ async function _extractViaBrowserless(
 
   const rawHtml = await resp.text()
 
-  if (isBotBlocked(rawHtml)) {
-    throw new Error(
-      'x.com 的反爬虫系统拦截了服务器端请求。请使用粘贴文本模式，或在本地运行读书器。',
-    )
-  }
-
-  if (isLoginWall(rawHtml)) {
-    throw new Error(`BROWSER_SETUP_REQUIRED:${domain}`)
-  }
+  assertPageAccessible(rawHtml, domain)
 
   const result = extractContent(rawHtml, url)
   if (result.text.trim().length < 80) {
@@ -456,15 +450,7 @@ export function createBrowseFn(): BrowseFn {
       const rawHtml     = await page.content()
       const browserTitle = await page.title()
 
-      if (isBotBlocked(rawHtml)) {
-        throw new Error(
-          'x.com 的反爬虫系统拦截了服务器端请求。请使用粘贴文本模式，或在本地运行读书器。',
-        )
-      }
-
-      if (isLoginWall(rawHtml, browserTitle)) {
-        throw new Error(`BROWSER_SETUP_REQUIRED:${domain}`)
-      }
+      assertPageAccessible(rawHtml, domain, browserTitle)
 
       const result = extractContent(rawHtml, browserTitle)
 

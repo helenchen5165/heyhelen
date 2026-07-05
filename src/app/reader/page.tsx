@@ -9,6 +9,7 @@ import { BrowserSetupButton } from '@/components/reader/BrowserSetupButton'
 import { CookieSetupButton } from '@/components/reader/CookieSetupButton'
 import { ReadingSettings, DEFAULT_PREFS } from '@/components/reader/ReadingSettings'
 import { useRuler } from '@/lib/reader/use-ruler'
+import { usePersistedState } from '@/lib/reader/use-persisted-state'
 import type { Highlight, SessionSource, DrawerMode } from '@/lib/reader/types'
 import type { ReaderPrefs } from '@/components/reader/ReadingSettings'
 
@@ -18,33 +19,27 @@ const FONT_FAMILIES: Record<ReaderPrefs['fontFamily'], string> = {
   mono:  '"JetBrains Mono", "Fira Code", monospace',
 }
 
+function defaultChatHeight(): number {
+  return typeof window === 'undefined' ? 480 : Math.round(window.innerHeight * 0.6)
+}
+
 export default function ReaderPage() {
   const { status, session, errorMessage, load } = useReaderSession()
   const [activeHighlight, setActiveHighlight] = useState<Highlight | null>(null)
   const [drawerMode, setDrawerMode] = useState<DrawerMode>('closed')
   const [chatPhase, setChatPhase] = useState<'explain' | 'translate'>('explain')
-  const [chatHeight, setChatHeight] = useState<number>(() => {
-    if (typeof window === 'undefined') return 480
-    const n = parseInt(localStorage.getItem('heyhelen_drawer_height') ?? '', 10)
-    return Number.isFinite(n) ? n : Math.round(window.innerHeight * 0.6)
-  })
-  const [prefs, setPrefs] = useState<ReaderPrefs>(() => {
-    if (typeof window === 'undefined') return DEFAULT_PREFS
-    try {
-      const raw = localStorage.getItem('heyhelen_reader_prefs')
-      return raw ? { ...DEFAULT_PREFS, ...JSON.parse(raw) } : DEFAULT_PREFS
-    } catch { return DEFAULT_PREFS }
-  })
+  const [chatHeight, setChatHeight] = usePersistedState<number>(
+    'heyhelen_drawer_height',
+    defaultChatHeight,
+    (stored) => (typeof stored === 'number' && Number.isFinite(stored) ? stored : defaultChatHeight()),
+  )
+  const [prefs, setPrefs] = usePersistedState<ReaderPrefs>(
+    'heyhelen_reader_prefs',
+    () => DEFAULT_PREFS,
+    (stored) => ({ ...DEFAULT_PREFS, ...(stored as Partial<ReaderPrefs>) }),
+  )
 
   useRuler(prefs.ruler)
-
-  useEffect(() => {
-    localStorage.setItem('heyhelen_reader_prefs', JSON.stringify(prefs))
-  }, [prefs])
-
-  useEffect(() => {
-    localStorage.setItem('heyhelen_drawer_height', String(chatHeight))
-  }, [chatHeight])
 
   function handleSource(source: SessionSource) {
     setActiveHighlight(null)

@@ -1,4 +1,5 @@
 import Anthropic from '@anthropic-ai/sdk'
+import { READER_MODEL } from './llm'
 import type { Highlight, HighlightDetector } from './types'
 
 const VALID_TYPES = new Set(['key-argument', 'vocabulary', 'complex-sentence', 'related-concept'])
@@ -33,7 +34,7 @@ export function createLLMHighlightDetector(client: Anthropic): HighlightDetector
   return {
     async detect(text, onHighlight) {
       const msg = await client.messages.create({
-        model: 'claude-opus-4-8',
+        model: READER_MODEL,
         max_tokens: 4096,
         system: [
           {
