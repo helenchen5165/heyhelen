@@ -6,9 +6,23 @@ import { createSessionEvents } from '@/lib/reader/session-events'
 import type { SessionSource } from '@/lib/reader/types'
 import { getAnthropic } from '@/lib/reader/llm'
 import { SSE_HEADERS, sseFrame } from '@/lib/reader/sse'
+import { prismaSessionStore } from '@/lib/reader/prisma-session-store'
+
+export const dynamic = 'force-dynamic'
 
 const extractor = createExtractor({ browse: createBrowseFn() })
 const detector = createLLMHighlightDetector(getAnthropic())
+
+// Returns the most recently read session so the reader can resume on a
+// return visit. 404 when there is nothing stored (or the DB is unreachable).
+export async function GET() {
+  const session = await prismaSessionStore.latest().catch((err) => {
+    console.error('[reader/session] latest lookup failed:', err)
+    return null
+  })
+  if (!session) return NextResponse.json(null, { status: 404 })
+  return NextResponse.json(session)
+}
 
 export async function POST(request: Request) {
   let source: SessionSource
@@ -40,7 +54,7 @@ export async function POST(request: Request) {
 
   const stream = new ReadableStream({
     async start(controller) {
-      for await (const event of createSessionEvents(source, { extractor, detector })) {
+      for await (const event of createSessionEvents(source, { extractor, detector, store: prismaSessionStore })) {
         controller.enqueue(encoder.encode(sseFrame(JSON.stringify(event))))
       }
       controller.close()

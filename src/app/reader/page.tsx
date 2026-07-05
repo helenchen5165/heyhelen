@@ -24,7 +24,7 @@ function defaultChatHeight(): number {
 }
 
 export default function ReaderPage() {
-  const { status, session, errorMessage, load } = useReaderSession()
+  const { status, session, errorMessage, load, restoreLatest } = useReaderSession()
   const [activeHighlight, setActiveHighlight] = useState<Highlight | null>(null)
   const [drawerMode, setDrawerMode] = useState<DrawerMode>('closed')
   const [chatPhase, setChatPhase] = useState<'explain' | 'translate'>('explain')
@@ -40,6 +40,12 @@ export default function ReaderPage() {
   )
 
   useRuler(prefs.ruler)
+
+  // 回访恢复：打开页面即载入上次阅读的文章（含缓存的高亮）
+  useEffect(() => {
+    restoreLatest()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   function handleSource(source: SessionSource) {
     setActiveHighlight(null)
