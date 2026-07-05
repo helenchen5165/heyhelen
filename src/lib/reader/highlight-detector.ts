@@ -52,20 +52,35 @@ export function createLLMHighlightDetector(client: Anthropic): HighlightDetector
       try {
         const match = raw.match(/\[[\s\S]*\]/)
         items = match ? (JSON.parse(match[0]) as unknown[]) : []
-      } catch {
+      } catch (err) {
+        console.error(
+          '[highlight-detector] LLM output is not parseable JSON — dropping all highlights.',
+          { error: err instanceof Error ? err.message : err, rawHead: raw.slice(0, 300) },
+        )
         return
       }
 
+      let invalid = 0
+      let unlocated = 0
       for (const item of items) {
-        if (!isValidItem(item)) continue
+        if (!isValidItem(item)) { invalid++; continue }
         const offset = resolveOffset(text, item.text, item.context)
-        if (offset < 0) continue
+        if (offset < 0) { unlocated++; continue }
         onHighlight({
           type: item.type,
           text: item.text,
           offset,
           len: item.text.length,
           preview: item.preview,
+        })
+      }
+
+      if (invalid > 0 || unlocated > 0 || items.length === 0) {
+        console.warn('[highlight-detector] detection quality', {
+          returned: items.length,
+          invalid,
+          unlocated,
+          emitted: items.length - invalid - unlocated,
         })
       }
     },

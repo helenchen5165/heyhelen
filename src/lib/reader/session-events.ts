@@ -38,8 +38,9 @@ export async function* createSessionEvents(
   const highlights: Highlight[] = []
   try {
     await deps.detector.detect(text, (h) => highlights.push(h))
-  } catch {
+  } catch (err) {
     // highlight detection failure is non-fatal — session is still usable
+    console.error('[session-events] highlight detection failed:', err)
   }
 
   for (const highlight of highlights) {
