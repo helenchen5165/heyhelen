@@ -5,7 +5,7 @@
   "scripts": {
     "postinstall": "node scripts/patch-pdf-parse.js && node scripts/patch-exodus-bytes.js",
     "dev": "next dev",
-    "build": "prisma generate && prisma migrate deploy && next build",
+    "build": "prisma generate && ([ \"$VERCEL_ENV\" != production ] || prisma migrate deploy) && next build",
     "start": "next start",
     "lint": "next lint",
     "test": "jest",
