@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useRef } from 'react'
 import { readSSE } from './sse'
 import type { Session, SessionSource } from './types'
 
@@ -10,6 +10,31 @@ export function useReaderSession(fetchFn: FetchFn = fetch) {
   const [status, setStatus] = useState<Status>('idle')
   const [session, setSession] = useState<Session | null>(null)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const statusRef = useRef(status)
+  statusRef.current = status
+
+  // Restores the most recently read session on a return visit. Silent no-op
+  // when nothing is stored, the API is locked, or the user already started
+  // loading something else.
+  const restoreLatest = useCallback(async () => {
+    try {
+      const resp = await fetchFn('/api/reader/session', { method: 'GET' })
+      if (!resp.ok) return
+      const data = await resp.json()
+      if (!data?.rawText || statusRef.current !== 'idle') return
+      setSession({
+        id: 'restored',
+        title: data.title ?? '',
+        url: data.url ?? undefined,
+        rawText: data.rawText,
+        html: data.html ?? '',
+        highlights: Array.isArray(data.highlights) ? data.highlights : [],
+      })
+      setStatus('ready')
+    } catch {
+      // offline or DB unavailable — stay idle
+    }
+  }, [fetchFn])
 
   const load = useCallback(async (source: SessionSource) => {
     setStatus('loading')
@@ -53,5 +78,5 @@ export function useReaderSession(fetchFn: FetchFn = fetch) {
     }
   }, [fetchFn])
 
-  return { status, session, errorMessage, load }
+  return { status, session, errorMessage, load, restoreLatest }
 }

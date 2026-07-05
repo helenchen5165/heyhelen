@@ -157,6 +157,22 @@ model Comment {
   @@map("comments")
 }
 
+// 阅读会话：按内容哈希缓存文章与高亮。同一篇文章只做一次 LLM 高亮检测；
+// 回访时恢复上次阅读的文章。
+model ReaderSession {
+  id          String   @id @default(cuid())
+  contentHash String   @unique
+  title       String
+  url         String?
+  rawText     String
+  html        String
+  highlights  Json
+  createdAt   DateTime @default(now())
+  lastReadAt  DateTime @default(now())
+
+  @@map("reader_sessions")
+}
+
 // Stores browser auth cookies for domains that require login (e.g. x.com).
 // One row per domain; cookies are replaced atomically on each save.
 model BrowserCookies {

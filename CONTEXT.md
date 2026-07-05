@@ -50,15 +50,16 @@ The content a reader brings into a Session. Three types:
 SPA domains (X.com, LinkedIn, etc.) are currently blocked at the URL path with an explicit error.
 
 ### Session
-A single continuous reading of one article or document. Starts when the reader submits a URL or uploads a PDF; ends when they load a new source. **Currently in-memory only** — refreshing the page restarts the session (re-extracts article, re-detects highlights, chat history lost).
+A single continuous reading of one article or document. Starts when the reader submits a URL or uploads a PDF; ends when they load a new source. **Persisted by content hash** (`ReaderSession` model): the article, its HTML, and its detected highlights are stored keyed by sha256 of the raw text. The same article never pays for LLM highlight detection twice, and opening `/reader` restores the most recently read session. Chat history is not yet persisted.
 
-> **Future: Session Persistence** — sessions should be saved to the database so readers can resume where they left off, including highlights and chat history. Requires authentication. Not yet implemented.
+### API Key Gate
+`/api/concept` and `/api/reader/*` are guarded by middleware requiring a `reader_key` cookie matching the `READER_API_KEY` env var — the reader is single-user but lives on a public domain, and these endpoints drive paid Anthropic/Browserless calls. Unlock once per browser via `/api/unlock?key=<READER_API_KEY>`. With the env var unset (local dev), everything stays open. This replaces the need for user login.
 
 ---
 
 ## Future Work
 
-- **Session Persistence**: Save sessions to DB keyed by URL/file hash. Restore highlights and chat history on return visit. Requires user login.
+- **Chat History Persistence**: ConceptChat conversations are still in-memory; persisting them per session/highlight is the remaining piece of full session restore.
 - **Highlight Color Groups**: `key-argument` + `related-concept` in one color; `vocabulary` + `complex-sentence` in another. Currently all highlights render the same style.
 - **Highlight Quality**: Improve detection prompt to consistently produce 8–15 accurate highlights per article.
 - **Text Paste Source**: Add a "Paste text" tab to UrlInput. Extend `SessionSource` with `{ text: string; title?: string }`. Primary use case: long X.com threads and other SPA content (LinkedIn, WeChat articles) that can't be server-rendered. X.com is currently blocked with a "browser rendering required" error.
