@@ -53,6 +53,9 @@ export function useReaderSession(fetchFn: FetchFn = fetch) {
       const headers: HeadersInit = ('url' in source || 'text' in source || 'pastedHtml' in source) ? { 'Content-Type': 'application/json' } : {}
       const resp = await fetchFn('/api/reader/session', { method: 'POST', headers, body })
 
+      if (resp.status === 401) {
+        throw new Error('此浏览器未解锁 Reader：请用你保存的解锁链接（/api/unlock?key=…）访问一次，再重试。')
+      }
       if (!resp.ok || !resp.body) throw new Error(`Server error ${resp.status}`)
 
       let receivedSession = false
