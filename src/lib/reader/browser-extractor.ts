@@ -84,12 +84,26 @@ export function extractContent(html: string, browserTitle: string): { title: str
 
   const { document: doc } = parseHTML(html)
 
+  // Last-resort extraction: never let a crashy cleanup path throw away the
+  // user's content — serve a sanitized copy of the raw paste instead.
+  // (Re-parses because Readability/cleanup may have mutated `doc` mid-crash.)
+  const sanitizedFallback = (stage: string, err: unknown): string => {
+    console.error(
+      `[extractContent] ${stage} crashed — falling back to sanitized paste.`,
+      { error: err instanceof Error ? err.message : err, htmlHead: html.slice(0, 300) },
+    )
+    const { document: fresh } = parseHTML(html)
+    fresh.querySelectorAll('script, style, noscript, iframe, svg, nav').forEach(el => el.remove())
+    return fresh.documentElement?.innerHTML ?? html
+  }
+
   // Prefer <article> or <main> directly over Readability for SPA-rendered pages
   const articleEl = doc.querySelector('article') ?? doc.querySelector('main')
   let contentHtml: string
   let title = browserTitle
 
   if (articleEl && articleEl.textContent && articleEl.textContent.trim().length > 80) {
+    try {
     // 1. Remove X.com UI chrome: action bars, icons, user-card elements
     const uiSelectors = [
       '[role="group"]',
@@ -181,11 +195,21 @@ export function extractContent(html: string, browserTitle: string): { title: str
       .replace(/(<br\s*\/?>(\s*<br\s*\/?>){2,})/gi, '<br>')
       .replace(/\n{3,}/g, '\n\n')
 
+    } catch (err) {
+      contentHtml = sanitizedFallback('x.com cleanup', err)
+    }
   } else {
-    const reader = new Readability(doc)
-    const parsed = reader.parse()
-    contentHtml = parsed?.content ?? html
-    if (parsed?.title && parsed.title.length > title.length) title = parsed.title
+    // Readability(+linkedom) crashes on some clipboard fragments (e.g.
+    // "Cannot read properties of null (reading 'tagName')" on x.com article
+    // pastes).
+    try {
+      const reader = new Readability(doc)
+      const parsed = reader.parse()
+      contentHtml = parsed?.content ?? html
+      if (parsed?.title && parsed.title.length > title.length) title = parsed.title
+    } catch (err) {
+      contentHtml = sanitizedFallback('Readability', err)
+    }
   }
 
   // Strip tags for plain text
